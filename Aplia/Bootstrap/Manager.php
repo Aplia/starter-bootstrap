@@ -14,6 +14,9 @@ class Manager
                 $GLOBALS['STARTER_CONFIGS'] = array('prod');
             }
 
+            // Make sure INI file override order is what you expect, ie. extension then siteaccess
+            $GLOBALS['EZP_INI_ORDER_SITEACCESS'] = true;
+
             // If the new Starter INI structure is enabled we tell eZ publish to look in custom locations
             if (isset($GLOBALS['STARTER_RELOCATE_INI']) && $GLOBALS['STARTER_RELOCATE_INI']) {
                 // Move the INI override folder and siteaccess folder under the extension
@@ -30,6 +33,12 @@ class Manager
                     $GLOBALS['EZP_INI_SITEACCESS_FOLDERS'][] = "extension/site/settings/$config/siteaccess";
                 }
             }
+        }
+
+        // See if we should turn off file permissions
+        if (isset($GLOBALS['STARTER_DISABLE_FILE_PERMISSIONS']) && $GLOBALS['STARTER_DISABLE_FILE_PERMISSIONS']) {
+            // Turn off all file permission modifications
+            define('EZP_USE_FILE_PERMISSIONS', false);
         }
 
         // Check if the composer autoloader exists and load it if not loaded
