@@ -35,7 +35,7 @@ when running in production mode the system can create an optimized
 bootstrap file and config. This is done by running:
 
 ```
-php vendor/bin/bootstrap_build.php
+vendor/bin/bootstrap_build
 ```
 
 This creates files in the `build` folder which will be used instead of
@@ -46,7 +46,7 @@ this command to get updated code and config.
 The build files can be removed by running:
 
 ```
-php vendor/bin/bootstrap_clean.php
+vendor/bin/bootstrap_clean
 ```
 
 ## Development

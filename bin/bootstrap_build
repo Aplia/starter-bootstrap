@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 use Aplia\Bootstrap\Base;
 
@@ -8,13 +9,9 @@ require_once __DIR__ . '/../../../../config.php';
 $app = Base::app();
 
 $configCache = Base::pathJoin(array($app->buildPath, "config.json"));
-if (file_exists($configCache)) {
-    echo "Deleting $configCache\n";
-    unlink($configCache);
-}
+$app->writeOptimizedConfig($configCache);
+echo "Created $configCache\n";
 
 $bootstrap = Base::pathJoin(array($app->buildPath, "bootstrap.php"));
-if (file_exists($bootstrap)) {
-    echo "Deleting $bootstrap\n";
-    unlink($bootstrap);
-}
+$app->writeBootstrap($bootstrap);
+echo "Created $bootstrap\n";

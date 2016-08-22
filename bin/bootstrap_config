@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 use Aplia\Bootstrap\Base;
 use Aplia\Bootstrap\BaseConfig;

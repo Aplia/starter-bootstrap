@@ -17,9 +17,9 @@
         "vlucas/phpdotenv": "2.3.0"
     },
     "bin": [
-        "bin/bootstrap_build.php",
-        "bin/bootstrap_clean.php",
-        "bin/bootstrap_config.php"
+        "bin/bootstrap_build",
+        "bin/bootstrap_clean",
+        "bin/bootstrap_config"
     ],
     "autoload": {
         "psr-4": {
