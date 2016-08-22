@@ -11,8 +11,16 @@
     ],
     "require": {
         "php": ">=5.3",
-        "composer/composer": ">=1.0"
+        "composer/composer": ">=1.0",
+        "filp/whoops": "1.1.10",
+        "firephp/firephp-core": "0.4.0",
+        "vlucas/phpdotenv": "2.3.0"
     },
+    "bin": [
+        "bin/bootstrap_build.php",
+        "bin/bootstrap_clean.php",
+        "bin/bootstrap_config.php"
+    ],
     "autoload": {
         "psr-4": {
             "Aplia\\": "Aplia"

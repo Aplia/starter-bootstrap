@@ -19,8 +19,34 @@ Then add the following lines to `config.php`:
 
 ```
 // Bootstrap the system based on our configuration
-$manager = new Aplia\Bootstrap\Manager();
-$manager->bootstrap(__DIR__);
+$manager = require __DIR__ . '/vendor/aplia/starter-bootstrap/bootstrap.php';
+// Initialize from env and global variables
+$manager->configure(array(
+    'wwwRoot' => __DIR__,
+));
+// Bootstrap the system
+$manager->bootstrap();
+```
+
+## Optimizing for production
+
+To cut down on the amount of files it needs to process during the bootstrap
+when running in production mode the system can create an optimized
+bootstrap file and config. This is done by running:
+
+```
+php vendor/bin/bootstrap_build.php
+```
+
+This creates files in the `build` folder which will be used instead of
+dynamically setting up the bootstrap process.
+The deployment system for the site should be setup to always run
+this command to get updated code and config.
+
+The build files can be removed by running:
+
+```
+php vendor/bin/bootstrap_clean.php
 ```
 
 ## Development
