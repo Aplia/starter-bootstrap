@@ -13,20 +13,34 @@ class ErrorManager extends Run
     public $warningTypes;
     public $errorTypes;
     public $strictTypes;
+    public $errorLevels;
     public $logLevels;
     public $levelNames = array();
+
+    const ACTION_ERROR = 1;
+    const ACTION_LOG = 2;
+    const ACTION_IGNORE = 3;
 
     public function __construct()
     {
         $this->warningTypes = E_WARNING | E_CORE_WARNING | E_COMPILE_WARNING | E_USER_WARNING | E_DEPRECATED;
         $this->errorTypes = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_STRICT | E_RECOVERABLE_ERROR;
         $this->strictTypes = E_STRICT;
-        $this->logLevels = ~$this->errorTypes;
+        $this->logLevels = ~($this->errorTypes | $this->strictTypes);
+        $this->errorLevels = $this->errorTypes | $this->strictTypes;
     }
 
     /**
-     * Bitmaks of error codes which should be logged to eZDebug and should not
-     * be considered an error.
+     * Bitmask of error codes which should be considered an error
+     * and sent to the erro handler.
+     */
+    public function setErrorLevels($levels)
+    {
+        $this->errorLevels = $levels;
+    }
+
+    /**
+     * Bitmask of error codes which should be logged to eZDebug.
      */
     public function setLogLevels($levels)
     {
@@ -34,15 +48,19 @@ class ErrorManager extends Run
     }
 
     /**
-     * Returns true if the error should be logged, or
-     * false if it should be treated as error.
+     * Returns ACTION_ERROR if the level is considered an error,
+     * ACTION_LOG if it should be logged or ACTION_IGNORE if it
+     * should be ignored.
      */
-    public function shouldLogError($level, $message, $file, $line)
+    public function determineAction($level, $message, $file, $line)
     {
-        if ($level & error_reporting() & $this->logLevels) {
-            return true;
+        if ($level & $this->errorLevels) {
+            return self::ACTION_ERROR;
         }
-        return false;
+        if ($level & $this->logLevels) {
+            return self::ACTION_LOG;
+        }
+        return self::ACTION_IGNORE;
     }
 
     /**
@@ -82,8 +100,18 @@ class ErrorManager extends Run
      */
     public function handleError($level, $message, $file = null, $line = null)
     {
+        if (!($level & error_reporting())) {
+            return true;
+        }
+
         // Catch the error before Whoops and determine if we should just log it with eZDebug
-        if ($this->shouldLogError($level, $message, $file, $line)) {
+        $action = $this->determineAction($level, $message, $file, $line);
+        if ($action == self::ACTION_IGNORE) {
+            return true;
+        }
+
+        if ($action == self::ACTION_LOG) {
+            // Log the error by sending it to eZDebug.
             $str = "$message in $file on line $line";
             $errname = $this->getErrorName($level);
             if ($errname === null) {
@@ -105,6 +133,7 @@ class ErrorManager extends Run
             return true;
         }
 
+        // Let Whoops handle it as an error
         return parent::handleError($level, $message, $file, $line);
     }
 }

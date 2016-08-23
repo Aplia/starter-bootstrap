@@ -208,18 +208,34 @@ class BaseApp
         }
     }
 
-    public function bootstrapErrorHandler($register = false)
+    public function bootstrapErrorHandler($register = false, $errorLevel=null)
     {
         // Bootstrap Whoops error handler, this is the only supported handler for now
-        return $this->bootstrapWhoops($register);
+        return $this->bootstrapWhoops($register, $errorLevel);
     }
 
-    public function bootstrapWhoops($register = false)
+    public function bootstrapWhoops($register = false, $errorLevel=null)
     {
         if (class_exists('\\Whoops\\Run')) {
             // A custom Whoops runner which filters out certain errors to eZDebug
             $whoops = new \Aplia\Bootstrap\ErrorManager;
             $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
+            if ($errorLevel === null) {
+                $errorLevel = 'error';
+            }
+            if ($errorLevel == 'error') {
+                $whoops->setErrorLevels($whoops->errorTypes | $whoops->strictTypes);
+                $whoops->setLogLevels(~($whoops->errorTypes | $whoops->strictTypes));
+            } elseif ($errorLevel == 'warning') {
+                $whoops->setErrorLevels($whoops->warningTypes | $whoops->errorTypes | $whoops->strictTypes);
+                $whoops->setLogLevels(~($whoops->warningTypes | $whoops->errorTypes | $whoops->strictTypes));
+            } elseif ($errorLevel == 'notice') {
+                $whoops->setErrorLevels(-1);
+                $whoops->setLogLevels(0);
+            } elseif ($errorLevel == 'ignore') {
+                $whoops->setErrorLevels(0);
+                $whoops->setLogLevels(-1);
+            }
             if ($register) {
                 $whoops->register();
             }

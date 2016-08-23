@@ -88,6 +88,7 @@ if (isset($GLOBALS['STARTER_ERROR_HANDLER']) ? $GLOBALS['STARTER_ERROR_HANDLER']
     }
 
     $app = \Aplia\Bootstrap\Base::app();
+    $errorLevel = isset($GLOBALS['STARTER_ERROR_LEVEL']) ? $GLOBALS['STARTER_ERROR_LEVEL'] : 'error';
 
     if ($app->errorHandler) {
         // There is already an error handler installed, most likely for bootstrap debugging purpose
@@ -110,7 +111,7 @@ if (isset($GLOBALS['STARTER_ERROR_HANDLER']) ? $GLOBALS['STARTER_ERROR_HANDLER']
                 \Aplia\Bootstrap\Base::setLogger(array($app, 'logWebConsole'));
             }
             // Initialize and register error handler
-            $app->errorHandler = $app->bootstrapErrorHandler(true);
+            $app->errorHandler = $app->bootstrapErrorHandler(true, $errorLevel);
         }
     } elseif ($errorMode == 'remote') {
         // Setup a remote error handler
