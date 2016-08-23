@@ -38,7 +38,7 @@ if (file_exists($wwwRoot . '/vendor/autoload.php') && !class_exists('\\Composer\
     require_once $wwwRoot . '/vendor/autoload.php';
 }
 
-if (isset($GLOBALS['STARTER_ERROR_HANDLER']) ? $GLOBALS['STARTER_ERROR_HANDLER'] : true) {
+if (isset($GLOBALS['STARTER_ERROR_HANDLER']) ? $GLOBALS['STARTER_ERROR_HANDLER'] : false) {
     // Tell eZDebug to handle write* calls internally and not install an error handler
     // We use our own error handler for PHP errors.
     $GLOBALS['ezpDebug'] = array(
