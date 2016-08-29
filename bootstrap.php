@@ -33,4 +33,18 @@ $GLOBALS['STARTER_MANAGER'] = new Aplia\Bootstrap\Manager();
 if ($errorHandler !== null) {
     $GLOBALS['STARTER_MANAGER']->errorHandler = $errorHandler;
 }
+// Auto-initialize the manager unless told not to
+if (!isset($GLOBALS['STARTER_MANAGER_AUTO']) || $GLOBALS['STARTER_MANAGER_AUTO']) {
+    $options = array();
+    if (!isset($_ENV['WWW_ROOT'])) {
+        $options['wwwRoot'] = realpath(__DIR__ . "/../../../");
+    }
+    if (isset($GLOBALS['STARTER_MANAGER_OPTIONS'])) {
+        $options = array_merge($options, $GLOBALS['STARTER_MANAGER_OPTIONS']);
+    }
+    // Initialize from env and global variables
+    $GLOBALS['STARTER_MANAGER']->configure($options);
+    // Bootstrap the system
+    $GLOBALS['STARTER_MANAGER']->bootstrap();
+}
 return $GLOBALS['STARTER_MANAGER'];
