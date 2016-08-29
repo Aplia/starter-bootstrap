@@ -1,0 +1,30 @@
+#!/usr/bin/env php
+<?php
+require_once __DIR__ . '/../../../../config.php';
+require_once __DIR__ . '/../../../../autoload.php';
+
+$cli = \eZCLI::instance();
+$script = \eZScript::instance(
+    array(
+        'description' => "Lists all active extensions\n",
+        'use-session' => false,
+        'use-modules' => false,
+        'use-extensions' => true
+    )
+);
+
+$script->startup();
+$options = $script->getOptions();
+$script->initialize();
+
+$extensions = array();
+$basePath = \eZExtension::baseDirectory();
+foreach (array_reverse(\eZExtension::activeExtensions('default')) as $extensionName) {
+    $extensions[] = array(
+        'name' => $extensionName,
+        // Path is hardcoded for now
+        'path' => $basePath . '/' . $extensionName,
+    );
+}
+$jsonOpts = version_compare(PHP_VERSION, '5.4.0') >= 0 ? (JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) : 0;
+echo json_encode($extensions, $jsonOpts);

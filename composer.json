@@ -17,6 +17,7 @@
         "vlucas/phpdotenv": "2.3.0"
     },
     "bin": [
+        "bin/ezp_dump_extensions",
         "bin/bootstrap_build",
         "bin/bootstrap_clean",
         "bin/bootstrap_config"
