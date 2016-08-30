@@ -25,6 +25,10 @@ if (isset($GLOBALS['STARTER_BASE_DEBUG']) && $GLOBALS['STARTER_BASE_DEBUG']) {
     if (class_exists('\\Whoops\\Run')) {
         $errorHandler = new \Whoops\Run;
         $errorHandler->pushHandler(new \Whoops\Handler\PrettyPageHandler);
+        // Additional handler for plain-text but will only activate for CLI
+        $textHandler = new \Whoops\Handler\PlainTextHandler;
+        $textHandler->outputOnlyIfCommandLine(true);
+        $errorHandler->pushHandler($textHandler);
         $errorHandler->register();
     }
 }

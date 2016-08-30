@@ -219,7 +219,13 @@ class BaseApp
         if (class_exists('\\Whoops\\Run')) {
             // A custom Whoops runner which filters out certain errors to eZDebug
             $whoops = new \Aplia\Bootstrap\ErrorManager;
+            // Install a handler for HTTP requests, outputs HTML
             $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
+            // Additional handler for plain-text but will only activate for CLI
+            $textHandler = new \Whoops\Handler\PlainTextHandler;
+            $textHandler->outputOnlyIfCommandLine(true);
+            $whoops->pushHandler($textHandler);
+
             if ($errorLevel === null) {
                 $errorLevel = 'error';
             }
