@@ -96,6 +96,16 @@ $GLOBALS['STARTER_BASE_DUMP_CONFIG'] = true;
 
 Using this will end the process immediately.
 
+To see all functional calls used during bootstrapping set the `STARTER_DEBUG_TRACE`
+global variable to `true`.
+
+```
+$GLOBALS['STARTER_DEBUG_TRACE'] = true;
+```
+
+Filename and options for the trace are controlled by `STARTER_DEBUG_TRACE_FILE` and
+`STARTER_DEBUG_TRACE_OPTIONS` global variables.
+
 ## Using a custom BaseConfig class
 
 The config class that is used to store the base configuration can be overridden by setting

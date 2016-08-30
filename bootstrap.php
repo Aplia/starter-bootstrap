@@ -18,6 +18,11 @@ if (!class_exists('\\Composer\\Autoload\\ClassLoader', false)) {
     }
 }
 
+if (isset($GLOBALS['STARTER_DEBUG_TRACE']) ? $GLOBALS['STARTER_DEBUG_TRACE'] : false) {
+    xdebug_start_trace(isset($GLOBALS['STARTER_DEBUG_TRACE_FILE']) ? $GLOBALS['STARTER_DEBUG_TRACE_FILE'] : "debug-trace",
+                       isset($GLOBALS['STARTER_DEBUG_TRACE_OPTIONS']) ? $GLOBALS['STARTER_DEBUG_TRACE_OPTIONS'] : 0);
+    $GLOBALS['STARTER_DEBUG_TRACE_STARTED'] = true;
+}
 // If the bootstrap process needs to be debugged for errors set $GLOBALS['STARTER_BASE_DEBUG'] to true
 // This will install the Whoops error handler as early as possible
 $errorHandler = null;
@@ -51,4 +56,9 @@ if (!isset($GLOBALS['STARTER_MANAGER_AUTO']) || $GLOBALS['STARTER_MANAGER_AUTO']
     // Bootstrap the system
     $GLOBALS['STARTER_MANAGER']->bootstrap();
 }
+
+if (isset($GLOBALS['STARTER_DEBUG_TRACE_STARTED']) ? $GLOBALS['STARTER_DEBUG_TRACE_STARTED'] : false) {
+    xdebug_stop_trace();
+}
+
 return $GLOBALS['STARTER_MANAGER'];
