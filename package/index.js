@@ -49,7 +49,8 @@ function jsFlow(config) {
 function buildStyles(config) {
     var cssTasks = [],
         config = Merge(defaultConfig, config),
-        bundles = config.bundles;
+        assets = config.assets || {},
+        bundles = assets.bundles;
     for(var prop in bundles) {
         if (bundles[prop].type == 'css') {
             var subPath = Path.dirname(bundles[prop].path);
@@ -70,7 +71,8 @@ function buildStyles(config) {
 function buildScripts(config) {
     var jsTasks = [],
         config = Merge(defaultConfig, config),
-        bundles = config.bundles;
+        assets = config.assets || {},
+        bundles = assets.bundles;
     for(var prop in bundles) {
         if (bundles[prop].type == 'js') {
             var subPath = Path.dirname(bundles[prop].path);
@@ -103,7 +105,8 @@ function cleanAssets(config) {
 
 function watchAssets(config) {
     var config = Merge(defaultConfig, config),
-        bundles = config.bundles;
+        assets = config.assets || {},
+        bundles = assets.bundles;
     for(var prop in bundles) {
         if (bundles[prop].type == 'css') {
             Gulp.watch(bundles[prop].files, config.styleTasks);
