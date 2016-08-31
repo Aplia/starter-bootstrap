@@ -1,6 +1,9 @@
 <?php
 namespace Aplia\Bundle;
 
+use eZSys;
+use eZINI;
+
 /**
  * Manager for assets which can expand relative paths defined in INI files to
  * full paths (relative to www-root) by looking up files from extensions using
@@ -9,6 +12,7 @@ namespace Aplia\Bundle;
 class Manager
 {
     public $bundles = array();
+    public $dependencies = array();
     public $missingAssets = array();
 
     public function __construct($bundles=array())
@@ -22,7 +26,7 @@ class Manager
      */
     public function discoverAssets()
     {
-        $designIni = \eZINI::instance('design.ini');
+        $designIni = eZINI::instance('design.ini');
         $bundles = array(
             'frontendCss' => array(
                 'type' => 'css',
@@ -68,7 +72,28 @@ class Manager
         );
         $bundles = $this->expandAssets($bundles);
 
+        $designIni->findInputFiles($iniFiles, $iniPath);
+        foreach ($iniFiles as $path) {
+            $path = self::relativePath($path);
+            $this->dependencies[] = $path;
+        }
+
         $this->bundles = array_merge($this->bundles, $bundles);
+    }
+
+    public static function relativePath($path)
+    {
+        $wwwRoot = realpath(eZSys::wwwPath()) . "/";
+        $newPath = realpath($path);
+        if (!$newPath) {
+            $newPath = $path;
+        }
+        $len = strlen($wwwRoot);
+        if (substr($newPath, 0, $len) == $wwwRoot) {
+            return substr($newPath, $len);
+        } else {
+            return $newPath;
+        }
     }
 
     /**
