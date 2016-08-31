@@ -90,6 +90,9 @@ class Manager
 
     public function expandPath($assetList, $subFolder)
     {
+        $oe = eZINI::instance('ezoe.ini');
+        $skin = $oe->hasVariable('EditorSettings', 'Skin') ? $oe->variable('EditorSettings', 'Skin') : 'default';
+
         $expandedList = array();
         $bases = \eZTemplateDesignResource::allDesignBases('no');
         foreach ($assetList as $assetPath) {
@@ -97,6 +100,7 @@ class Manager
                 // TODO: What to do with jscore entries?
             } else {
                 $triedFiles = array();
+                $assetPath = str_replace('<skin>', $skin, $assetPath);
                 $match = \eZTemplateDesignResource::fileMatch( $bases, $subFolder, $assetPath, $triedFiles );
                 if ( $match === false ) {
                     $this->missingAssets[] = array(
