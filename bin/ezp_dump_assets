@@ -21,59 +21,13 @@ $script->initialize();
 
 $showMissing = !$options['hide-missing'];
 
-$basePath = \eZExtension::baseDirectory();
-$designIni = \eZINI::instance('design.ini');
-$assets = array(
-    'frontendCss' => array(
-        'type' => 'css',
-        'path' => 'css/frontend.css',
-        'files' => array_merge(
-            $designIni->hasVariable('StylesheetSettings', 'PreFrontendCSSFileList') ? $designIni->variable('StylesheetSettings', 'PreFrontendCSSFileList') : array(),
-            $designIni->hasVariable('StylesheetSettings', 'FrontendCSSFileList') ? $designIni->variable('StylesheetSettings', 'FrontendCSSFileList') : array(),
-            $designIni->hasVariable('StylesheetSettings', 'PostFrontendCSSFileList') ? $designIni->variable('StylesheetSettings', 'PostFrontendCSSFileList') : array()
-        ),
-    ),
-    'frontendJs' => array(
-        'type' => 'js',
-        'path' => 'js/frontend.js',
-        'files' => array_merge(
-            $designIni->hasVariable('JavaScriptSettings', 'PreFrontendJavaScriptList') ? $designIni->variable('JavaScriptSettings', 'PreFrontendJavaScriptList') : array(),
-            $designIni->hasVariable('JavaScriptSettings', 'FrontendJavaScriptList') ? $designIni->variable('JavaScriptSettings', 'FrontendJavaScriptList') : array(),
-            $designIni->hasVariable('JavaScriptSettings', 'PostFrontendJavaScriptList') ? $designIni->variable('JavaScriptSettings', 'PostFrontendJavaScriptList') : array()
-        ),
-    ),
-    'backendCss' => array(
-        'type' => 'js',
-        'path' => 'css/backend.css',
-        'files' => array_merge(
-            $designIni->hasVariable('StylesheetSettings', 'PreBackendCSSFileList') ? $designIni->variable('StylesheetSettings', 'PreBackendCSSFileList') : array(),
-            $designIni->hasVariable('StylesheetSettings', 'BackendCSSFileList') ? $designIni->variable('StylesheetSettings', 'BackendCSSFileList') : array(),
-            $designIni->hasVariable('StylesheetSettings', 'PostBackendCSSFileList') ? $designIni->variable('StylesheetSettings', 'PostBackendCSSFileList') : array()
-        ),
-    ),
-    'backendJs' => array(
-        'type' => 'js',
-        'path' => 'js/backend.js',
-        'files' => array_merge(
-            $designIni->hasVariable('JavaScriptSettings', 'PreBackendJavaScriptList') ? $designIni->variable('JavaScriptSettings', 'PreBackendJavaScriptList') : array(),
-            $designIni->hasVariable('JavaScriptSettings', 'BackendJavaScriptList') ? $designIni->variable('JavaScriptSettings', 'BackendJavaScriptList') : array(),
-            $designIni->hasVariable('JavaScriptSettings', 'PostBackendJavaScriptList') ? $designIni->variable('JavaScriptSettings', 'PostBackendJavaScriptList') : array()
-        ),
-    ),
-    'editorCss' => array(
-        'type' => 'css',
-        'path' => 'css/editor.css',
-        'files' => $designIni->variable('StylesheetSettings', 'EditorCSSFileList'),
-    ),
-);
-
 function print_error($msg, $eol=true)
 {
     fwrite(STDERR, $msg . ($eol ? "\n" : ""));
 }
 
-$bundleManager = new \Aplia\Bundle\Manager($assets);
-$bundleManager->expandAssets();
+$bundleManager = new \Aplia\Bundle\Manager();
+$bundleManager->discoverAssets();
 
 $jsonOpts = version_compare(PHP_VERSION, '5.4.0') >= 0 ? (JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) : 0;
 
