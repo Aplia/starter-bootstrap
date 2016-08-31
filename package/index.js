@@ -106,16 +106,25 @@ function cleanAssets(config) {
 function watchAssets(config) {
     var config = Merge(defaultConfig, config),
         assets = config.assets || {},
-        bundles = assets.bundles;
+        bundles = assets.bundles,
+        dependencies = assets.dependencies || [],
+        cssDeps = [],
+        jsDeps = [];
     for(var prop in bundles) {
         if (bundles[prop].type == 'css') {
-            Gulp.watch(bundles[prop].files, config.styleTasks);
+            cssDeps = cssDeps.concat(bundles[prop].files);
         }
     }
     for(var prop in bundles) {
         if (bundles[prop].type == 'js') {
-            Gulp.watch(bundles[prop].files, config.scriptTasks);
+            jsDeps = jsDeps.concat(bundles[prop].files);
         }
+    }
+    if (cssDeps) {
+        Gulp.watch(cssDeps.concat(dependencies), config.styleTasks);
+    }
+    if (jsDeps) {
+        Gulp.watch(jsDeps.concat(dependencies), config.scriptTasks);
     }
 }
 
