@@ -18,6 +18,7 @@
     },
     "bin": [
         "bin/ezp_dump_extensions",
+        "bin/ezp_dump_assets",
         "bin/bootstrap_build",
         "bin/bootstrap_clean",
         "bin/bootstrap_config"
