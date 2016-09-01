@@ -14,8 +14,8 @@ var Gulp = require('gulp'),
 
 var defaultConfig = {
     urlPrefix: '/static',
-    staticPath: 'static',
-    buildPath: 'build/static',
+    staticPath: 'build/static',
+    buildPath: 'build',
     // Tasks to run whenever css files has changed
     styleTasks: ['styles', 'manifest'],
     // Tasks to run whenever js files has changed
@@ -100,7 +100,7 @@ function buildManifest(config) {
 
 function cleanAssets(config) {
     var config = Merge(defaultConfig, config);
-    return Del([config.buildPath + '/*', config.staticPath + '/*']);
+    return Del([config.buildPath + '/manifest.json', config.staticPath + '/*']);
 }
 
 function watchAssets(config) {
