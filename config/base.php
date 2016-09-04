@@ -18,11 +18,14 @@ if ($envErrorHandler !== null) {
 return array(
     'app' => array(
         'errorMode' => $errorMode,
+        'errorLevel' => 'error',
         'bootstrap' => array(
             'classes' => array(
                 'starter.base' => 'Aplia\Bootstrap\BaseApp',
             ),
         ),
-        'buildPath' =>'build/bootstrap',
+        'buildPath' => 'build/bootstrap',
+        // Controls how the error handler behaves, see dev.php and prod.php
+        'debug' => false,
     ),
 );

@@ -90,7 +90,7 @@ class Ezp
             }
 
             $app = \Aplia\Bootstrap\Base::app();
-            $errorLevel = isset($GLOBALS['STARTER_ERROR_LEVEL']) ? $GLOBALS['STARTER_ERROR_LEVEL'] : 'error';
+            $errorLevel = isset($GLOBALS['STARTER_ERROR_LEVEL']) ? $GLOBALS['STARTER_ERROR_LEVEL'] : \Aplia\Bootstrap\Base::config('app.errorLevel', 'error');
 
             if ($app->errorHandler) {
                 // There is already an error handler installed, most likely for bootstrap debugging purpose

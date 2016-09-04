@@ -250,12 +250,26 @@ return \$app;
         if (class_exists('\\Whoops\\Run')) {
             // A custom Whoops runner which filters out certain errors to eZDebug
             $whoops = new \Aplia\Bootstrap\ErrorManager;
-            // Install a handler for HTTP requests, outputs HTML
-            $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
-            // Additional handler for plain-text but will only activate for CLI
-            $textHandler = new \Whoops\Handler\PlainTextHandler;
-            $textHandler->outputOnlyIfCommandLine(true);
-            $whoops->pushHandler($textHandler);
+            $isDebugEnabled = $this->config->get('app.debug');
+
+            if ($isDebugEnabled) {
+                // Install a handler for HTTP requests, outputs HTML
+                $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
+                // Additional handler for plain-text but will only activate for CLI
+                $textHandler = new \Whoops\Handler\PlainTextHandler;
+                $textHandler->outputOnlyIfCommandLine(true);
+                $whoops->pushHandler($textHandler);
+            } else {
+                // Log all errors to eZDebug by sing a PlainTextHandler
+                $errorLogger = new \Whoops\Handler\PlainTextHandler;
+                $errorLogger->outputOnlyIfCommandLine(true);
+                $errorLogger->loggerOnly(true);
+                $errorLogger->setLogger(new \Aplia\Support\LoggerAdapter);
+                $whoops->pushHandler($errorLogger);
+                // Install a handler for showing Server Errors (500)
+                $serverError = new \Aplia\Error\Handler\ServerErrorHandler;
+                $whoops->pushHandler($serverError);
+            }
 
             if ($errorLevel === null) {
                 $errorLevel = 'error';
@@ -273,6 +287,7 @@ return \$app;
                 $whoops->setErrorLevels(0);
                 $whoops->setLogLevels(-1);
             }
+
             if ($register) {
                 $whoops->register();
             }
