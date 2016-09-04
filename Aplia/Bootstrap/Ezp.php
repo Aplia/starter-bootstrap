@@ -40,12 +40,6 @@ class Ezp
             define('EZP_USE_FILE_PERMISSIONS', false);
         }
 
-        // Check if the composer autoloader exists and load it if not loaded
-        $wwwRoot = \Aplia\Bootstrap\Base::config('ezp.path');
-        if (file_exists($wwwRoot . '/vendor/autoload.php') && !class_exists('\\Composer\\Autoload\\ClassLoader')) {
-            require_once $wwwRoot . '/vendor/autoload.php';
-        }
-
         if (isset($GLOBALS['STARTER_ERROR_HANDLER']) ? $GLOBALS['STARTER_ERROR_HANDLER'] : false) {
             // Tell eZDebug to handle write* calls internally and not install an error handler
             // We use our own error handler for PHP errors.
