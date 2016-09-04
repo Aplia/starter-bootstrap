@@ -103,26 +103,29 @@ class Manager
 
     public function bootstrap()
     {
-        $this->bootstrapRoot();
-        $this->bootstrapEnv();
-        $this->bootstrapErrorMode();
-        $this->bootstrapCore();
+        // $this->bootstrapRoot();
+        // $this->bootstrapEnv();
+        // $this->bootstrapErrorMode();
+        // $this->bootstrapCore();
 
         /////////////////////////////////////////////
         // Create the base application and configure
         /////////////////////////////////////////////
 
         $configData = array(
-            'app' => array(
+            'www' => array(
                 'path' => $_ENV["WWW_ROOT"],
-                'errorMode' => $this->errorMode,
             ),
-            'composer' => array(
-                'path' => Base::env('VENDOR_ROOT', 'vendor'),
+            'app' => array(
+                'path' => $_ENV["APP_ROOT"],
+                // 'errorMode' => $this->errorMode,
             ),
-            'ezp' => array(
-                'path' => $_ENV['EZP_ROOT'],
-            ),
+            // 'composer' => array(
+            //     'path' => Base::env('VENDOR_ROOT', 'vendor'),
+            // ),
+            // 'ezp' => array(
+            //     'path' => $_ENV['EZP_ROOT'],
+            // ),
         );
         if (isset($GLOBALS['STARTER_CONFIG_CLASS'])) {
             $config = new $GLOBALS['STARTER_CONFIG_CLASS']($configData);
@@ -146,20 +149,22 @@ class Manager
                 $app->errorHandler = $this->errorHandler;
             }
 
-            $configNames = isset($GLOBALS['STARTER_BASE_CONFIGS']) ? $GLOBALS['STARTER_BASE_CONFIGS'] : array('base', 'ezp');
-            if (isset($GLOBALS['STARTER_CONFIGS'])) {
-                $configNames = array_merge($configNames, $GLOBALS['STARTER_CONFIGS']);
-            } else {
+            $configNames = array_merge(
+                isset($GLOBALS['STARTER_BASE_CONFIGS']) ? $GLOBALS['STARTER_BASE_CONFIGS'] : array('base'),
+                // The default framework is eZ publish
+                isset($GLOBALS['STARTER_FRAMEWORK']) ? array($GLOBALS['STARTER_FRAMEWORK']) : array('ezp'),
                 // We default to 'prod' when nothing is defined, this is the safest option
-                $configNames[] = 'prod';
-            }
+                isset($GLOBALS['STARTER_CONFIGS']) ? $GLOBALS['STARTER_CONFIGS'] : array('prod')
+            );
             // The bootstrap config is always the first to run
             array_unshift($configNames, 'bootstrap');
             // The local config is always loaded last
             $configNames[] = 'local';
 
             $app->configure($configNames);
-            $app->init();
+            if (isset($GLOBALS['STARTER_BASE_INIT']) ? $GLOBALS['STARTER_BASE_INIT'] : true) {
+                $app->init();
+            }
         }
 
         if (isset($GLOBALS['STARTER_BASE_DUMP_CONFIG']) && $GLOBALS['STARTER_BASE_DUMP_CONFIG']) {
@@ -171,110 +176,110 @@ class Manager
         return $app;
     }
 
-    public function bootstrapRoot()
-    {
-        // Figure out the root path to all the code, store in env
-        // WWW_ROOT is the location of the site where the web serves files, might be location of eZ publish as well
-        if (!isset($_ENV['WWW_ROOT'])) {
-            if ($this->wwwRoot !== null) {
-                if (substr($this->wwwRoot, -1, 1) != '/') {
-                    $this->wwwRoot .= '/';
-                }
-                putenv("WWW_ROOT=" . $_ENV['WWW_ROOT'] = $this->wwwRoot);
-            } else {
-                // Assume we are installed inside vendor folder, go back outside vendor folder
-                putenv("WWW_ROOT=" . $_ENV['WWW_ROOT'] = realpath(__DIR__ . '/../../../../../'));
-                $this->wwwRoot = $_ENV['WWW_ROOT'];
-            }
-        }
-    }
+    // public function bootstrapRoot()
+    // {
+    //     // Figure out the root path to all the code, store in env
+    //     // WWW_ROOT is the location of the site where the web serves files, might be location of eZ publish as well
+    //     if (!isset($_ENV['WWW_ROOT'])) {
+    //         if ($this->wwwRoot !== null) {
+    //             if (substr($this->wwwRoot, -1, 1) != '/') {
+    //                 $this->wwwRoot .= '/';
+    //             }
+    //             putenv("WWW_ROOT=" . $_ENV['WWW_ROOT'] = $this->wwwRoot);
+    //         } else {
+    //             // Assume we are installed inside vendor folder, go back outside vendor folder
+    //             putenv("WWW_ROOT=" . $_ENV['WWW_ROOT'] = realpath(__DIR__ . '/../../../../../'));
+    //             $this->wwwRoot = $_ENV['WWW_ROOT'];
+    //         }
+    //     }
+    // }
 
-    public function bootstrapErrorMode()
-    {
-        $mode = Arr::get($GLOBALS, 'STARTER_BOOTSTRAP_MODE', $this->mode);
+    // public function bootstrapErrorMode()
+    // {
+    //     $mode = Arr::get($GLOBALS, 'STARTER_BOOTSTRAP_MODE', $this->mode);
 
-        // Try and load settings from .env, if set they override local variables
-        $envErrorHandler = Base::env('ERROR_MODE_' . strtoupper($mode), null);
-        if ($envErrorHandler === null) {
-            $envErrorHandler = Base::env('ERROR_MODE', null);
-        }
-        if ($envErrorHandler !== null) {
-            $this->errorMode = $envErrorHandler;
-        } else {
-            if (isset($GLOBALS['STARTER_ERROR_MODE'])) {
-                $this->errorMode = $GLOBALS['STARTER_ERROR_MODE'];
-            }
-        }
-    }
+    //     // Try and load settings from .env, if set they override local variables
+    //     $envErrorHandler = Base::env('ERROR_MODE_' . strtoupper($mode), null);
+    //     if ($envErrorHandler === null) {
+    //         $envErrorHandler = Base::env('ERROR_MODE', null);
+    //     }
+    //     if ($envErrorHandler !== null) {
+    //         $this->errorMode = $envErrorHandler;
+    //     } else {
+    //         if (isset($GLOBALS['STARTER_ERROR_MODE'])) {
+    //             $this->errorMode = $GLOBALS['STARTER_ERROR_MODE'];
+    //         }
+    //     }
+    // }
 
     public function bootstrapCore()
     {
-        // VENDOR_ROOT is the composer vendor folder, usually vendor in the WWW_ROOT
-        if (!isset($_ENV['VENDOR_ROOT'])) {
-            if ($this->vendorRoot !== null) {
-                putenv("VENDOR_ROOT=" . $_ENV['VENDOR_ROOT'] = $this->vendorRoot);
-            } elseif (file_exists($_ENV['WWW_ROOT'] . '/vendor')) {
-                putenv("VENDOR_ROOT=" . $_ENV['VENDOR_ROOT'] = realpath($_ENV['WWW_ROOT'] . '/vendor'));
-            } else {
-                putenv("VENDOR_ROOT=" . $_ENV['VENDOR_ROOT'] = realpath(__DIR__ . '/../../../../vendor/'));
-            }
-            $this->vendorRoot = $_ENV['VENDOR_ROOT'];
-        }
+        // // VENDOR_ROOT is the composer vendor folder, usually vendor in the WWW_ROOT
+        // if (!isset($_ENV['VENDOR_ROOT'])) {
+        //     if ($this->vendorRoot !== null) {
+        //         putenv("VENDOR_ROOT=" . $_ENV['VENDOR_ROOT'] = $this->vendorRoot);
+        //     } elseif (file_exists($_ENV['WWW_ROOT'] . '/vendor')) {
+        //         putenv("VENDOR_ROOT=" . $_ENV['VENDOR_ROOT'] = realpath($_ENV['WWW_ROOT'] . '/vendor'));
+        //     } else {
+        //         putenv("VENDOR_ROOT=" . $_ENV['VENDOR_ROOT'] = realpath(__DIR__ . '/../../../../vendor/'));
+        //     }
+        //     $this->vendorRoot = $_ENV['VENDOR_ROOT'];
+        // }
 
-        // Detect the ezp root unless a path is supplied
-        // The folder is either detected in the www-root or installed inside vendor/
-        if (!isset($_ENV['EZP_ROOT'])) {
-            $foundKernel = false;
-            if ($this->ezpRoot !== null) {
-                putenv("EZP_ROOT=" . $_ENV['EZP_ROOT'] = $this->ezpRoot);
-                $foundKernel = true;
-            }
-            if (!$foundKernel) {
-                if (file_exists($_ENV['WWW_ROOT'] . '/lib/ezutils') && file_exists($_ENV['WWW_ROOT'] . '/lib/version.php')) {
-                    putenv("EZP_ROOT=" . $_ENV['EZP_ROOT'] = realpath($_ENV['WWW_ROOT']));
-                    $foundKernel = true;
-                }
-                if (!$foundKernel) {
-                    foreach (['aplia/ezpublish-legacy', 'ezsystems/ezpublish-legacy'] as $ezpPath) {
-                        if (file_exists($_ENV['VENDOR_ROOT'] . $ezpPath)) {
-                            putenv("EZP_ROOT=" . $_ENV['EZP_ROOT'] = realpath($_ENV['VENDOR_ROOT'] . $ezpPath));
-                            $foundKernel = true;
-                            break;
-                        }
-                    }
-                }
-            }
-            if (!isset($_ENV['EZP_ROOT'])) {
-                if (PHP_SAPI != 'cli') {
-                    header('Content-Type: text/html; charset=utf-8');
-                    header('503 Service Unavailable');
-                    if (!isset($GLOBALS['STARTER_BOOTSTRAP_DEV']) || !$GLOBALS['STARTER_BOOTSTRAP_DEV']) {
-                        echo "<h1>503 Service Unavailable</h1>";
-                    } else {
-                        echo "<h1>eZ publish root folder required</h1>\n";
-                        echo "<p>No root folder for eZ publish has been configured, a folder could not be detected either. Please set the \$_ENV['EZP_ROOT'] variable. See README.md for details.</p>\n";
-                    }
-                    exit();
-                }
-            }
-            $this->ezpRoot = $_ENV['EZP_ROOT'];
-        }
+        // // Detect the ezp root unless a path is supplied
+        // // The folder is either detected in the www-root or installed inside vendor/
+        // if (!isset($_ENV['EZP_ROOT'])) {
+        //     $foundKernel = false;
+        //     if ($this->ezpRoot !== null) {
+        //         putenv("EZP_ROOT=" . $_ENV['EZP_ROOT'] = $this->ezpRoot);
+        //         $foundKernel = true;
+        //     }
+        //     if (!$foundKernel) {
+        //         if (file_exists($_ENV['WWW_ROOT'] . '/lib/ezutils') && file_exists($_ENV['WWW_ROOT'] . '/lib/version.php')) {
+        //             putenv("EZP_ROOT=" . $_ENV['EZP_ROOT'] = realpath($_ENV['WWW_ROOT']));
+        //             $foundKernel = true;
+        //         }
+        //         if (!$foundKernel) {
+        //             foreach (['aplia/ezpublish-legacy', 'ezsystems/ezpublish-legacy'] as $ezpPath) {
+        //                 if (file_exists($_ENV['VENDOR_ROOT'] . $ezpPath)) {
+        //                     putenv("EZP_ROOT=" . $_ENV['EZP_ROOT'] = realpath($_ENV['VENDOR_ROOT'] . $ezpPath));
+        //                     $foundKernel = true;
+        //                     break;
+        //                 }
+        //             }
+        //         }
+        //     }
+        //     if (!isset($_ENV['EZP_ROOT'])) {
+        //         if (PHP_SAPI != 'cli') {
+        //             header('Content-Type: text/html; charset=utf-8');
+        //             header('503 Service Unavailable');
+        //             if (!isset($GLOBALS['STARTER_BOOTSTRAP_DEV']) || !$GLOBALS['STARTER_BOOTSTRAP_DEV']) {
+        //                 echo "<h1>503 Service Unavailable</h1>";
+        //             } else {
+        //                 echo "<h1>eZ publish root folder required</h1>\n";
+        //                 echo "<p>No root folder for eZ publish has been configured, a folder could not be detected either. Please set the \$_ENV['EZP_ROOT'] variable. See README.md for details.</p>\n";
+        //             }
+        //             exit();
+        //         }
+        //     }
+        //     $this->ezpRoot = $_ENV['EZP_ROOT'];
+        // }
 
         // Set include path according to document root or working directory (if cli)
-        set_include_path($_ENV['WWW_ROOT'] . ':' . $_ENV['EZP_ROOT'] . ':' . get_include_path());
+        // set_include_path($_ENV['WWW_ROOT'] . ':' . $_ENV['EZP_ROOT'] . ':' . get_include_path());
     }
 
-    public function bootstrapEnv()
-    {
-        // If Dotenv can be loaded we use that to support a .env file
-        if (file_exists($_ENV['WWW_ROOT'] . '/.env') && class_exists('\\Dotenv')) {
-            // Load values from .env if it exists
-            try {
-                $dotenv = new \Dotenv();
-                $dotenv->load(Base::env("WWW_ROOT"));
-            } catch (\Exception $e) {
-                // Ignore error if there is no .env file, we do not require it
-            }
-        }
-    }
+    // public function bootstrapEnv()
+    // {
+    //     // If Dotenv can be loaded we use that to support a .env file
+    //     if (file_exists($_ENV['WWW_ROOT'] . '/.env') && class_exists('\\Dotenv')) {
+    //         // Load values from .env if it exists
+    //         try {
+    //             $dotenv = new \Dotenv();
+    //             $dotenv->load(Base::env("WWW_ROOT"));
+    //         } catch (\Exception $e) {
+    //             // Ignore error if there is no .env file, we do not require it
+    //         }
+    //     }
+    // }
 }

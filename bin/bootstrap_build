@@ -4,14 +4,25 @@ use Aplia\Bootstrap\Base;
 
 // Disable cache loading, we want to create it from scratch
 $GLOBALS['STARTER_APP_CACHE'] = false;
+$GLOBALS['STARTER_BASE_INIT'] = false;
 require_once __DIR__ . '/../../../../config.php';
 
-$app = Base::app();
+$frameworks = isset($GLOBALS['STARTER_ALL_FRAMEWORKS']) ? $GLOBALS['STARTER_ALL_FRAMEWORKS'] : array('ezp', 'plain');
+foreach ($frameworks as $framework) {
+    $GLOBALS['STARTER_FRAMEWORK'] = $framework;
 
-$configCache = Base::pathJoin(array($app->buildPath, "config.json"));
-$app->writeOptimizedConfig($configCache);
-echo "Created $configCache\n";
+    $app = \Aplia\Bootstrap\Base::createApp(array());
 
-$bootstrap = Base::pathJoin(array($app->buildPath, "bootstrap.php"));
-$app->writeBootstrap($bootstrap);
-echo "Created $bootstrap\n";
+    // Configure the app unless STARTER_BASE_CONFIGURE tells us not to
+    $app->configure(\Aplia\Bootstrap\Base::fetchConfigNames());
+    $app->postConfigure();
+
+    $buildPath = $app->config->get("app.buildPath");
+    $configCache = $app->makePath(array($buildPath, "config_${framework}.json"));
+    $app->writeOptimizedConfig($configCache);
+    echo "Created $configCache\n";
+
+    $bootstrap = $app->makePath(array($buildPath, "bootstrap_${framework}.php"));
+    $app->writeBootstrap($bootstrap);
+    echo "Created $bootstrap\n";
+}

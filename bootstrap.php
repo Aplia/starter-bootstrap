@@ -38,27 +38,78 @@ if (isset($GLOBALS['STARTER_BASE_DEBUG']) && $GLOBALS['STARTER_BASE_DEBUG']) {
     }
 }
 
-$GLOBALS['STARTER_MANAGER'] = new Aplia\Bootstrap\Manager();
-if ($errorHandler !== null) {
-    $GLOBALS['STARTER_MANAGER']->errorHandler = $errorHandler;
+// We need the www-root and app-root set for the rest of the code work properly
+if (!isset($_ENV['WWW_ROOT'])) {
+    $_ENV['WWW_ROOT'] = realpath(__DIR__ . "/../../../");
 }
-// Auto-initialize the manager unless told not to
-if (!isset($GLOBALS['STARTER_MANAGER_AUTO']) || $GLOBALS['STARTER_MANAGER_AUTO']) {
-    $options = array();
-    if (!isset($_ENV['WWW_ROOT'])) {
-        $options['wwwRoot'] = realpath(__DIR__ . "/../../../");
+
+// If Dotenv can be loaded we use that to support a .env file
+if (file_exists($_ENV['WWW_ROOT'] . '/.env') && class_exists('\\Dotenv')) {
+    // Load values from .env if it exists
+    try {
+        $dotenv = new \Dotenv();
+        $dotenv->load($_ENV["WWW_ROOT"]);
+    } catch (\Exception $e) {
+        // Ignore error if there is no .env file, we do not require it
     }
-    if (isset($GLOBALS['STARTER_MANAGER_OPTIONS'])) {
-        $options = array_merge($options, $GLOBALS['STARTER_MANAGER_OPTIONS']);
+}
+
+if (!isset($_ENV['APP_ROOT'])) {
+    $_ENV['APP_ROOT'] = $_ENV['WWW_ROOT'] . '/' . (isset($GLOBALS['STARTER_APP_PATH']) ? $GLOBALS['STARTER_APP_PATH'] : 'extension/site');
+}
+
+// Load the cache as soon as possible to reduce the amount of code to execute
+if (isset($GLOBALS['STARTER_APP_CACHE']) ? $GLOBALS['STARTER_APP_CACHE'] : true) {
+    $wwwPath = $_ENV['WWW_ROOT'];
+    if (isset($_ENV['BUILD_PATH'])) {
+        $buildPath = $_ENV['BUILD_PATH'] . '/bootstrap';
+    } else {
+        $buildPath = isset($GLOBALS['STARTER_BOOTSTRAP_BUILD']) ? $GLOBALS['STARTER_BOOTSTRAP_BUILD'] : 'build/bootstrap';
     }
-    // Initialize from env and global variables
-    $GLOBALS['STARTER_MANAGER']->configure($options);
-    // Bootstrap the system
-    $GLOBALS['STARTER_MANAGER']->bootstrap();
+    $framework = isset($GLOBALS['STARTER_FRAMEWORK']) ? $GLOBALS['STARTER_FRAMEWORK'] : 'ezp';
+    $configPath = "$wwwPath/$buildPath/config_$framework.json";
+    $bootstrapPath = "$wwwPath/$buildPath/bootstrap_$framework.php";
+    if (file_exists($configPath) && file_exists($bootstrapPath)) {
+        $settings = null;
+        $jsonData = @file_get_contents($configPath);
+        if ($jsonData) {
+            $settings = json_decode($jsonData, true);
+        }
+
+        $GLOBALS['STARTER_ERROR_INSTANCE'] = $errorHandler;
+        // Load the cached application
+        $GLOBALS['STARTER_APP'] = $app = require $bootstrapPath;
+    }
+}
+
+// Fallback to dynamically setting up the application
+if (!isset($GLOBALS['STARTER_APP'])) {
+    $GLOBALS['STARTER_APP'] = $app = \Aplia\Bootstrap\Base::createApp(array(
+        'errorHandler' => $errorHandler,
+    ));
+
+    // Configure the app unless STARTER_BASE_CONFIGURE tells us not to
+    if (isset($GLOBALS['STARTER_BASE_CONFIGURE']) ? $GLOBALS['STARTER_BASE_CONFIGURE'] : true) {
+        $app->configure(\Aplia\Bootstrap\Base::fetchConfigNames());
+        $app->postConfigure();
+        if (isset($GLOBALS['STARTER_BASE_INIT']) ? $GLOBALS['STARTER_BASE_INIT'] : true) {
+            $app->init();
+        }
+    }
+}
+
+if (isset($GLOBALS['STARTER_BASE_DUMP_CONFIG']) && $GLOBALS['STARTER_BASE_DUMP_CONFIG']) {
+    $jsonOpts = version_compare(PHP_VERSION, '5.4.0') >= 0 ? (JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) : 0;
+    if (PHP_SAPI == 'cli') {
+        echo json_encode($GLOBALS['STARTER_APP'], $jsonOpts), "\n";
+    } else {
+        echo "<pre>", json_encode($GLOBALS['STARTER_APP'], $jsonOpts), "</pre>";
+    }
+    exit;
 }
 
 if (isset($GLOBALS['STARTER_DEBUG_TRACE_STARTED']) ? $GLOBALS['STARTER_DEBUG_TRACE_STARTED'] : false) {
     xdebug_stop_trace();
 }
 
-return $GLOBALS['STARTER_MANAGER'];
+return $GLOBALS['STARTER_APP'];

@@ -145,4 +145,68 @@ class Base
             call_user_func_array(self::$logger, func_get_args());
         }
     }
+
+    public static function fetchConfigNames()
+    {
+        $configNames = array_merge(
+            isset($GLOBALS['STARTER_BASE_CONFIGS']) ? $GLOBALS['STARTER_BASE_CONFIGS'] : array('base'),
+            // The default framework is eZ publish
+            isset($GLOBALS['STARTER_FRAMEWORK']) ? array($GLOBALS['STARTER_FRAMEWORK']) : array('ezp'),
+            // We default to 'prod' when nothing is defined, this is the safest option
+            isset($GLOBALS['STARTER_CONFIGS']) ? $GLOBALS['STARTER_CONFIGS'] : array('prod')
+        );
+        // The bootstrap config is always the first to run
+        array_unshift($configNames, 'bootstrap');
+        // The local config is always loaded last
+        $configNames[] = 'local';
+
+        return $configNames;
+    }
+
+    /**
+     * Create the application and config instances and return the application.
+     *
+     * $params may contains:
+     * - 'config' - The initial config for the application.
+     * - 'errorHandler' - Set a specific error handler in the application.
+     */
+    public static function createApp(array $params=null)
+    {
+        // www and app path must always be set before configuring the app
+        $permanentConfig = array(
+            'www' => array(
+                'path' => $_ENV["WWW_ROOT"],
+            ),
+            'app' => array(
+                'path' => $_ENV["APP_ROOT"],
+            ),
+        );
+        $extraConfig = isset($params['config']) ? $params['config'] : null;
+        if (isset($GLOBALS['STARTER_CONFIG_CLASS'])) {
+            $config = new $GLOBALS['STARTER_CONFIG_CLASS']($extraConfig);
+        } else {
+            $config = new BaseConfig($extraConfig);
+        }
+        $config->update($permanentConfig);
+
+        if (isset($GLOBALS['STARTER_APP_CLASS'])) {
+            $app = new $GLOBALS['STARTER_APP_CLASS']($config);
+        } else {
+            $app = new BaseApp($config);
+        }
+
+        $errorHandler = isset($params['errorHandler']) ? $params['errorHandler'] : null;
+        if ($errorHandler === null) {
+            $errorHandler = isset($GLOBALS['STARTER_ERROR_INSTANCE']) ? $GLOBALS['STARTER_ERROR_INSTANCE'] : null;
+        }
+        if ($errorHandler !== null) {
+            $GLOBALS['STARTER_APP']->errorHandler = $errorHandler;
+        }
+
+        // Store it so Base::app() and Base::config() can access it
+        self::setConfig($app->config);
+        self::setApp($app);
+
+        return $app;
+    }
 }

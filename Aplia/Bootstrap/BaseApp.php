@@ -3,10 +3,10 @@ namespace Aplia\Bootstrap;
 
 class BaseApp
 {
+    const DEFAULT_ERROR_MODE = 'plain';
+
     public $config;
-    public $bootstrap = array();
     public $path;
-    public $buildPath;
     public $usedBootstrap = array();
     public $usedHelpers = array();
 
@@ -22,106 +22,81 @@ class BaseApp
     public function __construct($config = null)
     {
         $this->config = $config ? $config : new BaseConfig();
-        $this->bootstrap = [];
         $this->path = $this->config->get('app.path');
-        $this->buildPath = $this->config->get('app.buildPath', 'build/bootstrap');
+        $this->wwwPath = $this->config->get('www.path');
     }
 
-    public function configure($names)
+    /**
+     * Returns a path to a directory by ensuring it ends with a slash.
+     */
+    public static function dirPath($path)
     {
-        $appPath = $this->path;
-        $buildPath = $this->buildPath;
-        $bootstrapPath = __DIR__ . '/../../';
-        $useCache = isset($GLOBALS['STARTER_APP_CACHE']) ? $GLOBALS['STARTER_APP_CACHE'] : true;
+        return $path && substr($path, -1, 1) != '/' ? ($path . '/') : $path;
+    }
 
-        $cachePath = "$appPath/$buildPath/config.json";
-        if ($useCache && file_exists($cachePath)) {
-            $jsonData = @file_get_contents($cachePath);
-            if ($jsonData) {
-                $settings = json_decode($jsonData, true);
-                if ($settings) {
-                    $this->config->update($settings);
-                }
-            }
-        } else {
-            foreach ($names as $name) {
-                $path = $appPath . '/starter/configuration/' . $name . '.php';
-                if (file_exists($path)) {
-                    $settings = include $path;
-                    if ($settings instanceof Closure) {
-                        $settings = $settings($this->config, $this);
-                    }
-                    if (is_array($settings)) {
-                        $this->config->update($settings);
-                    }
-                }
-
-                $path = $bootstrapPath . '/configuration/' . $name . '.php';
-                if (file_exists($path)) {
-                    $settings = include $path;
-                    if ($settings instanceof Closure) {
-                        $settings = $settings($this->config, $this);
-                    }
-                    if (is_array($settings)) {
-                        $this->config->update($settings);
-                    }
-                }
-            }
-        }
-
+    /**
+     * Additional steps to run after reading in config (cached or dynamic)
+     * This code will always be executed dynamically
+     */
+    public function postConfigure()
+    {
         // Always set the app.mode, as it is determined dynamically from current config
         $this->config->update(array(
             'app' => array(
                 'mode' => isset($GLOBALS['STARTER_BOOTSTRAP_MODE']) ? $GLOBALS['STARTER_BOOTSTRAP_MODE'] : 'plain',
             )
         ));
+    }
 
-        $cachePath = "$appPath/$buildPath/bootstrap.php";
-        if ($useCache && file_exists($cachePath)) {
-            require $cachePath;
-        } else {
-            $phpDeclNames = array();
-            $phpNames = array();
-            foreach ($names as $name) {
-                $phpDeclNames[] = 'starter/bootstrap/' . $name . ".func.php";
-                $phpDeclNames[] = $bootstrapPath . 'bootstrap/' . $name . ".func.php";
-                $phpNames[] = 'starter/bootstrap/' . $name . ".php";
-                $phpNames[] = $bootstrapPath . 'bootstrap/' . $name . ".php";
-            }
-            $this->config->update(array('app' => array('bootstrap' => array('active' => $phpNames) ) ) );
+    public function configure($names)
+    {
+        $appPath = self::dirPath($this->path);
+        $bootstrapPath = self::dirPath(realpath(__DIR__ . '/../../'));
 
-            $bootstrapNames = array_merge(
-                $phpDeclNames,
-                $this->config->get('app.bootstrap.pre', array()),
-                $phpNames,
-                $this->config->get('app.bootstrap.post', array())
-            );
-
-            foreach ($bootstrapNames as $name) {
-                if (substr($name, 0, 1) == '/') {
-                    $path = $name;
-                } else {
-                    $path = $appPath . '/' . $name;
+        foreach ($names as $name) {
+            $path = $bootstrapPath . 'config/' . $name . '.php';
+            if (file_exists($path)) {
+                $settings = include $path;
+                if ($settings instanceof Closure) {
+                    $settings = $settings($this->config, $this);
                 }
-                if (file_exists($path)) {
-                    $this->bootstrap[] = array($name, $path);
+                if (is_array($settings)) {
+                    $this->config->update($settings);
+                }
+            }
+
+            $path = $appPath . '/config/' . $name . '.php';
+            if (file_exists($path)) {
+                $settings = include $path;
+                if ($settings instanceof Closure) {
+                    $settings = $settings($this->config, $this);
+                }
+                if (is_array($settings)) {
+                    $this->config->update($settings);
                 }
             }
         }
+
+        $bootNames = array();
+        foreach ($names as $name) {
+            $bootNames[] = 'starter.' . $name;
+            $bootNames[] = 'app.' . $name;
+        }
+
+        $this->config->update(array('app' => array('bootstrap' => array('names' => $bootNames) ) ) );
     }
 
     public function init()
     {
-        // This is where the application can initialize remaining elements
-        // after all base config has been setup
-        foreach ($this->bootstrap as $bootstrapItem) {
-            $path = $bootstrapItem[1];
-            include $path;
-            $this->usedBootstrap[] = $path;
+        // Call static method `bootstrapSubSystem` on all registered bootstrap classes
+        $bootstrapMap = $this->config->get('app.bootstrap.classes', array());
+        foreach ($this->config->get('app.bootstrap.names') as $bootstrapName) {
+            if (isset($bootstrapMap[$bootstrapName])) {
+                $bootstrapMap[$bootstrapName]::bootstrapSubSystem($this);
+            }
         }
 
         // Load helper files according to the current mode
-        $appPath = $this->path;
         $helpers = array_merge(
             Base::config('helpers.common', array()),
             Base::config('helpers.' . Base::config('app.mode'), array())
@@ -135,7 +110,43 @@ class BaseApp
         }
     }
 
+    /**
+     * Bootstrap the base sub-system.
+     */
+    public static function bootstrapSubSystem()
+    {
+        // VENDOR_ROOT is the composer vendor folder, usually vendor in the WWW_ROOT
+        if (!isset($_ENV['VENDOR_ROOT'])) {
+            if (Base::config('composer.path', null)) {
+                putenv("VENDOR_ROOT=" . $_ENV['VENDOR_ROOT'] = Base::config('composer.path'));
+            } elseif (file_exists($_ENV['WWW_ROOT'] . '/vendor')) {
+                putenv("VENDOR_ROOT=" . $_ENV['VENDOR_ROOT'] = realpath($_ENV['WWW_ROOT'] . '/vendor'));
+            } else {
+                putenv("VENDOR_ROOT=" . $_ENV['VENDOR_ROOT'] = realpath(__DIR__ . '/../../../../vendor/'));
+            }
+            Base::config(array('composer' => array('path' => $_ENV['VENDOR_ROOT'])));
+        }
+
+        set_include_path(Base::config('www.path') . ':' . get_include_path());
+    }
+
     public function makePath($elements)
+    {
+        if (!is_array($elements)) {
+            $elements = array($elements);
+        }
+        return join(
+            DIRECTORY_SEPARATOR,
+            array_map(
+                function ($e) {
+                    return rtrim($e, DIRECTORY_SEPARATOR);
+                },
+                array_merge(substr($elements[0], 0, 1) == '/' ? array() : array($this->wwwPath), $elements)
+            )
+        );
+    }
+
+    public function makeAppPath($elements)
     {
         if (!is_array($elements)) {
             $elements = array($elements);
@@ -159,20 +170,40 @@ class BaseApp
     public function writeBootstrap($path)
     {
         $code = "";
-        foreach ($this->bootstrap as $bootstrapItem) {
-            $codePath = $bootstrapItem[1];
-            if (file_exists($codePath)) {
-                // Strip away start and end php marker
-                $codeFragment = preg_replace(
-                    '/^\s*<[?]php\s?(.+)([?]>)?\s*$/ms',
-                    '$1',
-                    file_get_contents($codePath)
-                );
-                $codeFragment = ltrim($codeFragment, "\n");
-                $code .= "\n" . "// __FILE__: $codePath";
-                $code .= "\n" . $codeFragment;
+        $bootstrapMap = $this->config->get('app.bootstrap.classes', array());
+        foreach ($this->config->get('app.bootstrap.names') as $bootstrapName) {
+            if (isset($bootstrapMap[$bootstrapName])) {
+                $code .= '// From class ' . $bootstrapMap[$bootstrapName] . "\n";
             }
         }
+        // foreach ($this->bootstrap as $bootstrapItem) {
+        //     $codePath = $bootstrapItem[1];
+        //     if (file_exists($codePath)) {
+        //         // Strip away start and end php marker
+        //         $codeFragment = preg_replace(
+        //             '/^\s*<[?]php\s?(.+)([?]>)?\s*$/ms',
+        //             '$1',
+        //             file_get_contents($codePath)
+        //         );
+        //         $codeFragment = ltrim($codeFragment, "\n");
+        //         $code .= "\n" . "// __FILE__: $codePath";
+        //         $code .= "\n" . $codeFragment;
+        //     }
+        // }
+        $settings = $this->config->exportSettings();
+        $code .= "// Configuration\n\$config = " . var_export($settings, true) . ";\n";
+        $code .= "\$app = \\Aplia\\Bootstrap\\Base::createApp(array(
+    'config' => \$config,
+));
+// We have read the config from a cache file so we should not call configure(),
+// but we still need to call postConfigure()
+\$app->postConfigure();
+
+if (isset(\$GLOBALS['STARTER_BASE_INIT']) ? \$GLOBALS['STARTER_BASE_INIT'] : true) {
+    \$app->init();
+}
+return \$app;
+";
         $code = "<?php\n// NOTE: Do not edit this file, contents is auto-generated\n" . $code . "\n";
         if (!is_dir(dirname($path))) {
             mkdir($path, 0777, true);

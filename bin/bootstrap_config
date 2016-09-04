@@ -3,6 +3,8 @@
 use Aplia\Bootstrap\Base;
 use Aplia\Bootstrap\BaseConfig;
 
+// We only want to load the configuration
+$GLOBALS['STARTER_BASE_INIT'] = false;
 require_once __DIR__ . '/../../../../config.php';
 
 $configKey = null;

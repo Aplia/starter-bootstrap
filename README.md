@@ -22,7 +22,7 @@ Then add the following lines to `config.php`:
 require __DIR__ . '/vendor/aplia/starter-bootstrap/bootstrap.php';
 ```
 
-The require call will also return the current Starter Manager instance
+The require call will also return the current App instance
 for further inspection.
 
 ## Optimizing for production
@@ -57,26 +57,6 @@ which are off by default.
 # Configuration
 
 The bootstrap can be configured using global variables or $_ENV variables.
-
-## Disabling auto-boostrapping
-
-To disable auto bootstrapping set the global variable `STARTER_MANAGER_AUTO` to false.
-
-```
-$GLOBALS['STARTER_MANAGER_AUTO'] = false;
-````
-
-## Specifying manager options
-
-To add additional options to the Starter Manager set the global variable `STARTER_MANAGER_OPTIONS` to an array of options.
-
-```
-$GLOBALS['STARTER_MANAGER_OPTIONS'] = array(
-    'wwwRoot' => __DIR__,
-);
-```
-
-This option array has precedence over any default options.
 
 ## Debugging the bootstrap process
 
@@ -152,4 +132,55 @@ overridden by setting the env variable `VENDOR_ROOT`.
 
 ```
 $_ENV['VENDOR_ROOT'] = 'custom_vendor';
+```
+
+## Specifying which configurations to use
+
+For specifying the base configurations set the global variable `STARTER_BASE_CONFIGS`.
+Note: This is normally not recommended to set.
+
+```
+// Adding an additional base config
+$GLOBALS['STARTER_BASE_CONFIGS'] = array('base', 'core');
+```
+
+For specifying the current framework set the global variable `STARTER_FRAMEWORK`.
+This defaults to `ezp`.
+
+```
+// Enabling specific config for laravel
+$GLOBALS['STARTER_FRAMEWORK'] = 'laravel';
+```
+
+For specifying the current run-mode set the global variable `STARTER_CONFIGS`.
+This defaults to `prod`.
+
+```
+// Enabling development config
+$GLOBALS['STARTER_CONFIGS'] = array('dev');
+```
+
+## Specifying a bootstrap class
+
+For each configuration setting there may be a class set which is used for
+bootstrapping the system. For instance the `base` config sets the class
+`Aplia\Bootstrap\BaseApp` which has the static method `bootstrapSubSystem`.
+
+This is set in the configuration under the entry `app.bootstrap.classes`
+which is an associative array, the key must be the config name with either
+`starter.` or `app.` as prefix and the value the name of the class with full
+namespace. `starter.` classes are run before `app.` classes. The `app.` prefix
+is primarily meant to be used by the application.
+
+```
+// Example configuration
+return array(
+    'app' => array(
+        'bootstrap' => array(
+            'classes' => array(
+                'starter.base' => 'Aplia\Bootstrap\BaseApp',
+            ),
+        ),
+    ),
+);
 ```
