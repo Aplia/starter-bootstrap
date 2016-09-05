@@ -7,6 +7,7 @@ $GLOBALS['STARTER_APP_CACHE'] = false;
 $GLOBALS['STARTER_BASE_INIT'] = false;
 require_once __DIR__ . '/../../../../config.php';
 
+$generator = new \Aplia\Bootstrap\Generator;
 $frameworks = isset($GLOBALS['STARTER_ALL_FRAMEWORKS']) ? $GLOBALS['STARTER_ALL_FRAMEWORKS'] : array('ezp', 'plain');
 foreach ($frameworks as $framework) {
     $GLOBALS['STARTER_FRAMEWORK'] = $framework;
@@ -19,10 +20,10 @@ foreach ($frameworks as $framework) {
 
     $buildPath = $app->config->get("app.buildPath");
     $configCache = $app->makePath(array($buildPath, "config_${framework}.json"));
-    $app->writeOptimizedConfig($configCache);
+    $generator->writeOptimizedConfig($app, $configCache);
     echo "Created $configCache\n";
 
     $bootstrap = $app->makePath(array($buildPath, "bootstrap_${framework}.php"));
-    $app->writeBootstrap($bootstrap);
+    $generator->writeAppBundle($app, $bootstrap);
     echo "Created $bootstrap\n";
 }
