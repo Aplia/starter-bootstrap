@@ -7,6 +7,7 @@ $envErrorHandler = \Aplia\Bootstrap\Base::env('ERROR_MODE_' . strtoupper($mode),
 if ($envErrorHandler === null) {
     $envErrorHandler = \Aplia\Bootstrap\Base::env('ERROR_MODE', null);
 }
+$errorMode = 'local';
 if ($envErrorHandler !== null) {
     $errorMode = $envErrorHandler;
 } else {
