@@ -260,15 +260,15 @@ return \$app;
                 $textHandler->outputOnlyIfCommandLine(true);
                 $whoops->pushHandler($textHandler);
             } else {
+                // Install a handler for showing Server Errors (500)
+                $serverError = new \Aplia\Error\Handler\ServerErrorHandler;
+                $whoops->pushHandler($serverError);
                 // Log all errors to eZDebug by sing a PlainTextHandler
                 $errorLogger = new \Whoops\Handler\PlainTextHandler;
                 $errorLogger->outputOnlyIfCommandLine(true);
                 $errorLogger->loggerOnly(true);
                 $errorLogger->setLogger(new \Aplia\Support\LoggerAdapter);
                 $whoops->pushHandler($errorLogger);
-                // Install a handler for showing Server Errors (500)
-                $serverError = new \Aplia\Error\Handler\ServerErrorHandler;
-                $whoops->pushHandler($serverError);
             }
 
             if ($errorLevel === null) {
