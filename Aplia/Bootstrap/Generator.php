@@ -48,7 +48,7 @@ class Generator
         $settings = $app->config->exportSettings();
         // Add a new namespace (required) with code for creating the application.
         $code .= "
-namespace Aplia\\Bootstrap {
+namespace {
     // Configuration
     \$config = " . var_export($settings, true) . ";\n\n";
         $code .= "    // Create the application
