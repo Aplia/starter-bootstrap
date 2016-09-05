@@ -136,4 +136,14 @@ class ErrorManager extends Run
         // Let Whoops handle it as an error
         return parent::handleError($level, $message, $file, $line);
     }
+
+    /**
+     * Restores the cwd to the www-root. This is required when trying to
+     * access files after the shutdown handler has been run, e.g. logging
+     * errors.
+     */
+    public static function restoreWwwRoot()
+    {
+        chdir( $_ENV['WWW_ROOT'] );
+    }
 }

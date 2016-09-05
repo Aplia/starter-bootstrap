@@ -95,6 +95,9 @@ class Ezp
             if ($app->errorHandler) {
                 // There is already an error handler installed, most likely for bootstrap debugging purpose
             } elseif ($errorMode == 'local') {
+                // Restores CWD on shutdown
+                register_shutdown_function(array('\\Aplia\\Bootstrap\\ErrorManager', 'restoreWwwRoot'));
+
                 if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
                     // For Ajax requests we setup a logger for both logging and error handling
                     $logger = $app->bootstrapLogger(true);
@@ -116,6 +119,9 @@ class Ezp
                     $app->errorHandler = $app->bootstrapErrorHandler(true, $errorLevel);
                 }
             } elseif ($errorMode == 'remote') {
+                // Restores CWD on shutdown
+                register_shutdown_function(array('\\Aplia\\Bootstrap\\ErrorManager', 'restoreWwwRoot'));
+
                 // Setup a remote error handler
                 $ravenDsn = Base::env('RAVEN_DSN', isset($ravenDsn) ? $ravenDsn : null);
                 $app->errorHandler = $app->bootstrapRaven(true, $ravenDsn);
