@@ -116,7 +116,7 @@ class Ezp
                         \Aplia\Bootstrap\Base::setLogger(array($app, 'logWebConsole'));
                     }
                     // Initialize and register error handler
-                    $app->errorHandler = $app->bootstrapErrorHandler(true, $errorLevel);
+                    $app->errorHandler = $app->bootstrapErrorHandler(true, $errorLevel, /*$integrateEzp*/ true);
                 }
             } elseif ($errorMode == 'remote') {
                 // Restores CWD on shutdown

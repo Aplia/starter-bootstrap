@@ -190,13 +190,13 @@ class BaseApp
         }
     }
 
-    public function bootstrapErrorHandler($register = false, $errorLevel=null)
+    public function bootstrapErrorHandler($register = false, $errorLevel=null, $integrateEzp=false)
     {
         // Bootstrap Whoops error handler, this is the only supported handler for now
-        return $this->bootstrapWhoops($register, $errorLevel);
+        return $this->bootstrapWhoops($register, $errorLevel, $integrateEzp);
     }
 
-    public function bootstrapWhoops($register = false, $errorLevel=null)
+    public function bootstrapWhoops($register = false, $errorLevel=null, $integrateEzp=false)
     {
         if (class_exists('\\Whoops\\Run')) {
             // A custom Whoops runner which filters out certain errors to eZDebug
@@ -215,11 +215,13 @@ class BaseApp
                 $serverError = new \Aplia\Error\Handler\ServerErrorHandler;
                 $whoops->pushHandler($serverError);
                 // Log all errors to eZDebug by sing a PlainTextHandler
-                $errorLogger = new \Whoops\Handler\PlainTextHandler;
-                $errorLogger->outputOnlyIfCommandLine(true);
-                $errorLogger->loggerOnly(true);
-                $errorLogger->setLogger(new \Aplia\Support\LoggerAdapter);
-                $whoops->pushHandler($errorLogger);
+                if ($integrateEzp) {
+                    $errorLogger = new \Whoops\Handler\PlainTextHandler;
+                    $errorLogger->outputOnlyIfCommandLine(true);
+                    $errorLogger->loggerOnly(true);
+                    $errorLogger->setLogger(new \Aplia\Support\LoggerAdapter);
+                    $whoops->pushHandler($errorLogger);
+                }
             }
 
             if ($errorLevel === null) {
