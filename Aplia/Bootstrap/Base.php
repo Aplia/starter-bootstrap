@@ -200,7 +200,7 @@ class Base
             $errorHandler = isset($GLOBALS['STARTER_ERROR_INSTANCE']) ? $GLOBALS['STARTER_ERROR_INSTANCE'] : null;
         }
         if ($errorHandler !== null) {
-            $GLOBALS['STARTER_APP']->errorHandler = $errorHandler;
+            $app->errorHandler = $errorHandler;
         }
 
         // Store it so Base::app() and Base::config() can access it
