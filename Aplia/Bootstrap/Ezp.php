@@ -18,18 +18,20 @@ class Ezp
 
             // If the new Starter INI structure is enabled we tell eZ publish to look in custom locations
             if (isset($GLOBALS['STARTER_RELOCATE_INI']) && $GLOBALS['STARTER_RELOCATE_INI']) {
+                // The site extension is normally in extension/site but can be relocated, e.g. for older sites.
+                $sitePath = isset($GLOBALS['STARTER_APP_PATH']) ? $GLOBALS['STARTER_APP_PATH'] : 'extension/site';
                 // Move the INI override folder and siteaccess folder under the extension
                 // This effectively disables the settings for the extension itself as it becomes the global settings
                 $GLOBALS['EZP_INI_OVERRIDE_FOLDERS'] = array(
-                    'extension/site/settings',
+                    "$sitePath/settings",
                 );
                 $GLOBALS['EZP_INI_SITEACCESS_FOLDERS'] = array(
-                    'extension/site/settings/siteaccess',
+                    "$sitePath/settings/siteaccess",
                 );
                 // Add additional settings folders according to config names, 'local' is always added last
                 foreach (array_merge($GLOBALS['STARTER_CONFIGS'], array('local')) as $config) {
-                    $GLOBALS['EZP_INI_OVERRIDE_FOLDERS'][] = "extension/site/settings/$config";
-                    $GLOBALS['EZP_INI_SITEACCESS_FOLDERS'][] = "extension/site/settings/$config/siteaccess";
+                    $GLOBALS['EZP_INI_OVERRIDE_FOLDERS'][] = "$sitePath/settings/$config";
+                    $GLOBALS['EZP_INI_SITEACCESS_FOLDERS'][] = "$sitePath/settings/$config/siteaccess";
                 }
             }
         }
