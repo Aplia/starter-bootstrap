@@ -17,8 +17,22 @@ composer require aplia/starter-bootstrap
 
 Then add the following lines to `config.php`:
 
-```
+```php
 // Bootstrap the system based on our configuration
+if (!file_exists(__DIR__ . '/vendor/aplia/starter-bootstrap/bootstrap.php')) {
+    if (PHP_SAPI != 'cli') {
+        echo "<html><body><p>";
+    }
+    $text = "aplia/starter-bootstrap is not installed, cannot continue.\n" .
+            "Make sure the bootstrap system is installed by running:\n" .
+            "composer require 'aplia/starter-bootstrap:^1.2'\n";
+    if (PHP_SAPI == 'cli') {
+        echo $text;
+    } else {
+        echo nl2br($text), "</p></body></html>";
+    }
+    exit(1);
+}
 require __DIR__ . '/vendor/aplia/starter-bootstrap/bootstrap.php';
 ```
 
