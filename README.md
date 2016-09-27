@@ -11,13 +11,14 @@ in the `config.php` file as part of the project.
 
 Add this package to the project by running:
 
-```
+```shell
 composer require aplia/starter-bootstrap
 ```
 
 Then add the following lines to `config.php`:
 
 ```php
+<?php
 // Bootstrap the system based on our configuration
 if (!file_exists(__DIR__ . '/vendor/aplia/starter-bootstrap/bootstrap.php')) {
     if (PHP_SAPI != 'cli') {
@@ -45,7 +46,7 @@ To cut down on the amount of files it needs to process during the bootstrap
 when running in production mode the system can create an optimized
 bootstrap file and config. This is done by running:
 
-```
+```shell
 vendor/bin/bootstrap_build
 ```
 
@@ -56,7 +57,7 @@ this command to get updated code and config.
 
 The build files can be removed by running:
 
-```
+```shell
 vendor/bin/bootstrap_clean
 ```
 
@@ -77,14 +78,16 @@ The bootstrap can be configured using global variables or $_ENV variables.
 The bootstrap process can be debugged by setting global variable `STARTER_BASE_DEBUG` to true.
 This will install an error handler as soon as possible.
 
-```
+```php
+<?php
 $GLOBALS['STARTER_BASE_DEBUG'] = true;
 ```
 
 In addition the final application configuration can be dumped by setting the global variable
 `STARTER_BASE_DUMP_CONFIG`.
 
-```
+```php
+<?php
 $GLOBALS['STARTER_BASE_DUMP_CONFIG'] = true;
 ```
 
@@ -93,7 +96,8 @@ Using this will end the process immediately.
 To see all functional calls used during bootstrapping set the `STARTER_DEBUG_TRACE`
 global variable to `true`.
 
-```
+```php
+<?php
 $GLOBALS['STARTER_DEBUG_TRACE'] = true;
 ```
 
@@ -105,7 +109,8 @@ Filename and options for the trace are controlled by `STARTER_DEBUG_TRACE_FILE` 
 The config class that is used to store the base configuration can be overridden by setting
 the global variable `STARTER_CONFIG_CLASS`. The class will be loaded using the autoloader.
 
-```
+```php
+<?php
 $GLOBALS['STARTER_CONFIG_CLASS'] = '\\Custom\Config';
 ```
 
@@ -115,7 +120,8 @@ The application class that is used to store the current application and its conf
 can be overriden by setting the global variable `STARTER_APP_CLASS`. The class will be loaded
 using the autoloader.
 
-```
+```php
+<?php
 $GLOBALS['STARTER_APP_CLASS'] = '\\Custom\\App';
 ```
 
@@ -125,7 +131,8 @@ The www-root is where the web-server serves all files, this is automatically det
 the root where the `vendor` folder is installed. To override the automatic behaviour
 set the env variable `WWW_ROOT`.
 
-```
+```php
+<?php
 $_ENV['WWW_ROOT'] = 'www';
 ```
 
@@ -135,7 +142,8 @@ eZ publish is automatically detected, either in the www-root or inside the vendo
 If a custom folder is used for eZ publish this can be overridden by setting the env
 variable `EZP_ROOT`.
 
-```
+```php
+<?php
 $_ENV['EZP_ROOT'] = 'ezpublish'
 ```
 
@@ -144,7 +152,8 @@ $_ENV['EZP_ROOT'] = 'ezpublish'
 The vendor folder for composer is automically set `vendor` in the www-root but can be
 overridden by setting the env variable `VENDOR_ROOT`.
 
-```
+```php
+<?php
 $_ENV['VENDOR_ROOT'] = 'custom_vendor';
 ```
 
@@ -153,7 +162,8 @@ $_ENV['VENDOR_ROOT'] = 'custom_vendor';
 For specifying the base configurations set the global variable `STARTER_BASE_CONFIGS`.
 Note: This is normally not recommended to set.
 
-```
+```php
+<?php
 // Adding an additional base config
 $GLOBALS['STARTER_BASE_CONFIGS'] = array('base', 'core');
 ```
@@ -161,7 +171,8 @@ $GLOBALS['STARTER_BASE_CONFIGS'] = array('base', 'core');
 For specifying the current framework set the global variable `STARTER_FRAMEWORK`.
 This defaults to `ezp`.
 
-```
+```php
+<?php
 // Enabling specific config for laravel
 $GLOBALS['STARTER_FRAMEWORK'] = 'laravel';
 ```
@@ -169,7 +180,8 @@ $GLOBALS['STARTER_FRAMEWORK'] = 'laravel';
 For specifying the current run-mode set the global variable `STARTER_CONFIGS`.
 This defaults to `prod`.
 
-```
+```php
+<?php
 // Enabling development config
 $GLOBALS['STARTER_CONFIGS'] = array('dev');
 ```
@@ -186,7 +198,8 @@ which is an associative array, the key must be the config name with either
 namespace. `starter.` classes are run before `app.` classes. The `app.` prefix
 is primarily meant to be used by the application.
 
-```
+```php
+<?php
 // Example configuration
 return array(
     'app' => array(
