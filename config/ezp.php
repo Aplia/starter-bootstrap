@@ -14,7 +14,7 @@ if (!isset($_ENV['EZP_ROOT'])) {
             $foundKernel = true;
         }
         if (!$foundKernel) {
-            foreach (['aplia/ezpublish-legacy', 'ezsystems/ezpublish-legacy'] as $ezpPath) {
+            foreach (array('aplia/ezpublish-legacy', 'ezsystems/ezpublish-legacy') as $ezpPath) {
                 if (file_exists($_ENV['VENDOR_ROOT'] . $ezpPath)) {
                     putenv("EZP_ROOT=" . $_ENV['EZP_ROOT'] = realpath($_ENV['VENDOR_ROOT'] . $ezpPath));
                     $foundKernel = true;

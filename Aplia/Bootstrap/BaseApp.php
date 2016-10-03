@@ -102,7 +102,7 @@ class BaseApp
             Base::config('helpers.' . Base::config('app.mode'), array())
         );
         foreach ($helpers as $helper) {
-            $path = $this->makePath([$helper]);
+            $path = $this->makePath(aray($helper));
             if (file_exists($path)) {
                 require_once $path;
                 $this->usedHelpers[] = $path;
