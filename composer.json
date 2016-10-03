@@ -15,7 +15,7 @@
         "aplia/support": "^0.1.0",
         "filp/whoops": "1.1.10",
         "firephp/firephp-core": "0.4.0",
-        "vlucas/phpdotenv": "2.3.0"
+        "vlucas/phpdotenv": "2.0.1|2.3.0"
     },
     "bin": [
         "bin/ezp_dump_extensions",
