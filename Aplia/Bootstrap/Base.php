@@ -157,8 +157,10 @@ class Base
         );
         // The bootstrap config is always the first to run
         array_unshift($configNames, 'bootstrap');
-        // The local config is always loaded last
-        $configNames[] = 'local';
+        if (isset($GLOBALS['STARTER_USE_LOCAL_CONFIG']) ? $GLOBALS['STARTER_USE_LOCAL_CONFIG'] : true) {
+            // The local config is always loaded last
+            $configNames[] = 'local';
+        }
 
         return $configNames;
     }

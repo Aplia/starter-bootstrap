@@ -29,7 +29,8 @@ class Ezp
                     "$sitePath/settings/siteaccess",
                 );
                 // Add additional settings folders according to config names, 'local' is always added last
-                foreach (array_merge($GLOBALS['STARTER_CONFIGS'], array('local')) as $config) {
+                $localConfigs = (isset($GLOBALS['STARTER_USE_LOCAL_CONFIG']) ? $GLOBALS['STARTER_USE_LOCAL_CONFIG'] : true) ? array('local') : array();
+                foreach (array_merge($GLOBALS['STARTER_CONFIGS'], $localConfigs) as $config) {
                     $GLOBALS['EZP_INI_OVERRIDE_FOLDERS'][] = "$sitePath/settings/$config";
                     $GLOBALS['EZP_INI_SITEACCESS_FOLDERS'][] = "$sitePath/settings/$config/siteaccess";
                 }
