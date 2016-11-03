@@ -7,6 +7,11 @@ $GLOBALS['STARTER_APP_CACHE'] = false;
 $GLOBALS['STARTER_BASE_INIT'] = false;
 require_once __DIR__ . '/../../../../config.php';
 
+if (version_compare(PHP_VERSION, "5.4", '<')) {
+    echo "bootstrap_build requires PHP version 5.4 or higher\n";
+    exit();
+}
+
 $generator = new \Aplia\Bootstrap\Generator;
 $frameworks = isset($GLOBALS['STARTER_ALL_FRAMEWORKS']) ? $GLOBALS['STARTER_ALL_FRAMEWORKS'] : array('ezp', 'plain');
 foreach ($frameworks as $framework) {
