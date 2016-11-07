@@ -1,7 +1,7 @@
 # Aplia Starter Bootstrap
 
 This package contains common code for bootstrapping eZ publish as it is used in Starter projects.
-It sets up necessary global variables, loads the Composer autoloader.
+It sets up necessary global variables, loads the Composer autoloader and installs an error handler.
 
 It does not however start the eZ publish kernel, instead this bootstrap system should be included
 in the `config.php` file as part of the project.
@@ -72,6 +72,26 @@ which are off by default.
 # Configuration
 
 The bootstrap can be configured using global variables or $_ENV variables.
+
+## Choosing which errors to stop on
+
+The default behaviour is to only stop on errors which have the level `error`,
+this is to avoid having issues from the existing extensions or eZ publish
+cause the site to stop.
+During development though the level should be changed to catch all levels.
+
+Create a file in `extension/site/config/local.php` and the following content:
+
+```
+<?php
+return array(
+    'app' => array(
+        'errorLevel' => 'notice',
+    ),
+);
+```
+
+This tells the bootstrap system to stop for notice, warning and errors.
 
 ## Debugging the bootstrap process
 
