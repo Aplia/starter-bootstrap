@@ -17,7 +17,8 @@ class Generator
      */
     public function writeAppBundle($app, $path)
     {
-        $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+        $factory = new ParserFactory;
+        $parser = $factory->create(ParserFactory::PREFER_PHP7);
         $prettyPrinter = new PrettyPrinter(array('forceNestedNamespace' => true));
 
         $code = "";
