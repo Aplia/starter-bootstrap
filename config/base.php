@@ -28,5 +28,38 @@ return array(
         'buildPath' => 'build/bootstrap',
         // Controls how the error handler behaves, see dev.php and prod.php
         'debug' => false,
+        // Whether to use a logger, the default uses monlog for dispatching to sub-loggers
+        'logger' => true,
+        // Which error levels to log by default
+        'logLevels' => array(
+            'strict',
+            'error',
+        ),
+    ),
+    'log' => array(
+        // Defines all log handlers available to use, the key is the name of the
+        // handler which is referenced later on.
+        // Each handler is an array which must contain:
+        // 'class' - The class to use for the handler
+        // It may contain:
+        // 'parameters' - Parameters to use when instantiating the class.
+        'handlers' => array(
+        ),
+        // Defines all loggers available to use, the key is the name of the
+        // logger which is referenced later on.
+        // Each logger is an array which must contain:
+        // 'class' - The class to use for the handler
+        // It may contain:
+        // 'parameters' - Parameters to use when instantiating the class.
+        // 'handlers' - Array of handlers to use for this logger,
+        //              note: The key is the name of handler, and the value is
+        //              whether it is enabled or not.
+        'loggers' => array(
+            // This receives logs from the error handler
+            'phperror' => array(
+                'class' => '\\Monolog\\Logger',
+                'parameters' => array(),
+            ),
+        ),
     ),
 );

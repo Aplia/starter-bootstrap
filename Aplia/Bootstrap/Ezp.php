@@ -93,7 +93,22 @@ class Ezp
             }
 
             $app = \Aplia\Bootstrap\Base::app();
-            $errorLevel = isset($GLOBALS['STARTER_ERROR_LEVEL']) ? $GLOBALS['STARTER_ERROR_LEVEL'] : \Aplia\Bootstrap\Base::config('app.errorLevel', 'error');
+            $errorLevel = $app->errorLevel;
+            $logLevels = $app->logLevels;
+            $logLevelMap = array(
+                'strict' => 6, // LEVEL_STRICT
+                'error' => 3, // LEVEL_ERROR
+                'warning' => 2, // LEVEL_WARNING
+                'notice' => 1, // LEVEL_NOTICE
+                'debug' => 5, // LEVEL_DEBUG
+            );
+            // Try and force eZ debug to always log the levels we want (note: does not seem to work yet)
+            $GLOBALS['eZDebugAlwaysLog'] = array();
+            foreach ($logLevels as $logLevel) {
+                if (isset($logLevelMap[$logLevel])) {
+                    $GLOBALS['eZDebugAlwaysLog'][$logLevelMap[$logLevel]] = true;
+                }
+            }
 
             if ($app->errorHandler) {
                 // There is already an error handler installed, most likely for bootstrap debugging purpose
@@ -119,7 +134,7 @@ class Ezp
                         \Aplia\Bootstrap\Base::setLogger(array($app, 'logWebConsole'));
                     }
                     // Initialize and register error handler
-                    $app->errorHandler = $app->bootstrapErrorHandler(true, $errorLevel, /*$integrateEzp*/ true);
+                    $app->errorHandler = $app->bootstrapErrorHandler(true, /*logLevel*/null, /*$integrateEzp*/ true);
                 }
             } elseif ($errorMode == 'remote') {
                 // Restores CWD on shutdown

@@ -50,4 +50,22 @@ return array(
     'ezp' => array(
         'path' => $_ENV['EZP_ROOT'],
     ),
+    'log' => array(
+        'handlers' => array(
+            // This handler takes log records and forwards them to eZ debug
+            'ezdebug' => array(
+                'class' => '\\Aplia\\Bootstrap\\EzdebugHandler',
+                'parameters' => array(),
+            ),
+        ),
+        'loggers' => array(
+            // This receives logs from the error handler
+            'phperror' => array(
+                'handlers' => array(
+                    // Enables ezdebug
+                    'ezdebug' => true,
+                )
+            ),
+        ),
+    ),
 );

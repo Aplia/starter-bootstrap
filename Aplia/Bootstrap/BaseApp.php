@@ -18,6 +18,18 @@ class BaseApp
      * The error logger instance if one is setup.
      */
     public $errorHandler;
+    /**
+     * Associative array of loggers.
+     */
+    public $loggers = array();
+    /**
+     * Associative array of log handlers.
+     */
+    public $logHandlers = array();
+    /**
+     * Array of error levels which are to be logged.
+     */
+    public $logLevels = array();
 
     public function __construct($config = null)
     {
@@ -46,6 +58,8 @@ class BaseApp
                 'mode' => isset($GLOBALS['STARTER_BOOTSTRAP_MODE']) ? $GLOBALS['STARTER_BOOTSTRAP_MODE'] : 'plain',
             )
         ));
+        $this->errorLevel = isset($GLOBALS['STARTER_ERROR_LEVEL']) ? $GLOBALS['STARTER_ERROR_LEVEL'] : \Aplia\Bootstrap\Base::config('app.errorLevel', 'error');
+        $this->logLevels = isset($GLOBALS['STARTER_LOG_LEVELS']) ? $GLOBALS['STARTER_LOG_LEVELS'] : $this->config->get('app.logLevels', array('strict', 'error'));
     }
 
     public function configure($names)
@@ -202,7 +216,9 @@ class BaseApp
             // A custom Whoops runner which filters out certain errors to eZDebug
             $whoops = new \Aplia\Bootstrap\ErrorManager;
             $isDebugEnabled = $this->config->get('app.debug');
+            $isLoggerEnabled = $this->config->get('app.logger');
 
+            $this->integrateEzp = $integrateEzp;
             if ($isDebugEnabled) {
                 // Install a handler for HTTP requests, outputs HTML
                 $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
@@ -210,42 +226,135 @@ class BaseApp
                 $textHandler = new \Whoops\Handler\PlainTextHandler;
                 $textHandler->outputOnlyIfCommandLine(true);
                 $whoops->pushHandler($textHandler);
+                if ($isLoggerEnabled) {
+                    $whoops->setLogger(array($this, 'setupErrorLogger'));
+                }
             } else {
                 // Install a handler for showing Server Errors (500)
                 $serverError = new \Aplia\Error\Handler\ServerErrorHandler;
                 $whoops->pushHandler($serverError);
-                // Log all errors to eZDebug by sing a PlainTextHandler
-                if ($integrateEzp) {
-                    $errorLogger = new \Whoops\Handler\PlainTextHandler;
-                    $errorLogger->outputOnlyIfCommandLine(true);
-                    $errorLogger->loggerOnly(true);
-                    $errorLogger->setLogger(new \Aplia\Support\LoggerAdapter);
-                    $whoops->pushHandler($errorLogger);
+                if ($isLoggerEnabled) {
+                    $whoops->setLogger(array($this, 'setupErrorLogger'));
                 }
             }
 
             if ($errorLevel === null) {
-                $errorLevel = 'error';
+                $errorLevel = $this->errorLevel;
+            }
+            $logLevelMask = 0;
+            foreach ($this->logLevels as $logLevel) {
+                if ($logLevel == 'strict') {
+                    $logLevelMask |= $whoops->strictTypes;
+                } elseif ($logLevel == 'error') {
+                    $logLevelMask |= $whoops->errorTypes;
+                } elseif ($logLevel == 'warning') {
+                    $logLevelMask |= $whoops->warningTypes;
+                } elseif ($logLevel == 'notice') {
+                    $logLevelMask |= -1 & ~($whoops->strictTypes | $whoops->errorTypes | $whoops->warningTypes);
+                }
             }
             if ($errorLevel == 'error') {
                 $whoops->setErrorLevels($whoops->errorTypes | $whoops->strictTypes);
-                $whoops->setLogLevels(~($whoops->errorTypes | $whoops->strictTypes));
             } elseif ($errorLevel == 'warning') {
                 $whoops->setErrorLevels($whoops->warningTypes | $whoops->errorTypes | $whoops->strictTypes);
-                $whoops->setLogLevels(~($whoops->warningTypes | $whoops->errorTypes | $whoops->strictTypes));
             } elseif ($errorLevel == 'notice') {
                 $whoops->setErrorLevels(-1);
-                $whoops->setLogLevels(0);
             } elseif ($errorLevel == 'ignore') {
                 $whoops->setErrorLevels(0);
-                $whoops->setLogLevels(-1);
             }
+            $whoops->setLogLevels($logLevelMask);
 
             if ($register) {
                 $whoops->register();
             }
             return $whoops;
         }
+    }
+
+    /**
+     * Creates the logger used for receving errors reported by the error
+     * handler (Whoops). This will only be called the first time
+     * an error needs to be logged.
+     *
+     * Calling this multiple times is safe, it will only create the
+     * logger one time.
+     *
+     * @return The logger instance.
+     */
+    public function setupErrorLogger()
+    {
+        return $this->fetchLogger('phperror');
+    }
+
+    /**
+     * Fetches the logger with given name.
+     * If the logger is not yet created it reads the configuration for it
+     * from log.loggers.$name and creates the logger instance.
+     *
+     * Calling this multiple times is safe, it will only create the
+     * logger one time.
+     *
+     * @return The logger instance.
+     */
+    public function fetchLogger($name)
+    {
+        if (isset($this->loggers[$name])) {
+            return $this->loggers[$name];
+        }
+        if (!$this->config->get('app.logger', true)) {
+            return null;
+        }
+        $loggers = $this->config->get('log.loggers');
+        if (!isset($loggers[$name])) {
+            throw new \Exception("No logger defined for name: $name");
+        }
+        $definition = $loggers[$name];
+        $class = $definition['class'];
+        $parameters = \Aplia\Support\Arr::get($definition, 'parameters');
+
+        $logger = new $class($name);
+        $handlerNames = array_filter(\Aplia\Support\Arr::get($definition, 'handlers', array()));
+        $handlers = $this->fetchLogHandlers(array_keys($handlerNames));
+        foreach ($handlers as $handler) {
+            $logger->pushHandler($handler);
+        }
+        $this->loggers[$name] = $logger;
+        return $logger;
+    }
+
+    /**
+     * Fetches the logger handlers with given names.
+     * If the handlers are not yet created it reads the configuration for them
+     * from log.handlers and creates the handler instances.
+     *
+     * Calling this multiple times is safe, it will only create each
+     * handler one time.
+     *
+     * @return Array of handler instances.
+     */
+    public function fetchLogHandlers($names)
+    {
+        if (!$this->config->get('app.logger', true)) {
+            return array();
+        }
+        $handlers = array();
+        foreach ($names as $name) {
+            if (isset($this->logHandlers[$name])) {
+                $handlers[] = $this->logHandlers[$name];
+            } else {
+                $availableHandlers = $this->config->get('log.handlers');
+                if (!isset($availableHandlers[$name])) {
+                    throw new \Exception("No log handler defined for name: $name");
+                }
+                $definition = $availableHandlers[$name];
+                $class = $definition['class'];
+                $parameters = \Aplia\Support\Arr::get($definition, 'parameters');
+                $this->logHandlers[$name] = new $class;
+                $handlers[] = $this->logHandlers[$name];
+            }
+        }
+        // $this->logHandlers['raven'] = ...;
+        return $handlers;
     }
 
     public function bootstrapRaven($register = false, $dsn = null)

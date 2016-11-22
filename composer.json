@@ -16,7 +16,8 @@
         "filp/whoops": "1.1.10",
         "firephp/firephp-core": "0.4.0",
         "vlucas/phpdotenv": "2.0.1|2.3.0",
-        "nikic/php-parser": "^2.1.1"
+        "nikic/php-parser": "^2.1.1",
+        "monolog/monolog": "1.21.0"
     },
     "bin": [
         "bin/ezp_dump_extensions",
