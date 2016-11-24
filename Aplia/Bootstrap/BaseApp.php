@@ -332,9 +332,11 @@ class BaseApp
         foreach ($handlers as $handler) {
             $logger->pushHandler($handler);
         }
-        $processors = $this->fetchLogProcessors(\Aplia\Support\Arr::get($definition, 'processors'));
+        $processorNames = array_filter(\Aplia\Support\Arr::get($definition, 'processors', array()));
+        asort($processorNames);
+        $processors = $this->fetchLogProcessors(array_keys($processorNames));
         foreach ($processors as $processor) {
-            $handler->pushProcessor($processors);
+            $handler->pushProcessor($processor);
         }
         $this->loggers[$name] = $logger;
         return $logger;
@@ -392,9 +394,11 @@ class BaseApp
                     $handler->setLevel($level);
                     $handler->setBubble($bubble);
                 }
-                $processors = $this->fetchLogProcessors(\Aplia\Support\Arr::get($definition, 'processors'));
+                $processorNames = array_filter(\Aplia\Support\Arr::get($definition, 'processors', array()));
+                asort($processorNames);
+                $processors = $this->fetchLogProcessors(array_keys($processorNames));
                 foreach ($processors as $processor) {
-                    $handler->pushProcessor($processors);
+                    $handler->pushProcessor($processor);
                 }
                 $this->logHandlers[$name] = $handler;
                 $handlers[] = $this->logHandlers[$name];
