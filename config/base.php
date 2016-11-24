@@ -47,6 +47,7 @@ return array(
             // FirePHP logger, useful for debugging XHR requests
             'firephp' => array(
                 'class' => 'Monolog\\Handler\\FirePHPHandler',
+                'level' => 'warning',
             ),
             // Remote logging to Sentry, requires configuration 'sentry.dsn' setup to be enabled
             'sentry' => array(

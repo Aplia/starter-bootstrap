@@ -16,6 +16,12 @@ return array(
         ),
     ),
     'log' => array(
+        'handlers' => array(
+            'firephp' => array(
+                // Increase FirePHP log level for development
+                'level' => 'notice',
+            ),
+        ),
         'loggers' => array(
             'phperror' => array(
                 'handlers' => array(
