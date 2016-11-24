@@ -438,13 +438,11 @@ class BaseApp
                 if (!$enabled) {
                     continue;
                 }
-                $level = \Aplia\Support\Arr::get($definition, 'level');
                 $setup = \Aplia\Support\Arr::get($definition, 'setup');
                 if ($setup) {
                     if (is_string($setup) && strpos($setup, '::') !== false) {
                         $setup = explode("::", $setup, 2);
                     }
-                    $definition['level'] = $level;
                     $processor = call_user_func_array($setup, array($definition));
                     // If the setup callback returns null it means the processor should be ignored
                     if ($processor === null) {
@@ -457,10 +455,12 @@ class BaseApp
                     if (is_string($call) && strpos($call, '::') !== false) {
                         $processor = explode("::", $call, 2);
                     } else if ($class) {
-                        if ($level === null) {
+                        $parameters = \Aplia\Support\Arr::get($definition, 'parameters');
+                        if (!$parameters) {
                             $processor = new $class();
                         } else {
-                            $processor = new $class($level);
+                            $reflection = new \ReflectionClass($class);
+                            $processor = $reflection->newInstanceArgs($parameters);
                         }
                     } else {
                         throw new \Exception("Log processor $name has no 'class' or 'call' defined");
