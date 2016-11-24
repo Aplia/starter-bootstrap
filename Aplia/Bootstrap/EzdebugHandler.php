@@ -36,7 +36,7 @@ class EzdebugHandler extends AbstractProcessingHandler
     protected function sendToEz(array $record)
     {
         $level = $record['level'];
-        $title = $record['level_name'] . ' - ' .$record['channel'] . " - " . $record['datetime']->format(\DateTime::ISO8601);
+        $title = 'phperror: ' . $record['level_name'] . ' - ' .$record['channel'] . " - " . $record['datetime']->format(\DateTime::ISO8601);
         if ($level == Logger::DEBUG) {
             \eZDebug::writeDebug($record['formatted'], $title);
         } elseif ($level == Logger::INFO || $level == Logger::NOTICE) {
