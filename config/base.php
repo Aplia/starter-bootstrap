@@ -50,7 +50,7 @@ return array(
             ),
             // Remote logging to Sentry, requires configuration 'sentry.dsn' setup to be enabled
             'sentry' => array(
-                'class' => 'Monolog\\Handler\\RavenHandler',
+                'class' => 'Aplia\\Bootstrap\\RavenHandler',
                 'setup' => 'Aplia\\Bootstrap\\BaseApp::setupSentry',
             ),
         ),
