@@ -17,6 +17,7 @@ class ErrorManager extends Run
     public $logLevels;
     public $levelNames = array();
     public $logger;
+    public $lastLoggedException;
 
     const ACTION_ERROR = 1;
     const ACTION_LOG = 2;
@@ -101,6 +102,7 @@ class ErrorManager extends Run
     {
         if ($exception instanceof \ErrorException) {
             $level = $exception->getCode();
+            var_dump($level);
             if ($level & $this->errorLevels) {
                 return self::ACTION_ERROR;
             }
@@ -161,7 +163,7 @@ class ErrorManager extends Run
 
 
     /**
-     * Handles an exception, passes the exception to a logge if applicable
+     * Handles an exception, passes the exception to a logger if applicable
      * then ultimately generating a Whoops error page.
      *
      * Some exceptions (ErrorException) may be ignored depending on the error level.
@@ -172,19 +174,78 @@ class ErrorManager extends Run
     public function handleException(\Exception $exception)
     {
         // Check if the error level should be sent to a logger first
-        if ($this->logger && $this->shouldBeLogged($exception)) {
+        if ($this->lastLoggedException !== $exception && $this->logger && $this->shouldBeLogged($exception)) {
             $this->logException($exception);
+            $this->lastLoggedException = null;
         }
 
         // Determine if the error should be reported to the error handlers
         $action = $this->determineAction($exception);
         if ($action == self::ACTION_IGNORE) {
-            return true;
+            return;
         }
-
 
         // Let Whoops handle it as an error
         return parent::handleException($exception);
+    }
+
+    /**
+     * Handles an error, passes the error to a logger if applicable
+     * then passes the error on as an exception.
+     *
+     * Some exceptions (ErrorException) may be ignored depending on the error level.
+     *
+     * This method MUST be compatible with set_error_handler.
+     *
+     * @param int    $level
+     * @param string $message
+     * @param string $file
+     * @param int    $line
+     *
+     * @return bool
+     * @throws ErrorException
+     */
+    public function handleError($level, $message, $file = null, $line = null)
+    {
+        if ($level & error_reporting()) {
+            foreach ($this->silencedPatterns as $entry) {
+                $pathMatches = (bool) preg_match($entry["pattern"], $file);
+                $levelMatches = $level & $entry["levels"];
+                if ($pathMatches && $levelMatches) {
+                    // Ignore the error, abort handling
+                    return true;
+                }
+            }
+
+            $this->lastLoggedException = null;
+            // XXX we pass $level for the "code" param only for BC reasons.
+            // see https://github.com/filp/whoops/issues/267
+            $exception = new \ErrorException($message, /*code*/ $level, /*severity*/ $level, $file, $line);
+
+            // Log the exception first
+            if ($this->logger && $this->shouldBeLogged($exception)) {
+                $this->logException($exception);
+            }
+
+            // Determine if the error should be reported to the error handlers
+            $action = $this->determineAction($exception);
+            if ($action == self::ACTION_IGNORE) {
+                return true;
+            }
+
+            if ($this->canThrowExceptions) {
+                $this->lastLoggedException = $exception;
+                throw $exception;
+            } else {
+                $this->handleException($exception);
+            }
+            // Do not propagate errors which were already handled by Whoops.
+            return true;
+        }
+
+        // Propagate error to the next handler, allows error_get_last() to
+        // work on silenced errors.
+        return false;
     }
 
     /**
