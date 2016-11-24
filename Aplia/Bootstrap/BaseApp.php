@@ -456,15 +456,14 @@ class BaseApp
                     $call = \Aplia\Support\Arr::get($definition, 'call');
                     if (is_string($call) && strpos($call, '::') !== false) {
                         $processor = explode("::", $call, 2);
-                    } else {
-                        if ($class === null) {
-                            throw new \Exception("Log processor $name has no 'class' or 'call' defined");
-                        }
+                    } else if ($class) {
                         if ($level === null) {
                             $processor = new $class();
                         } else {
                             $processor = new $class($level);
                         }
+                    } else {
+                        throw new \Exception("Log processor $name has no 'class' or 'call' defined");
                     }
                 }
                 $this->logProcessors[$name] = $processor;
