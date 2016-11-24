@@ -369,7 +369,9 @@ class BaseApp
                         continue;
                     }
                 } else {
-                    $handler = new $class($level, $bubble);
+                    $handler = new $class();
+                    $handler->setLevel($level);
+                    $handler->setBubble($bubble);
                 }
                 $this->logHandlers[$name] = $handler;
                 $handlers[] = $this->logHandlers[$name];
