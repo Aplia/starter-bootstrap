@@ -312,7 +312,20 @@ class BaseApp
         $class = $definition['class'];
         $channel = \Aplia\Support\Arr::get($definition, 'channel', $name);
 
-        $logger = new $class($name);
+        $setup = \Aplia\Support\Arr::get($definition, 'setup');
+        if ($setup) {
+            if (is_string($setup) && strpos($setup, '::') !== false) {
+                $setup = explode("::", $setup, 2);
+            }
+            $logger = call_user_func_array($setup, array($definition));
+            // If the setup callback returns null it means the logger should be ignored
+            if ($logger === null) {
+                $this->loggers[$name] = null;
+                return null;
+            }
+        } else {
+            $logger = new $class($channel);
+        }
         $handlerNames = array_filter(\Aplia\Support\Arr::get($definition, 'handlers', array()));
         asort($handlerNames);
         $handlers = $this->fetchLogHandlers(array_keys($handlerNames));
@@ -345,7 +358,9 @@ class BaseApp
         $handlers = array();
         foreach ($names as $name) {
             if (isset($this->logHandlers[$name])) {
-                $handlers[] = $this->logHandlers[$name];
+                if ($this->logHandlers[$name]) {
+                    $handlers[] = $this->logHandlers[$name];
+                }
             } else {
                 $availableHandlers = $this->config->get('log.handlers');
                 if (!isset($availableHandlers[$name])) {
@@ -369,6 +384,7 @@ class BaseApp
                     $handler = call_user_func_array($setup, array($definition));
                     // If the setup callback returns null it means the handler should be ignored
                     if ($handler === null) {
+                        $this->logHandlers[$name] = null;
                         continue;
                     }
                 } else {
@@ -405,7 +421,9 @@ class BaseApp
         $processors = array();
         foreach ($names as $name) {
             if (isset($this->logProcessors[$name])) {
-                $processors[] = $this->logProcessors[$name];
+                if ($this->logProcessors[$name]) {
+                    $processors[] = $this->logProcessors[$name];
+                }
             } else {
                 $availableProcessors = $this->config->get('log.processors');
                 if (!isset($availableProcessors[$name])) {
@@ -426,6 +444,7 @@ class BaseApp
                     $processor = call_user_func_array($setup, array($definition));
                     // If the setup callback returns null it means the processor should be ignored
                     if ($processor === null) {
+                        $this->logProcessors[$name] = null;
                         continue;
                     }
                 } else {
