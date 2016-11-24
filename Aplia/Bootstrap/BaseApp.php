@@ -262,6 +262,33 @@ class BaseApp
     }
 
     /**
+     * Converts a log level from a string to the Monolog constant.
+     */
+    public function levelStringToMonolog($level)
+    {
+        if ($level === null) {
+            return \Monolog\Logger::DEBUG;
+        }
+        static $monologLevels = null;
+        if ($monologLevels === null ) {
+            $monologLevels = array(
+                "debug" => \Monolog\Logger::DEBUG,
+                "info" => \Monolog\Logger::INFO,
+                "notice" => \Monolog\Logger::NOTICE,
+                "warning" => \Monolog\Logger::WARNING,
+                "error" => \Monolog\Logger::ERROR,
+                "critical" => \Monolog\Logger::CRITICAL,
+                "alert" => \Monolog\Logger::ALERT,
+                "emergency" => \Monolog\Logger::EMERGENCY,
+            );
+        }
+        if (!isset($monologLevels[$level])) {
+            throw new \Exception("Unsupported log level: $level");
+        }
+        return $monologLevels[$level];
+    }
+
+    /**
      * Fetches the logger with given name.
      * If the logger is not yet created it reads the configuration for it
      * from log.loggers.$name and creates the logger instance.
@@ -349,7 +376,7 @@ class BaseApp
                 if (!$enabled) {
                     continue;
                 }
-                $level = \Aplia\Support\Arr::get($definition, 'level', \Monolog\Logger::DEBUG);
+                $level = $this->levelStringToMonolog(\Aplia\Support\Arr::get($definition, 'level'));
                 $bubble = \Aplia\Support\Arr::get($definition, 'bubble', true);
                 $setup = \Aplia\Support\Arr::get($definition, 'setup');
                 if ($setup) {
@@ -461,7 +488,7 @@ class BaseApp
             $client = new \Raven_Client($dsn, array(
                 'install_default_breadcrumb_handlers' => false,
             ));
-            $level = \Aplia\Support\Arr::get($definition, 'level', \Monolog\Logger::DEBUG);
+            $level = \Aplia\Support\Arr::get($definition, 'level');
             $bubble = \Aplia\Support\Arr::get($definition, 'bubble', true);
             $class = \Aplia\Support\Arr::get($definition, 'class', 'Monolog\\Handler\\RavenHandler');
             $handler = new $class($client, $level, $bubble);
