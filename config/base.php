@@ -70,7 +70,10 @@ return array(
             // This receives logs from the error handler
             'phperror' => array(
                 'class' => '\\Monolog\\Logger',
-                'parameters' => array(),
+            ),
+            // Logger for the base system
+            'base' => array(
+                'class' => '\\Monolog\\Logger',
             ),
         ),
         // Defines all processors, processors are callbacks/instances which are

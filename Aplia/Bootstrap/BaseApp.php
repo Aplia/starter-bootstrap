@@ -122,6 +122,9 @@ class BaseApp
                 $this->usedHelpers[] = $path;
             }
         }
+
+        // Register a default logger
+        Base::setLogger($this->fetchLogger('base'));
     }
 
     /**
