@@ -53,6 +53,7 @@ return array(
             'sentry' => array(
                 'class' => 'Aplia\\Bootstrap\\RavenHandler',
                 'setup' => 'Aplia\\Bootstrap\\BaseApp::setupSentry',
+                'level' => 'warning',
                 'processors' => array(
                     'git' => 100,
                 ),

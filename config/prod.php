@@ -14,6 +14,12 @@ return array(
         ),
     ),
     'log' => array(
+        'handlers' => array(
+            'sentry' => array(
+                // Production should only report errors by default
+                'level' => 'error',
+            ),
+        ),
         'loggers' => array(
             'phperror' => array(
                 'handlers' => array(
