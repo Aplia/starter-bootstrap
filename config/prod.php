@@ -14,5 +14,13 @@ return array(
         ),
     ),
     'log' => array(
+        'loggers' => array(
+            'phperror' => array(
+                'handlers' => array(
+                    // Enable Sentry remote logging, will not be used unless a DSN is setup, see base.php
+                    'sentry' => 20,
+                ),
+            ),
+        ),
     ),
 );

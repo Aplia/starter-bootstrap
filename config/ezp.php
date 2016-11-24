@@ -63,7 +63,7 @@ return array(
             'phperror' => array(
                 'handlers' => array(
                     // Enables ezdebug
-                    'ezdebug' => true,
+                    'ezdebug' => 100,
                 )
             ),
         ),

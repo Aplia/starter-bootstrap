@@ -16,5 +16,15 @@ return array(
         ),
     ),
     'log' => array(
+        'loggers' => array(
+            'phperror' => array(
+                'handlers' => array(
+                    // Enable FirePHP for development
+                    'firephp' => 200,
+                    'sentry' => 20,
+                ),
+            ),
+        ),
+    ),
     ),
 );

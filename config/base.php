@@ -44,6 +44,15 @@ return array(
         // It may contain:
         // 'parameters' - Parameters to use when instantiating the class.
         'handlers' => array(
+            // FirePHP logger, useful for debugging XHR requests
+            'firephp' => array(
+                'class' => 'Monolog\\Handler\\FirePHPHandler',
+            ),
+            // Remote logging to Sentry, requires configuration 'sentry.dsn' setup to be enabled
+            'sentry' => array(
+                'class' => 'Monolog\\Handler\\RavenHandler',
+                'setup' => 'Aplia\\Bootstrap\\BaseApp::setupSentry',
+            ),
         ),
         // Defines all loggers available to use, the key is the name of the
         // logger which is referenced later on.
@@ -61,5 +70,10 @@ return array(
                 'parameters' => array(),
             ),
         ),
+    ),
+    // Configuration for the sentry handler
+    'sentry' => array(
+        // Copy this to your site config and set the dsn string in this field
+        // 'dsn' => '',
     ),
 );

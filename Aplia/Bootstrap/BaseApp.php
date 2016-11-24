@@ -311,9 +311,11 @@ class BaseApp
         $definition = $loggers[$name];
         $class = $definition['class'];
         $parameters = \Aplia\Support\Arr::get($definition, 'parameters');
+        $channel = \Aplia\Support\Arr::get($definition, 'channel', $name);
 
         $logger = new $class($name);
         $handlerNames = array_filter(\Aplia\Support\Arr::get($definition, 'handlers', array()));
+        asort($handlerNames);
         $handlers = $this->fetchLogHandlers(array_keys($handlerNames));
         foreach ($handlers as $handler) {
             $logger->pushHandler($handler);
@@ -348,32 +350,50 @@ class BaseApp
                 }
                 $definition = $availableHandlers[$name];
                 $class = $definition['class'];
-                $parameters = \Aplia\Support\Arr::get($definition, 'parameters');
-                $this->logHandlers[$name] = new $class;
+                $enabled = \Aplia\Support\Arr::get($definition, 'enabled', true);
+                if (!$enabled) {
+                    continue;
+                }
+                $level = \Aplia\Support\Arr::get($definition, 'level', \Monolog\Logger::DEBUG);
+                $bubble = \Aplia\Support\Arr::get($definition, 'bubble', true);
+                $setup = \Aplia\Support\Arr::get($definition, 'setup');
+                if ($setup) {
+                    if (is_string($setup) && strpos($setup, '::') !== false) {
+                        $setup = explode("::", $setup, 2);
+                    }
+                    $definition['level'] = $level;
+                    $definition['bubble'] = $bubble;
+                    $handler = call_user_func_array($setup, array($definition));
+                    // If the setup callback returns null it means the handler should be ignored
+                    if ($handler === null) {
+                        continue;
+                    }
+                } else {
+                    $handler = new $class($level, $bubble);
+                }
+                $this->logHandlers[$name] = $handler;
                 $handlers[] = $this->logHandlers[$name];
             }
         }
-        // $this->logHandlers['raven'] = ...;
         return $handlers;
     }
 
-    public function bootstrapRaven($register = false, $dsn = null)
+    /**
+     * Sets up the sentry handler by creating a Raven_Client instance
+     * and passing it to the log handler.
+     *
+     * Requires sentry.dsn to be set
+     */
+    public function setupSentry($parameters)
     {
-        if (class_exists('Raven_Autoloader')) {
-            Raven_Autoloader::register();
-
-            if (!$dsn) {
-                throw new \Exception("No DSN configured for Raven/Sentry");
-            }
-            $client = new Raven_Client($dsn);
-            // Install error handlers and shutdown function to catch fatal errors
-            $error_handler = new Raven_ErrorHandler($client);
-            if ($register) {
-                $error_handler->registerExceptionHandler();
-                $error_handler->registerErrorHandler();
-                $error_handler->registerShutdownFunction();
-            }
-            return $error_handler;
+        $dsn = Base::env('RAVEN_DSN', $this->config->get('sentry.dsn'));
+        if ($dsn) {
+            $client = new \Raven_Client($dsn, array(
+                'install_default_breadcrumb_handlers' => false,
+            ));
+            $level = \Aplia\Support\Arr::get($parameters, 'level', \Monolog\Logger::DEBUG);
+            $bubble = \Aplia\Support\Arr::get($parameters, 'bubble', true);
+            return new \Monolog\Handler\RavenHandler($client, $level, $bubble);
         }
     }
 

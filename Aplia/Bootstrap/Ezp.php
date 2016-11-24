@@ -62,23 +62,18 @@ class Ezp
             //
             //    $GLOBALS['STARTER_ERROR_MODE'] = 'local';
             //
-            // 'local' means that errors and logging is handled locally, it will enable a
-            // an error handler that stops on any errors, and a logger (FirePHP) that can
-            // send the logs over the HTTP response and viewed in the browser.
+            // 'local' or 'remote' sets up an error handler which handles errors
+            // according to whether we are using a prod or dev setup.
             //
-            // 'remote' means to log all errors to a remote logger, e.g. Sentry.
+            // In addition it enables sending errors to the current 'phperror' logger.
             //
-            // Set it to null to use the default eZ publish logger.
+            // Set it to null to use the default eZ publish error handler.
             //
             // This variable can olso be an array to control the error handler per bootstrap mode
             // e.g. to only enable it for eZ publish use:
-            //$GLOBALS['STARTER_ERROR_MODE']['ezp'] = 'local';
+            // $GLOBALS['STARTER_ERROR_MODE']['ezp'] = 'local';
             //
-            // To enable remote logging of errors (via Raven) set the variable 'remote', e.g.
-            //$GLOBALS['STARTER_ERROR_MODE'] = 'remote'
-            //
-            // If you need a different Sentry DSN then also set $Raven_dsn
-            //
+            // See config/base.php for examples of loggers and handlers.
 
             $errorMode = \Aplia\Bootstrap\Base::config('app.errorMode');
             $processMode = \Aplia\Bootstrap\Base::config('app.mode');
@@ -112,38 +107,12 @@ class Ezp
 
             if ($app->errorHandler) {
                 // There is already an error handler installed, most likely for bootstrap debugging purpose
-            } elseif ($errorMode == 'local') {
+            } elseif ($errorMode == 'local' || $errorMode == 'remote') {
                 // Restores CWD on shutdown
                 register_shutdown_function(array('\\Aplia\\Bootstrap\\ErrorManager', 'restoreWwwRoot'));
 
-                if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
-                    // For Ajax requests we setup a logger for both logging and error handling
-                    $logger = $app->bootstrapLogger(true);
-                    if ($logger) {
-                        $app->logger = $logger;
-                        $app->errorHandler = $app->logger;
-                        \Aplia\Bootstrap\Base::setLogger(array($app, 'logWebConsole'));
-                    }
-                } else {
-                    // For normal requests we use FirePHP for logging, but Whoops for error handling
-
-                    // Initialize logger but do not register error handler
-                    $logger = $app->bootstrapLogger(false);
-                    if ($logger) {
-                        $app->logger = $logger;
-                        \Aplia\Bootstrap\Base::setLogger(array($app, 'logWebConsole'));
-                    }
-                    // Initialize and register error handler
-                    $app->errorHandler = $app->bootstrapErrorHandler(true, /*logLevel*/null, /*$integrateEzp*/ true);
-                }
-            } elseif ($errorMode == 'remote') {
-                // Restores CWD on shutdown
-                register_shutdown_function(array('\\Aplia\\Bootstrap\\ErrorManager', 'restoreWwwRoot'));
-
-                // Setup a remote error handler
-                $ravenDsn = Base::env('RAVEN_DSN', isset($ravenDsn) ? $ravenDsn : null);
-                $app->errorHandler = $app->bootstrapRaven(true, $ravenDsn);
-                $app->logger = null;
+                // Initialize and register error handler
+                $app->errorHandler = $app->bootstrapErrorHandler(true, /*logLevel*/null, /*$integrateEzp*/ true);
             }
         }
     }
