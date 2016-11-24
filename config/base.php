@@ -52,6 +52,9 @@ return array(
             'sentry' => array(
                 'class' => 'Aplia\\Bootstrap\\RavenHandler',
                 'setup' => 'Aplia\\Bootstrap\\BaseApp::setupSentry',
+                'processors' => array(
+                    'git' => 100,
+                ),
             ),
         ),
         // Defines all loggers available to use, the key is the name of the
@@ -68,6 +71,24 @@ return array(
             'phperror' => array(
                 'class' => '\\Monolog\\Logger',
                 'parameters' => array(),
+            ),
+        ),
+        // Defines all processors, processors are callbacks/instances which are
+        // for each log record and can modify or add information.
+        // Processors can be set on a logger or on a handler.
+        //
+        // Each processor can have these entries ('call', 'setup' or 'class' must be defined)
+        // - 'enabled' - Whether it is enabled or not, default true.
+        // - 'setup' - Callback for setting up a processor, callback must return the processor value.
+        // - 'call' - Use a callback as a processor, use <class>::<function> for static callbacks.
+        // - 'class' - Class to instantiate, the class must support the invoke method.
+        // - 'parameters' - Extra parameters to pass to constructor
+        'processors' => array(
+            'git' => array(
+                'class' => 'Monolog\\Processor\\GitProcessor',
+            ),
+            'web' => array(
+                'class' => 'Monolog\\Processor\\WebProcessor',
             ),
         ),
     ),
