@@ -2,8 +2,8 @@
 
 return array(
     'app' => array(
-        // Trap warnings as errors during development
-        'errorLevel' => 'warning',
+        // Trap notice, warnings and error as errors during development
+        'errorLevel' => 'notice',
         // Allow errors to stop execution and show a trace
         'debug' => true,
         // Log as much as possible while developing
