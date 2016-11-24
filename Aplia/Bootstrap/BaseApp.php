@@ -310,7 +310,6 @@ class BaseApp
         }
         $definition = $loggers[$name];
         $class = $definition['class'];
-        $parameters = \Aplia\Support\Arr::get($definition, 'parameters');
         $channel = \Aplia\Support\Arr::get($definition, 'channel', $name);
 
         $logger = new $class($name);
@@ -319,6 +318,10 @@ class BaseApp
         $handlers = $this->fetchLogHandlers(array_keys($handlerNames));
         foreach ($handlers as $handler) {
             $logger->pushHandler($handler);
+        }
+        $processors = $this->fetchLogProcessors(\Aplia\Support\Arr::get($definition, 'processors'));
+        foreach ($processors as $processor) {
+            $handler->pushProcessor($processors);
         }
         $this->loggers[$name] = $logger;
         return $logger;
@@ -373,11 +376,79 @@ class BaseApp
                     $handler->setLevel($level);
                     $handler->setBubble($bubble);
                 }
+                $processors = $this->fetchLogProcessors(\Aplia\Support\Arr::get($definition, 'processors'));
+                foreach ($processors as $processor) {
+                    $handler->pushProcessor($processors);
+                }
                 $this->logHandlers[$name] = $handler;
                 $handlers[] = $this->logHandlers[$name];
             }
         }
         return $handlers;
+    }
+
+    /**
+     * Fetches the logger processors with given names.
+     * If the processor are not yet created it reads the configuration for them
+     * from log.processors and creates the processor instances or sets up a callback.
+     *
+     * Calling this multiple times is safe, it will only create each
+     * processor one time.
+     *
+     * @return Array of processor instances.
+     */
+    public function fetchLogProcessors($names)
+    {
+        if (!$names || !$this->config->get('app.logger', true)) {
+            return array();
+        }
+        $processors = array();
+        foreach ($names as $name) {
+            if (isset($this->logProcessors[$name])) {
+                $processors[] = $this->logProcessors[$name];
+            } else {
+                $availableProcessors = $this->config->get('log.processors');
+                if (!isset($availableProcessors[$name])) {
+                    throw new \Exception("No log processor defined for name: $name");
+                }
+                $definition = $availableProcessors[$name];
+                $enabled = \Aplia\Support\Arr::get($definition, 'enabled', true);
+                if (!$enabled) {
+                    continue;
+                }
+                $level = \Aplia\Support\Arr::get($definition, 'level');
+                $setup = \Aplia\Support\Arr::get($definition, 'setup');
+                if ($setup) {
+                    if (is_string($setup) && strpos($setup, '::') !== false) {
+                        $setup = explode("::", $setup, 2);
+                    }
+                    $definition['level'] = $level;
+                    $processor = call_user_func_array($setup, array($definition));
+                    // If the setup callback returns null it means the processor should be ignored
+                    if ($processor === null) {
+                        continue;
+                    }
+                } else {
+                    $class = \Aplia\Support\Arr::get($definition, 'class');
+                    $call = \Aplia\Support\Arr::get($definition, 'call');
+                    if (is_string($call) && strpos($call, '::') !== false) {
+                        $processor = explode("::", $call, 2);
+                    } else {
+                        if ($class === null) {
+                            throw new \Exception("Log processor $name has no 'class' or 'call' defined");
+                        }
+                        if ($level === null) {
+                            $processor = new $class();
+                        } else {
+                            $processor = new $class($level);
+                        }
+                    }
+                }
+                $this->logProcessors[$name] = $processor;
+                $processors[] = $this->logProcessors[$name];
+            }
+        }
+        return $processors;
     }
 
     /**
