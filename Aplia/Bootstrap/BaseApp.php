@@ -176,34 +176,6 @@ class BaseApp
         );
     }
 
-    public function bootstrapLogger($register = false)
-    {
-        // Bootstrap fire PHP, this is the only supported logger for now
-        return $this->bootstrapFirePHP($register);
-    }
-
-    public function bootstrapFirePHP($register = false)
-    {
-        // Enable logger and error handler
-        if (class_exists('\\FirePHP')) {
-            $firephp = \FirePHP::getInstance(true);
-            if (!$firephp->detectClientExtension()) {
-                return null;
-            }
-
-            if ($register) {
-                $firephp->registerErrorHandler();
-                $firephp->registerExceptionHandler();
-                $firephp->registerAssertionHandler();
-            }
-
-            // Register a web logger
-            Base::setLogger(array($this, 'logWebConsole'));
-
-            return $firephp;
-        }
-    }
-
     public function bootstrapErrorHandler($register = false, $errorLevel=null, $integrateEzp=false)
     {
         // Bootstrap Whoops error handler, this is the only supported handler for now
@@ -492,23 +464,5 @@ class BaseApp
             $handler = new $class($client, $level, $bubble);
             return $handler;
         }
-    }
-
-    /**
-     * Logs to the current web console logger.
-     */
-    public function logWebConsole()
-    {
-        if (!$this->logger) {
-            return;
-        }
-        $args = func_get_args();
-        if (count($args) >= 1) {
-            $value = $args[0];
-            if ($value instanceof \Closure) {
-                $args[0] = $value();
-            }
-        }
-        return call_user_func_array(array($this->logger, 'fb'), $args);
     }
 }
