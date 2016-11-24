@@ -22,13 +22,34 @@ class ServerErrorHandler extends Handler
                 $exception->getMessage()
             );
         } else {
-            $response = "<!DOCTYPE html><html><head></head><body><b>Fatal error</b>: The web server did not finish its request<br/>";
-            if ( ini_get('display_errors') == 1 ) {
-                $response .= "<p>Debug information can be found in the log files normally placed in var/log/*</p>";
-            } else {
-                $response .= "<p>Contact website owner with current url and info on what you did, and owner will be able to debug the issue further (by enabling  'display_errors' in php.ini).</p>";
-            }
-            $response .= "</body></html>";
+            ob_start();
+            $response = <<<HTML
+<!DOCTYPE html>
+<html>
+<head>
+<title>Server Error</title>
+<style type="text/css" media="screen">
+      body {
+        background-color: #f1f1f1;
+        margin: 0;
+      }
+      body,
+      input,
+      button {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      }
+
+      .container { margin: 50px auto 40px auto; width: 100%; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Looks like something went wrong!</h1>
+<p>We track these errors automatically, but if the problem persists feel free to contact us. In the meantime, try refreshing.</p>
+</div>
+</body>
+</html>
+HTML;
             return $response;
         }
     }
