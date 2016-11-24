@@ -386,16 +386,18 @@ class BaseApp
      *
      * Requires sentry.dsn to be set
      */
-    public function setupSentry($parameters)
+    public function setupSentry($definition)
     {
         $dsn = Base::env('RAVEN_DSN', $this->config->get('sentry.dsn'));
         if ($dsn) {
             $client = new \Raven_Client($dsn, array(
                 'install_default_breadcrumb_handlers' => false,
             ));
-            $level = \Aplia\Support\Arr::get($parameters, 'level', \Monolog\Logger::DEBUG);
-            $bubble = \Aplia\Support\Arr::get($parameters, 'bubble', true);
-            return new \Monolog\Handler\RavenHandler($client, $level, $bubble);
+            $level = \Aplia\Support\Arr::get($definition, 'level', \Monolog\Logger::DEBUG);
+            $bubble = \Aplia\Support\Arr::get($definition, 'bubble', true);
+            $class = \Aplia\Support\Arr::get($definition, 'class', 'Monolog\\Handler\\RavenHandler');
+            $handler = new $class($client, $level, $bubble);
+            return $handler;
         }
     }
 
