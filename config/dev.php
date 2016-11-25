@@ -15,6 +15,11 @@ return array(
             'debug',
         ),
     ),
+    'helpers' => array(
+        'common' => array(
+            "vendor/aplia/starter-bootstrap/helpers/debug.php",
+        ),
+    ),
     'log' => array(
         'handlers' => array(
             'firephp' => array(

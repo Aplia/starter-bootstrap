@@ -30,12 +30,28 @@ class BaseApp
      * Array of error levels which are to be logged.
      */
     public $logLevels = array();
+    /**
+     * Associative array containing variables to display on
+     * error page when an error occurs.
+     */
+    public $debugVariables = array();
 
     public function __construct($config = null)
     {
         $this->config = $config ? $config : new BaseConfig();
         $this->path = $this->config->get('app.path');
         $this->wwwPath = $this->config->get('www.path');
+    }
+
+    /**
+     * Sets a debug variable to be displayed on the error page when an error occur.
+     * This is useful when debugging errors to see what variables contain.
+     *
+     * Setting the same varible multiple times will simply overwrite the previous value.
+     */
+    public function setDebugVariable($name, $value)
+    {
+        $this->debugVariables[$name] = $value;
     }
 
     /**
@@ -202,6 +218,7 @@ class BaseApp
                     $prettyHandler->setEditor($editor);
                 }
                 $prettyHandler->addDataTableCallback('eZ Templates', array($this, 'setupTemplateUsageTable'));
+                $prettyHandler->addDataTableCallback('Variables', array($this, 'setupDebugVariables'));
                 $whoops->pushHandler($prettyHandler);
                 // Additional handler for plain-text but will only activate for CLI
                 $textHandler = new \Whoops\Handler\PlainTextHandler;
@@ -519,6 +536,19 @@ class BaseApp
             $requestedTemplateName = $templateInfo['requested-template-name'];
             $templateFileName = $templateInfo['template-filename'];
             $data[$requestedTemplateName] = "$templateFileName ($actualTemplateName)";
+        }
+        return $data;
+    }
+
+    /**
+     * Sets up the data table for debug variables.
+     */
+    public function setupDebugVariables()
+    {
+        $data = array();
+        $jsonFlags = JSON_PRETTY_PRINT | (version_compare(PHP_VERSION, "5.4") >= 0 ? JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE : 0);
+        foreach ($this->debugVariables as $name => $value) {
+            $data[$name] = json_encode($value, $jsonFlags);
         }
         return $data;
     }

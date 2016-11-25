@@ -1,6 +1,15 @@
 # Changelog
 
-## 1.6.0
+## 1.6.2
+
+- Support for setting editor in Whoops error handler, set config `error_handler.editor`
+- Display used eZ template on error page.
+- New helper function `base_debug_var` used for debugging variables.
+  The variables will appear on the error handler page.
+  Only available in development.
+
+
+## 1.6.1
 
 - Rewritten error and log handling. An error handler is now always installed
   and it will forwards errors to a logger. All special cases for eZ publish has
