@@ -196,7 +196,12 @@ class BaseApp
             $this->integrateEzp = $integrateEzp;
             if ($isDebugEnabled) {
                 // Install a handler for HTTP requests, outputs HTML
-                $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
+                $prettyHandler = new \Whoops\Handler\PrettyPageHandler;
+                $editor = $this->config->get('error_handler.editor');
+                if ($editor) {
+                    $prettyHandler->setEditor($editor);
+                }
+                $whoops->pushHandler($prettyHandler);
                 // Additional handler for plain-text but will only activate for CLI
                 $textHandler = new \Whoops\Handler\PlainTextHandler;
                 $textHandler->outputOnlyIfCommandLine(true);
