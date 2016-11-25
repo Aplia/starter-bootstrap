@@ -69,6 +69,59 @@ and still have it working.
 New behaviours must only be activated using configuration (global var etc.)
 which are off by default.
 
+### Configuring the local installation
+
+To overide configuration entries the file `extension/site/config/local.php`
+can be created. It must be a PHP file which returns an array with configuration
+entries.
+
+Example:
+```
+<?php
+return array(
+    'app' => array(
+        'errorLevel' => 'error',
+    ),
+    'sentry' => array(
+        'dsn' => 'https://....@sentry.aplia.no/..',
+    ),
+);
+```
+
+This file will be loaded last so it will overwrite any values from other
+configuration files in `vendor/aplia/starter-bootstrap/config`.
+
+### Debugging errors
+
+During development the system will stop on erros and display an error page.
+A limitiation in PHP makes it impossible to view the contents of variables
+in the stack trace.
+To work around this the `base_debug_var` function can be used to store
+a variable in the base application until the error occurs. Once the error
+page is rendered it will display these debug variables in a table.
+
+Example usage:
+```
+<?php
+base_debug_var("name", $name);
+```
+
+### Using editor links
+
+By setting the configuration `error_handler.editor` the error handler
+will change the links for files to use an editor link. Please consult
+the Whoops documentation for supported editors.
+
+Example of `local.php` configuration:
+```
+<?php
+return array(
+    'error_handler' => array(
+        'editor' => 'sublime',
+    ),
+);
+```
+
 # Configuration
 
 The bootstrap can be configured using global variables or $_ENV variables.
