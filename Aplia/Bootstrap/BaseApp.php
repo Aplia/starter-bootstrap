@@ -201,6 +201,7 @@ class BaseApp
                 if ($editor) {
                     $prettyHandler->setEditor($editor);
                 }
+                $prettyHandler->addDataTableCallback('eZ Templates', array($this, 'setupTemplateUsageTable'));
                 $whoops->pushHandler($prettyHandler);
                 // Additional handler for plain-text but will only activate for CLI
                 $textHandler = new \Whoops\Handler\PlainTextHandler;
@@ -499,5 +500,26 @@ class BaseApp
             $handler = new $class($client, $level, $bubble);
             return $handler;
         }
+    }
+
+    /**
+     * Sets up the data table for used templates.
+     * The list is taken from eZTemplate, if this class is not loaded the table is empty.
+     */
+    public function setupTemplateUsageTable()
+    {
+        if (!class_exists('eZTemplate', false)) {
+            return array();
+        }
+        $templatesUsageStatistics = \eZTemplate::templatesUsageStatistics();
+        $data = array();
+        foreach ($templatesUsageStatistics as $templateInfo)
+        {
+            $actualTemplateName = $templateInfo['actual-template-name'];
+            $requestedTemplateName = $templateInfo['requested-template-name'];
+            $templateFileName = $templateInfo['template-filename'];
+            $data[$requestedTemplateName] = "$templateFileName ($actualTemplateName)";
+        }
+        return $data;
     }
 }
