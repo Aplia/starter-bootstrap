@@ -19,6 +19,8 @@ class ErrorManager extends Run
     public $logger;
     public $lastLoggedException;
 
+    protected $_canThrowExceptions = true;
+
     const ACTION_ERROR = 1;
     const ACTION_LOG = 2;
     const ACTION_IGNORE = 3;
@@ -233,7 +235,7 @@ class ErrorManager extends Run
                 return true;
             }
 
-            if ($this->canThrowExceptions) {
+            if ($this->_canThrowExceptions) {
                 $this->lastLoggedException = $exception;
                 throw $exception;
             } else {
@@ -246,6 +248,18 @@ class ErrorManager extends Run
         // Propagate error to the next handler, allows error_get_last() to
         // work on silenced errors.
         return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function handleShutdown()
+    {
+        // If we reached this step, we are in shutdown handler.
+        // An exception thrown in a shutdown handler will not be propagated
+        // to the exception handler. Pass that information along.
+        $this->_canThrowExceptions = false;
+        return parent::handleShutdown();
     }
 
     /**
