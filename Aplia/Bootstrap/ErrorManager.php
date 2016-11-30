@@ -104,7 +104,6 @@ class ErrorManager extends Run
     {
         if ($exception instanceof \ErrorException) {
             $level = $exception->getCode();
-            var_dump($level);
             if ($level & $this->errorLevels) {
                 return self::ACTION_ERROR;
             }
