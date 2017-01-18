@@ -142,7 +142,63 @@ class Base
     public static function log()
     {
         if (self::$logger) {
-            call_user_func_array(self::$logger, func_get_args());
+            call_user_func_array(array(self::$logger, 'log'), func_get_args());
+        }
+    }
+
+    public static function debug()
+    {
+        if (self::$logger) {
+            call_user_func_array(array(self::$logger, 'debug'), func_get_args());
+        }
+    }
+
+    public static function info()
+    {
+        if (self::$logger) {
+            call_user_func_array(array(self::$logger, 'info'), func_get_args());
+        }
+    }
+
+    public static function notice()
+    {
+        if (self::$logger) {
+            call_user_func_array(array(self::$logger, 'notice'), func_get_args());
+        }
+    }
+
+    public static function warning()
+    {
+        if (self::$logger) {
+            call_user_func_array(array(self::$logger, 'warning'), func_get_args());
+        }
+    }
+
+    public static function error()
+    {
+        if (self::$logger) {
+            call_user_func_array(array(self::$logger, 'error'), func_get_args());
+        }
+    }
+
+    public static function critical()
+    {
+        if (self::$logger) {
+            call_user_func_array(array(self::$logger, 'critical'), func_get_args());
+        }
+    }
+
+    public static function alert()
+    {
+        if (self::$logger) {
+            call_user_func_array(array(self::$logger, 'alert'), func_get_args());
+        }
+    }
+
+    public static function emergency()
+    {
+        if (self::$logger) {
+            call_user_func_array(array(self::$logger, 'emergency'), func_get_args());
         }
     }
 
