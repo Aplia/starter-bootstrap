@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.6
+
+- Fixed bug in Base::log to call the correct method on the actual logger.
+- Added more logger methods in Base class, e.g. Base::debug, Base:error etc.
+- The 'base' logger now has handlers for sentry and firephp.
+
 ## 1.6.2
 
 - Support for setting editor in Whoops error handler, set config `error_handler.editor`
