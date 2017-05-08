@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.6.7
+
+- Support docker configurations. When the environment variable `USE_DOCKER` is set
+  then the configuration `docker` will be added to the active list.
+  This allows the site to have a specific configuration when used in a docker
+  environment.
+
 ## 1.6.6
 
 - Fixed bug in Base::log to call the correct method on the actual logger.
