@@ -96,14 +96,14 @@ configuration files in `vendor/aplia/starter-bootstrap/config`.
 During development the system will stop on erros and display an error page.
 A limitiation in PHP makes it impossible to view the contents of variables
 in the stack trace.
-To work around this the `base_debug_var` function can be used to store
+To work around this the `starter_debug_var` function can be used to store
 a variable in the base application until the error occurs. Once the error
 page is rendered it will display these debug variables in a table.
 
 Example usage:
 ```
 <?php
-base_debug_var("name", $name);
+starter_debug_var("name", $name);
 ```
 
 ### Using editor links
