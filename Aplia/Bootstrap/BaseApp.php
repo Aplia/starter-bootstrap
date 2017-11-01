@@ -334,6 +334,7 @@ class BaseApp
             throw new \Exception("No logger defined for name: $name");
         }
         $definition = $loggers[$name];
+        $definition['name'] = $name;
         $class = \Aplia\Support\Arr::get($definition, 'class', "\\Monolog\\Logger");
         if (is_string($class)) {
             $class = str_replace("/", "\\", $class);
@@ -410,6 +411,7 @@ class BaseApp
                     throw new \Exception("No log handler defined for name: $name");
                 }
                 $definition = $availableHandlers[$name];
+                $definition['name'] = $name;
                 $class = $definition['class'];
                 $enabled = \Aplia\Support\Arr::get($definition, 'enabled', true);
                 if (!$enabled) {
@@ -490,6 +492,7 @@ class BaseApp
                     throw new \Exception("No log processor defined for name: $name");
                 }
                 $definition = $availableProcessors[$name];
+                $definition['name'] = $name;
                 $enabled = \Aplia\Support\Arr::get($definition, 'enabled', true);
                 if (!$enabled) {
                     continue;
