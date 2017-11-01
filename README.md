@@ -164,6 +164,11 @@ Example usage:
 starter_debug_var("name", $name);
 ```
 
+### Logging
+
+Starter bootstrap integrates the Monolog logging system, see LOGGING.md
+for more details.
+
 ### Using editor links
 
 By setting the configuration `error_handler.editor` the error handler
