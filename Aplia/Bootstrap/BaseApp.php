@@ -338,6 +338,7 @@ class BaseApp
         $channel = \Aplia\Support\Arr::get($definition, 'channel', $name);
 
         $setup = \Aplia\Support\Arr::get($definition, 'setup');
+        $parameters = \Aplia\Support\Arr::get($definition, 'parameters');
         if ($setup) {
             if (is_string($setup) && strpos($setup, '::') !== false) {
                 $setup = explode("::", $setup, 2);
@@ -349,7 +350,16 @@ class BaseApp
                 return null;
             }
         } else {
-            $logger = new $class($channel);
+            if ($parameters) {
+                if (!is_array($parameters)) {
+                    throw new \Exception("Configuration 'parameters' for logger $name must be an array, got: " . gettype($parameters));
+                }
+                array_unshift($parameters, $channel);
+                $reflection = new \ReflectionClass($class);
+                $logger = $reflection->newInstanceArgs($parameters);
+            } else {
+                $logger = new $class($channel);
+            }
         }
         $handlerNames = array_filter(\Aplia\Support\Arr::get($definition, 'handlers', array()));
         asort($handlerNames);
@@ -402,6 +412,7 @@ class BaseApp
                 $level = $this->levelStringToMonolog(\Aplia\Support\Arr::get($definition, 'level'));
                 $bubble = \Aplia\Support\Arr::get($definition, 'bubble', true);
                 $setup = \Aplia\Support\Arr::get($definition, 'setup');
+                $parameters = \Aplia\Support\Arr::get($definition, 'parameters');
                 if ($setup) {
                     if (is_string($setup) && strpos($setup, '::') !== false) {
                         $setup = explode("::", $setup, 2);
@@ -415,7 +426,15 @@ class BaseApp
                         continue;
                     }
                 } else {
-                    $handler = new $class();
+                    if ($parameters) {
+                        if (!is_array($parameters)) {
+                            throw new \Exception("Configuration 'parameters' for handler $name must be an array, got: " . gettype($parameters));
+                        }
+                        $reflection = new \ReflectionClass($class);
+                        $handler = $reflection->newInstanceArgs($parameters);
+                    } else {
+                        $handler = new $class();
+                    }
                     $handler->setLevel($level);
                     $handler->setBubble($bubble);
                 }
