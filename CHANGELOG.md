@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.7.0
+
+- Improved logging configuration with support for parameters.
+- New set of helper functions for logging, see LOGGING.md.
+- Aliased base_debug_var to starter_debug_var, makes all helper
+  functions begin with `starter_`.
+- Added app.helpers for making it possible to define more helpers
+  to use for the application.
+
 ## 1.6.7
 
 - Support docker configurations. When the environment variable `USE_DOCKER` is set
