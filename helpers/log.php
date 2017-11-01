@@ -57,7 +57,7 @@ if (!function_exists('starter_alert')) {
         if ($logger === null) {
             $logger = \Aplia\Bootstrap\Base::app()->fetchLogger('site');
         }
-        $logger->emergency($message, $context);
+        $logger->alert($message, $context);
     }
 }
 
@@ -73,7 +73,7 @@ if (!function_exists('starter_critical')) {
         if ($logger === null) {
             $logger = \Aplia\Bootstrap\Base::app()->fetchLogger('site');
         }
-        $logger->emergency($message, $context);
+        $logger->critical($message, $context);
     }
 }
 
@@ -89,7 +89,7 @@ if (!function_exists('starter_error')) {
         if ($logger === null) {
             $logger = \Aplia\Bootstrap\Base::app()->fetchLogger('site');
         }
-        $logger->emergency($message, $context);
+        $logger->error($message, $context);
     }
 }
 
@@ -105,7 +105,7 @@ if (!function_exists('starter_warning')) {
         if ($logger === null) {
             $logger = \Aplia\Bootstrap\Base::app()->fetchLogger('site');
         }
-        $logger->emergency($message, $context);
+        $logger->warning($message, $context);
     }
 }
 
@@ -121,7 +121,7 @@ if (!function_exists('starter_notice')) {
         if ($logger === null) {
             $logger = \Aplia\Bootstrap\Base::app()->fetchLogger('site');
         }
-        $logger->emergency($message, $context);
+        $logger->notice($message, $context);
     }
 }
 
@@ -137,7 +137,7 @@ if (!function_exists('starter_info')) {
         if ($logger === null) {
             $logger = \Aplia\Bootstrap\Base::app()->fetchLogger('site');
         }
-        $logger->emergency($message, $context);
+        $logger->info($message, $context);
     }
 }
 
@@ -153,6 +153,6 @@ if (!function_exists('starter_debug')) {
         if ($logger === null) {
             $logger = \Aplia\Bootstrap\Base::app()->fetchLogger('site');
         }
-        $logger->emergency($message, $context);
+        $logger->debug($message, $context);
     }
 }
