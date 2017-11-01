@@ -42,6 +42,13 @@ return array(
                     'sentry' => 20,
                 ),
             ),
+            'site' => array(
+                'handlers' => array(
+                    // Enable FirePHP for development
+                    'firephp' => 200,
+                    'sentry' => 20,
+                ),
+            ),
         ),
     ),
 );

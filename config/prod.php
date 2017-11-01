@@ -27,6 +27,12 @@ return array(
                     'sentry' => 20,
                 ),
             ),
+            'site' => array(
+                'handlers' => array(
+                    // Enable Sentry remote logging, will not be used unless a DSN is setup, see base.php
+                    'sentry' => 20,
+                ),
+            ),
         ),
     ),
 );

@@ -82,6 +82,9 @@ return array(
             'base' => array(
                 'class' => '\\Monolog\\Logger',
             ),
+            // Logger for the site
+            'site' => array(
+            ),
         ),
         // Defines all processors, processors are callbacks/instances which are
         // for each log record and can modify or add information.
