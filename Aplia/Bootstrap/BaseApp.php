@@ -335,9 +335,15 @@ class BaseApp
         }
         $definition = $loggers[$name];
         $class = \Aplia\Support\Arr::get($definition, 'class', "\\Monolog\\Logger");
+        if (is_string($class)) {
+            $class = str_replace("/", "\\", $class);
+        }
         $channel = \Aplia\Support\Arr::get($definition, 'channel', $name);
 
         $setup = \Aplia\Support\Arr::get($definition, 'setup');
+        if (is_string($setup)) {
+            $setup = str_replace("/", "\\", $setup);
+        }
         $parameters = \Aplia\Support\Arr::get($definition, 'parameters');
         if ($setup) {
             if (is_string($setup) && strpos($setup, '::') !== false) {
@@ -409,10 +415,16 @@ class BaseApp
                 if (!$enabled) {
                     continue;
                 }
+                if (is_string($class)) {
+                    $class = str_replace("/", "\\", $class);
+                }
                 $level = $this->levelStringToMonolog(\Aplia\Support\Arr::get($definition, 'level'));
                 $bubble = \Aplia\Support\Arr::get($definition, 'bubble', true);
                 $setup = \Aplia\Support\Arr::get($definition, 'setup');
                 $parameters = \Aplia\Support\Arr::get($definition, 'parameters');
+                if (is_string($setup)) {
+                    $setup = str_replace("/", "\\", $setup);
+                }
                 if ($setup) {
                     if (is_string($setup) && strpos($setup, '::') !== false) {
                         $setup = explode("::", $setup, 2);
@@ -483,6 +495,9 @@ class BaseApp
                     continue;
                 }
                 $setup = \Aplia\Support\Arr::get($definition, 'setup');
+                if (is_string($setup)) {
+                    $setup = str_replace("/", "\\", $setup);
+                }
                 if ($setup) {
                     if (is_string($setup) && strpos($setup, '::') !== false) {
                         $setup = explode("::", $setup, 2);
@@ -495,8 +510,14 @@ class BaseApp
                     }
                 } else {
                     $class = \Aplia\Support\Arr::get($definition, 'class');
+                    if (is_string($class)) {
+                        $class = str_replace("/", "\\", $class);
+                    }
                     $call = \Aplia\Support\Arr::get($definition, 'call');
                     if (is_string($call) && strpos($call, '::') !== false) {
+                        if (is_string($call)) {
+                            $call = str_replace("/", "\\", $call);
+                        }
                         $processor = explode("::", $call, 2);
                     } else if ($class) {
                         $parameters = \Aplia\Support\Arr::get($definition, 'parameters');
