@@ -70,6 +70,18 @@ return array(
                     'git' => 100,
                 ),
             ),
+            'console' => array(
+                'class' => 'Monolog\\Handler\\StreamHandler',
+                'parameters' => array(
+                    'php://stdout'
+                ),
+            ),
+            'console-err' => array(
+                'class' => 'Monolog\\Handler\\StreamHandler',
+                'parameters' => array(
+                    'php://stderr'
+                ),
+            ),
         ),
         // Defines all loggers available to use, the key is the name of the
         // logger which is referenced later on.

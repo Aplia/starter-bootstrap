@@ -26,6 +26,12 @@ return array(
                 // Increase FirePHP log level for development
                 'level' => 'notice',
             ),
+            'console' => array(
+                'level' => 'debug',
+            ),
+            'console-err' => array(
+                'level' => 'debug',
+            ),
         ),
         'loggers' => array(
             'phperror' => array(
