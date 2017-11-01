@@ -91,6 +91,12 @@ return array(
 This file will be loaded last so it will overwrite any values from other
 configuration files in `vendor/aplia/starter-bootstrap/config`.
 
+It is also possible to define configuration files to override entries
+for `base`, `dev` and `prod`. e.g. `extension/site/config/base.php`
+will define base configuration for the site for all environments,
+while `extension/site/config/prod.php` defines configuration for
+production and `extension/site/config/dev.php` for development.
+
 ### Debugging errors
 
 During development the system will stop on erros and display an error page.
