@@ -334,7 +334,7 @@ class BaseApp
             throw new \Exception("No logger defined for name: $name");
         }
         $definition = $loggers[$name];
-        $class = $definition['class'];
+        $class = \Aplia\Support\Arr::get($definition, 'class', "\\Monolog\\Logger");
         $channel = \Aplia\Support\Arr::get($definition, 'channel', $name);
 
         $setup = \Aplia\Support\Arr::get($definition, 'setup');
