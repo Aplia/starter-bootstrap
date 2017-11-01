@@ -35,6 +35,13 @@ return array(
             'strict',
             'error',
         ),
+        // Define helpers to use for application, maps to a number which is the priority
+        // A lower number means the file is included first.
+        // In addition it also looks for helpesr with same name as the `app.mode` config defines, with the priority value of 500
+        'helpers' => array(
+            'logging' => 100,
+            'common' => 150,
+        ),
     ),
     'helpers' => array(
         'logging' => array(

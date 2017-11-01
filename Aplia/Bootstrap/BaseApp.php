@@ -127,10 +127,14 @@ class BaseApp
         }
 
         // Load helper files according to the current mode
-        $helpers = array_merge(
-            Base::config('helpers.common', array()),
-            Base::config('helpers.' . Base::config('app.mode'), array())
-        );
+        $helperNames = Base::config('app.helpers', array());
+        $helperNames[Base::config('app.mode')] = 500;
+        // Sort pri. values, lowest first
+        asort($helperNames);
+        $helpers = array();
+        foreach ($helperNames as $helperName => $pri) {
+            $helpers = array_merge($helpers, Base::config('helpers.' . $helperName, array()));
+        }
         foreach ($helpers as $helper) {
             $path = $this->makePath(array($helper));
             if (file_exists($path)) {

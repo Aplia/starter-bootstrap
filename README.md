@@ -97,6 +97,58 @@ will define base configuration for the site for all environments,
 while `extension/site/config/prod.php` defines configuration for
 production and `extension/site/config/dev.php` for development.
 
+### Added function helpers
+
+It is possible to define extra functions to be available globally,
+also called helpers. The current list of helpers that are used
+is determined by the config `app.helpers` (se `base.php` for an
+example). The name of these helpers are then defined in the
+config entry `helpers` which contain an array of filenames to include.
+
+Each filename is a PHP file which only defines the functions, it
+must not perform any other code. It is also important to check if
+the function is not already defined, avoids PHP errors and also allows
+a function to be redefined. Example:
+
+*path/to/helper.php*
+```php
+<?php
+if (!function_exists('my_helper')) {
+    function my_helper() {
+        // code here.
+    }
+}
+```
+
+Then define the helper entry with:
+```php
+<?php
+return array(
+    'helpers' => array(
+        'site' => array(
+            "path/to/helper.php",
+        ),
+    ),
+);
+```
+
+And activate it with:
+```php
+<?php
+return array(
+    'app' => array(
+        'helpers' => array(
+            'site' => 300,
+        ),
+    ),
+);
+```
+
+The priority value is important as it determines when the file is loaded.
+e.g. use a lower value if you want to override an existing function,
+but normally just use a high value (300 or more) to load it last.
+
+
 ### Debugging errors
 
 During development the system will stop on erros and display an error page.
