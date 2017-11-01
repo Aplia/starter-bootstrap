@@ -36,6 +36,11 @@ return array(
             'error',
         ),
     ),
+    'helpers' => array(
+        'logging' => array(
+            "vendor/aplia/starter-bootstrap/helpers/log.php",
+        ),
+    ),
     'log' => array(
         // Defines all log handlers available to use, the key is the name of the
         // handler which is referenced later on.
