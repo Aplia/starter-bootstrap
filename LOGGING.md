@@ -41,6 +41,23 @@ $logger->debug("Fetched data from DB");
 This will then send the log message to the configured handlers.
 
 
+A set of helper functions are available to make it even easier, use `starter_logger`
+to fetch a specific logger. Or to log directly a specific level use `starter_emergency`, `starter_alert`,
+`starter_critical`, `starter_error`, `starter_warning`, `starter_notice`, `starter_info` or `starter_debug`, this will log to the logger named `site`.
+
+To log a message with a level specified as a parameter use `starter_log`, the level
+is the first parameter.
+
+```php
+<?php
+// Through logger:
+starter_logger()->debug("Fetched data from DB");
+// or directly with level function
+starter_debug("Fetched data from DB");
+// or using a log level parameter
+starter_log(MonoLog\\Logger::DEBUG, "Fetched data from DB");
+```
+
 
 ## Configuring a logger
 
