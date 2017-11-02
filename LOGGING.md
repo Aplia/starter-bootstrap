@@ -51,7 +51,7 @@ is the first parameter.
 ```php
 <?php
 // Through logger:
-starter_logger()->debug("Fetched data from DB");
+starter_logger('site')->debug("Fetched data from DB");
 // or directly with level function
 starter_debug("Fetched data from DB");
 // or using a log level parameter
@@ -170,6 +170,9 @@ The following keys can be set:
 - enabled - Boolean, if false then the logger will not be used. Defaults
             to true.
 - channel - Name of channel, if unset it defaults to the name of the logger.
+- propagate - Whether log message propagation is active or not. Default is true.
+              When active it will alsos propagate the message to first existing
+              parent.
 - setup - A callback function to call to initialize the logger. Can been
           used if you need to dynamically determine parameters for
           the logger. Must be a name of a callable function or full namespace path to class + static method. The callback will receive the
@@ -197,6 +200,10 @@ return array(
                 'processors' => array(
                     'git',
                 ),
+            ),
+            'site.db' => array(
+                // Turn off propagation
+                'propagate' => false,
             ),
             'cli' => array(
                 'enabled' => false,

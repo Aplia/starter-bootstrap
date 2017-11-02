@@ -1,7 +1,7 @@
 <?php
 namespace Aplia\Bootstrap;
 
-class BaseApp
+class BaseApp implements Log\ManagerInterface
 {
     const DEFAULT_ERROR_MODE = 'plain';
 
@@ -316,6 +316,22 @@ class BaseApp
     }
 
     /**
+     * Check if logger exists or is defined.
+     * Return true if so, false otherwise.
+     */
+    public function hasLogger($name)
+    {
+        if (isset($this->loggers[$name])) {
+            return true;
+        }
+        if (!$this->config->get('app.logger', true)) {
+            return false;
+        }
+        $loggers = $this->config->get('log.loggers');
+        return isset($loggers[$name]);
+    }
+
+    /**
      * Fetches the logger with given name.
      * If the logger is not yet created it reads the configuration for it
      * from log.loggers.$name and creates the logger instance.
@@ -339,7 +355,10 @@ class BaseApp
         }
         $definition = $loggers[$name];
         $definition['name'] = $name;
-        $class = \Aplia\Support\Arr::get($definition, 'class', "\\Monolog\\Logger");
+        $class = \Aplia\Support\Arr::get($definition, 'class');
+        if (!$class) {
+            $class = $this->config->get('log.default_logger_class', 'class', "\\Aplia\\Bootstrap\\Log\\Logger");
+        }
         if (is_string($class)) {
             $class = str_replace("/", "\\", $class);
         }
@@ -372,6 +391,13 @@ class BaseApp
                 $logger = new $class($channel);
             }
         }
+        // Record as the log manager
+        if ($logger instanceof Log\LoggerInterface) {
+            $logger->setManager($this);
+            $propagate = \Aplia\Support\Arr::get($definition, 'propagate');
+            $logger->setPropagation($propagate);
+        }
+
         $handlerNames = array_filter(\Aplia\Support\Arr::get($definition, 'handlers', array()));
         asort($handlerNames);
         $handlers = $this->fetchLogHandlers(array_keys($handlerNames));

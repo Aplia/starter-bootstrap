@@ -83,6 +83,8 @@ return array(
                 ),
             ),
         ),
+        // The default class to use for loggers
+        'default_logger_class' => '\\Aplia\\Bootstrap\\Log\\Logger',
         // Defines all loggers available to use, the key is the name of the
         // logger which is referenced later on.
         // Each logger is an array which must contain:
@@ -95,11 +97,9 @@ return array(
         'loggers' => array(
             // This receives logs from the error handler
             'phperror' => array(
-                'class' => '\\Monolog\\Logger',
             ),
             // Logger for the base system
             'base' => array(
-                'class' => '\\Monolog\\Logger',
             ),
             // Logger for the site
             'site' => array(
