@@ -399,6 +399,10 @@ class BaseApp implements Log\ManagerInterface
         }
 
         $handlerNames = array_filter(\Aplia\Support\Arr::get($definition, 'handlers', array()));
+        // Suppress automatic logging to stderr when there are no handlers defined
+        if (!$handlerNames) {
+            $handlerNames = array('noop' => 1);
+        }
         asort($handlerNames);
         $handlers = $this->fetchLogHandlers(array_keys($handlerNames));
         foreach ($handlers as $handler) {

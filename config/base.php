@@ -56,6 +56,10 @@ return array(
         // It may contain:
         // 'parameters' - Parameters to use when instantiating the class.
         'handlers' => array(
+            // Handler which does nothing, used when no handlers are defined on a logger
+            'noop' => array(
+                'class' => 'Monolog\\Handler\\NoopHandler',
+            ),
             // FirePHP logger, useful for debugging XHR requests
             'firephp' => array(
                 'class' => 'Monolog\\Handler\\FirePHPHandler',
