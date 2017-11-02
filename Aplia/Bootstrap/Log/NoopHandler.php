@@ -20,7 +20,7 @@ namespace Aplia\Bootstrap\Log;
  *
  * @author Roel Harbers <roelharbers@gmail.com>
  */
-class NoopHandler extends Handler
+class NoopHandler extends \Monolog\Handler\AbstractHandler
 {
     /**
      * {@inheritdoc}
