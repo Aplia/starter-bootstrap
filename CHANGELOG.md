@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.8.0
+
+- Added support for propagation of log messages, by using a dotted notation for logger
+  names it can propagate themessage to parent loggers.
+- Propagation can now be configured per logger and is on by default.
+- New interfaces to clearly identify the log manager and the
+  extended loggers.
+- Change default log level for firephp in dev mode to debug.
+
+
 ## 1.7.0
 
 - Improved logging configuration with support for parameters.
