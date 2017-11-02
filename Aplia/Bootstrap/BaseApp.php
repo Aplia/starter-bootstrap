@@ -394,7 +394,7 @@ class BaseApp implements Log\ManagerInterface
         // Record as the log manager
         if ($logger instanceof Log\LoggerInterface) {
             $logger->setManager($this);
-            $propagate = \Aplia\Support\Arr::get($definition, 'propagate');
+            $propagate = \Aplia\Support\Arr::get($definition, 'propagate', true);
             $logger->setPropagation($propagate);
         }
 
