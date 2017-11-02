@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.1
+
+- Suppress stderr output from loggers without handlers.
+
 ## 1.8.0
 
 - Added support for propagation of log messages, by using a dotted notation for logger
