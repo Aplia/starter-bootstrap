@@ -25,7 +25,7 @@ class NoopHandler extends Handler
     /**
      * {@inheritdoc}
      */
-    public function isHandling(array $record): bool
+    public function isHandling(array $record)
     {
         return true;
     }
@@ -33,7 +33,7 @@ class NoopHandler extends Handler
     /**
      * {@inheritdoc}
      */
-    public function handle(array $record): bool
+    public function handle(array $record)
     {
         return false;
     }
