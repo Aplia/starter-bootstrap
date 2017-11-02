@@ -58,7 +58,7 @@ return array(
         'handlers' => array(
             // Handler which does nothing, used when no handlers are defined on a logger
             'noop' => array(
-                'class' => 'Monolog\\Handler\\NoopHandler',
+                'class' => 'Aplia\\Bootstrap\\Log\\NoopHandler',
             ),
             // FirePHP logger, useful for debugging XHR requests
             'firephp' => array(
