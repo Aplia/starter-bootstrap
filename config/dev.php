@@ -24,7 +24,7 @@ return array(
         'handlers' => array(
             'firephp' => array(
                 // Increase FirePHP log level for development
-                'level' => 'notice',
+                'level' => 'debug',
             ),
             'console' => array(
                 'level' => 'debug',
