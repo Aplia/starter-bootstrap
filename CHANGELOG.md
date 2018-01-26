@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.0
+
+- First version to support PHP 7, fixed problem with exception handling.
+
 ## 1.8.1
 
 - Suppress stderr output from loggers without handlers.
