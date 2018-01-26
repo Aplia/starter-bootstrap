@@ -34,6 +34,18 @@ class ErrorManager extends Run
         $this->errorLevels = $this->errorTypes | $this->strictTypes;
     }
 
+    public static function isThrowable($exception)
+    {
+        // Support both PHP 7 and PHP 5.x and lower, Exception is the base class in PHP 5
+        // while PHP 7 uses Throwable as base interface (and Error as internal errors)
+        return $exception instanceof \Exception || (interface_exists("Throwable") && $exception instanceof \Throwable);
+    }
+
+    public static function isErrorException($exception)
+    {
+        return $exception instanceof \ErrorException || (class_exists("Error") && $exception instanceof \Error);
+    }
+
     /**
      * Bitmask of error codes which should be considered an error
      * and sent to the erro handler.
@@ -100,9 +112,12 @@ class ErrorManager extends Run
      *
      * @param $exception The exception to inspect
      */
-    public function determineAction(\Exception $exception)
+    public function determineAction($exception)
     {
-        if ($exception instanceof \ErrorException) {
+        if (!self::isThrowable($exception)) {
+            return self::ACTION_IGNORE;
+        }
+        if (self::isErrorException($exception)) {
             $level = $exception->getCode();
             if ($level & $this->errorLevels) {
                 return self::ACTION_ERROR;
@@ -118,9 +133,12 @@ class ErrorManager extends Run
      *
      * @param $exception The exception to inspect
      */
-    public function shouldBeLogged(\Exception $exception)
+    public function shouldBeLogged($exception)
     {
-        if ($exception instanceof \ErrorException) {
+        if (!self::isThrowable($exception)) {
+            return false;
+        }
+        if (self::isErrorException($exception)) {
             $level = $exception->getCode();
             if ($level & $this->logLevels) {
                 return true;
@@ -162,7 +180,6 @@ class ErrorManager extends Run
         return isset($this->levelNames[$level]) ? $this->levelNames[$level] : null;
     }
 
-
     /**
      * Handles an exception, passes the exception to a logger if applicable
      * then ultimately generating a Whoops error page.
@@ -174,10 +191,8 @@ class ErrorManager extends Run
      */
     public function handleException($exception)
     {
-        // Support both PHP 7 and PHP 5.x and lower, Exception is the base class in PHP 5
-        // while PHP 7 uses Throwable as base interface (and Error as internal errors)
-        if (!($exception instanceof \Exception || (interface_exists("Throwable") && $exception instanceof \Throwable))) {
-            return false;
+        if (!self::isThrowable($exception)) {
+            return;
         }
         // Check if the error level should be sent to a logger first
         if ($this->lastLoggedException !== $exception && $this->logger && $this->shouldBeLogged($exception)) {
@@ -272,8 +287,11 @@ class ErrorManager extends Run
      * If the exception is an ErrorException it generates a custom
      * message and pushes the error to the respective error level.
      */
-    public function logException(\Exception $exception)
+    public function logException($exception)
     {
+        if (!self::isThrowable($exception)) {
+            return;
+        }
         $logger = $this->getLoggerInstance();
         if ($logger !== null) {
             // Log the error by sending it to logger.
@@ -301,12 +319,16 @@ class ErrorManager extends Run
                     } else {
                         $logger->notice($message, $context);
                     }
+                } catch(\Throwable $e) {
+                    throw $e;
                 } catch(\Exception $e) {
                     throw $e;
                 }
             } else {
                 try {
                     $logger->error($message, $context);
+                } catch(\Throwable $e) {
+                    throw $e;
                 } catch(\Exception $e) {
                     throw $e;
                 }
