@@ -1,14 +1,14 @@
 <?php
 namespace Aplia\Bootstrap;
 
-use Whoops\Run;
+use Aplia\Bootstrap\WhoopsRun;
 
 /**
  * Customized error manager which overrides the error handler
  * of Whoops to ensure that certain errors are logged before
  * being handled as an error.
  */
-class ErrorManager extends Run
+class ErrorManager extends WhoopsRun
 {
     public $warningTypes;
     public $errorTypes;

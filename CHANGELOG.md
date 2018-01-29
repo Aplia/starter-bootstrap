@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.2
+
+- Embedded Run.php from Whoops and fixed PHP7 issues.
+
 ## 1.9.0
 
 - First version to support PHP 7, fixed problem with exception handling.
