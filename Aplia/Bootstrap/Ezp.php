@@ -112,11 +112,21 @@ class Ezp
                 // There is already an error handler installed, most likely for bootstrap debugging purpose
             } elseif ($errorMode == 'local' || $errorMode == 'remote') {
                 // Restores CWD on shutdown
-                register_shutdown_function(array('\\Aplia\\Bootstrap\\ErrorManager', 'restoreWwwRoot'));
+                register_shutdown_function(array('\\Aplia\\Bootstrap\\Ezp', 'restoreWwwRoot'));
 
                 // Initialize and register error handler
                 $app->errorHandler = $app->bootstrapErrorHandler(true, /*logLevel*/null, /*$integrateEzp*/ true);
             }
         }
+    }
+
+    /**
+     * Restores the cwd to the www-root. This is required when trying to
+     * access files after the shutdown handler has been run, e.g. logging
+     * errors.
+     */
+    public static function restoreWwwRoot()
+    {
+        chdir( $_ENV['WWW_ROOT'] );
     }
 }

@@ -209,7 +209,13 @@ class BaseApp implements Log\ManagerInterface
     {
         if (class_exists('\\Whoops\\Run')) {
             // A custom Whoops runner which filters out certain errors to eZDebug
-            $whoops = new \Aplia\Bootstrap\ErrorManager;
+            // Pick manager according to PHP version
+            if (version_compare(PHP_VERSION, "7") >= 0) {
+                $errorManagerClass = $this->config->get('error.manager');
+            } else {
+                $errorManagerClass = $this->config->get('error.managerCompat');
+            }
+            $whoops = new $errorManagerClass;
             $isDebugEnabled = $this->config->get('app.debug');
             $isLoggerEnabled = $this->config->get('app.logger');
 
