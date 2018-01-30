@@ -36,6 +36,25 @@ class BaseApp implements Log\ManagerInterface
      */
     public $debugVariables = array();
 
+    /**
+     * Controls whether the first-time setup of editor variables have finished.
+     */
+    public $isEditorSetup = false;
+    /**
+     * The name of the editor to use or null if not in use.
+     */
+    public $editorName;
+    /**
+     * An associative array which maps a regular expression to a local file path.
+     * The value is null until it is setup.
+     */
+    public $editorFileMapping;
+    /**
+     * Associative array of editors, maps the name to a url which opens the editor.
+     * The url must contain %file and %line entries.
+     */
+    public $editors = array();
+
     public function __construct($config = null)
     {
         $this->isPhp7 = version_compare(PHP_VERSION, "7") >= 0;
@@ -225,9 +244,12 @@ class BaseApp implements Log\ManagerInterface
                 if (PHP_SAPI !== 'cli') {
                     // Install a handler for HTTP requests, outputs HTML
                     $prettyHandler = new \Whoops\Handler\PrettyPageHandler;
-                    $editor = $this->config->get('error_handler.editor');
-                    if ($editor) {
-                        $prettyHandler->setEditor($editor);
+                    $this->editorName = $this->config->get('editor.name');
+                    if ($this->editorName) {
+                        $this->editors = $this->config->get('editor.editors');
+                        if (isset($this->editors[$this->editorName])) {
+                            $prettyHandler->setEditor(array($this, 'processEditor'));
+                        }
                     }
                     $prettyHandler->addDataTableCallback('eZ Templates', array($this, 'setupTemplateUsageTable'));
                     $prettyHandler->addDataTableCallback('Variables', array($this, 'setupDebugVariables'));
@@ -282,6 +304,59 @@ class BaseApp implements Log\ManagerInterface
                 $whoops->register();
             }
             return $whoops;
+        }
+    }
+
+    /**
+     * Callback function for processing the editor in the pretty page handler.
+     * It makes sure to map the current editor to a url which opens the
+     * editor with the given file.
+     */
+    public function processEditor($file, $line)
+    {
+        // Only run setup once per process
+        if (!$this->isEditorSetup) {
+            $this->isEditorSetup = true;
+            // if your development server is not local it's good to map remote files to local
+            if ($this->config->get('editor.remoteFilesystem', false)) {
+                $mappings = $this->config->get('editor.fileMappings', array());
+                $mappingPatterns = array();
+                foreach ($mappings as $remote => $local) {
+                    if (substr($remote, 0, 1) === '/') {
+                        if (substr($remote, -1, 1) !== '/') {
+                            $remote .= '/';
+                        }
+                    } else {
+                        $remote = $this->makePath($remote);
+                    }
+                    if (substr($local, -1, 1) !== '/') {
+                        $local .= '/';
+                    }
+                    $mappingPatterns['#^' . str_replace("#", "\\#", $remote) . '#'] = $local;
+                }
+                $this->editorFileMapping = $mappingPatterns;
+            }
+        }
+
+        $url = $this->editors[$this->editorName];
+        if ($this->editorFileMapping !== null) {
+            foreach ($this->editorFileMapping as $from => $to) {
+                $file = preg_replace($from, $to, $file, 1);
+            }
+        }
+        $url = str_replace('%file', rawurlencode($file), $url);
+        $url = str_replace('%line', rawurlencode($line), $url);
+        if (substr($url, 0, 5) === 'ajax:') {
+            $url = substr($url, 5);
+            return array(
+                'url' => $url,
+                'ajax' => true,
+            );
+        } else {
+            return array(
+                'url' => $url,
+                'ajax' => false,
+            );
         }
     }
 

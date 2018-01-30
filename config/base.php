@@ -54,6 +54,37 @@ return array(
         // Error manager for PHP versions earlier than 7, requires Whoops 2.x
         'managerCompat' => 'Aplia\\Bootstrap\\ErrorManager',
     ),
+    'editor' => array(
+        // Name of editor to use, must be defined in editor.editors, e.g.
+        // 'name' => 'sublime',
+
+        // Maps an editor name to a url to open the editor
+        // If the url starts with ajax: it will open it using an ajax call,
+        // the ajax url is the remaining part of the string
+        'editors' => array(
+            "sublime"  => "subl://open?url=file://%file&line=%line",
+            "textmate" => "txmt://open?url=file://%file&line=%line",
+            "emacs"    => "emacs://open?url=file://%file&line=%line",
+            "macvim"   => "mvim://open/?url=file://%file&line=%line",
+            "phpstorm" => "phpstorm://open?file=%file&line=%line",
+            "idea"     => "idea://open?file=%file&line=%line",
+            "vscode"   => "vscode://file/%file:%line",
+            // Example for Intellij which needs to open using Ajax
+            // 'intellij'     => "ajax:http://localhost:63342/api/file/?file=%file&line=%line"
+        ),
+
+        // If true then filepaths are mapped to local files using editor.fileMappings,
+        // otherwise they are asummed to be local and opened as-is.
+        'remoteFilesystem' => true,
+        // Maps a remote path to a local path, the remote path may either be
+        // relative to the project or absolute
+        'fileMappings' => array(
+            // Example 1: Map root of project to local path
+            // '' => '~/src/myproject'
+            // Example 2: Map a specific sub-folder to a local path
+            // 'kernel' => '~/src/kernel'
+        ),
+    ),
     'log' => array(
         // Defines all log handlers available to use, the key is the name of the
         // handler which is referenced later on.
