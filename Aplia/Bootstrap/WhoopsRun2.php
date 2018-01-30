@@ -18,23 +18,23 @@ use Whoops\Util\SystemFacade;
 
 class WhoopsRun2 implements RunInterface
 {
-    private $isRegistered;
-    private $allowQuit       = true;
-    private $sendOutput      = true;
+    protected $isRegistered;
+    protected $allowQuit       = true;
+    protected $sendOutput      = true;
 
     /**
      * @var integer|false
      */
-    private $sendHttpCode    = 500;
+    protected $sendHttpCode    = 500;
 
     /**
      * @var HandlerInterface[]
      */
-    private $handlerStack = [];
+    protected $handlerStack = [];
 
-    private $silencedPatterns = [];
+    protected $silencedPatterns = [];
 
-    private $system;
+    protected $system;
 
     public function __construct(SystemFacade $system = null)
     {
@@ -100,7 +100,7 @@ class WhoopsRun2 implements RunInterface
      * @param  \Throwable $exception
      * @return Inspector
      */
-    private function getInspector($exception)
+    protected function getInspector($exception)
     {
         return new Inspector($exception);
     }
@@ -389,14 +389,14 @@ class WhoopsRun2 implements RunInterface
      * In certain scenarios, like in shutdown handler, we can not throw exceptions
      * @var bool
      */
-    private $canThrowExceptions = true;
+    protected $canThrowExceptions = true;
 
     /**
      * Echo something to the browser
      * @param  string $output
      * @return $this
      */
-    private function writeToOutputNow($output)
+    protected function writeToOutputNow($output)
     {
         if ($this->sendHttpCode() && \Whoops\Util\Misc::canSendHeaders()) {
             $this->system->setHttpResponseCode(
