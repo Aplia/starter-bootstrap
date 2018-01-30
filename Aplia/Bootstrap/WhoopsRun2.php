@@ -6,6 +6,7 @@
 
 namespace Aplia\Bootstrap;
 
+use Whoops\RunInterface;
 use Whoops\InvalidArgumentException;
 use Whoops\Exception\ErrorException;
 use Whoops\Exception\Inspector;
@@ -15,7 +16,7 @@ use Whoops\Handler\HandlerInterface;
 use Whoops\Util\Misc;
 use Whoops\Util\SystemFacade;
 
-class Run implements RunInterface
+class WhoopsRun2 implements RunInterface
 {
     private $isRegistered;
     private $allowQuit       = true;

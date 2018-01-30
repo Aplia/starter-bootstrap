@@ -1,14 +1,15 @@
 <?php
 namespace Aplia\Bootstrap;
 
-use WhoopsRun2;
+use Aplia\Bootstrap\WhoopsRun2;
+use Whoops\Util\SystemFacade;
 
 /**
  * Customized error manager which overrides the error handler
  * of Whoops to ensure that certain errors are logged before
  * being handled as an error.
  */
-class ThrowableManager implements WhoopsRun2
+class ThrowableManager extends WhoopsRun2
 {
     public $warningTypes;
     public $errorTypes;
@@ -25,8 +26,9 @@ class ThrowableManager implements WhoopsRun2
     const ACTION_LOG = 2;
     const ACTION_IGNORE = 3;
 
-    public function __construct()
+    public function __construct(SystemFacade $system = null)
     {
+        parent::__construct($system);
         $this->warningTypes = E_WARNING | E_CORE_WARNING | E_COMPILE_WARNING | E_USER_WARNING | E_DEPRECATED;
         $this->errorTypes = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_STRICT | E_RECOVERABLE_ERROR;
         $this->strictTypes = E_STRICT;
