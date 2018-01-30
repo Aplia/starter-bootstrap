@@ -38,6 +38,7 @@ class BaseApp implements Log\ManagerInterface
 
     public function __construct($config = null)
     {
+        $this->isPhp7 = version_compare(PHP_VERSION, "7") >= 0;
         $this->config = $config ? $config : new BaseConfig();
         $this->path = $this->config->get('app.path');
         $this->wwwPath = $this->config->get('www.path');
@@ -210,7 +211,7 @@ class BaseApp implements Log\ManagerInterface
         if (class_exists('\\Whoops\\Run')) {
             // A custom Whoops runner which filters out certain errors to eZDebug
             // Pick manager according to PHP version
-            if (version_compare(PHP_VERSION, "7") >= 0) {
+            if ($this->isPhp7) {
                 $errorManagerClass = $this->config->get('error.manager');
             } else {
                 $errorManagerClass = $this->config->get('error.managerCompat');
@@ -221,19 +222,24 @@ class BaseApp implements Log\ManagerInterface
 
             $this->integrateEzp = $integrateEzp;
             if ($isDebugEnabled) {
-                // Install a handler for HTTP requests, outputs HTML
-                $prettyHandler = new \Whoops\Handler\PrettyPageHandler;
-                $editor = $this->config->get('error_handler.editor');
-                if ($editor) {
-                    $prettyHandler->setEditor($editor);
+                if (PHP_SAPI !== 'cli') {
+                    // Install a handler for HTTP requests, outputs HTML
+                    $prettyHandler = new \Whoops\Handler\PrettyPageHandler;
+                    $editor = $this->config->get('error_handler.editor');
+                    if ($editor) {
+                        $prettyHandler->setEditor($editor);
+                    }
+                    $prettyHandler->addDataTableCallback('eZ Templates', array($this, 'setupTemplateUsageTable'));
+                    $prettyHandler->addDataTableCallback('Variables', array($this, 'setupDebugVariables'));
+                    $whoops->pushHandler($prettyHandler);
+                } else {
+                    // Handler for plain-text
+                    $textHandler = new \Whoops\Handler\PlainTextHandler;
+                    if (!$this->isPhp7) {
+                        $textHandler->outputOnlyIfCommandLine(true);
+                    }
+                    $whoops->pushHandler($textHandler);
                 }
-                $prettyHandler->addDataTableCallback('eZ Templates', array($this, 'setupTemplateUsageTable'));
-                $prettyHandler->addDataTableCallback('Variables', array($this, 'setupDebugVariables'));
-                $whoops->pushHandler($prettyHandler);
-                // Additional handler for plain-text but will only activate for CLI
-                $textHandler = new \Whoops\Handler\PlainTextHandler;
-                $textHandler->outputOnlyIfCommandLine(true);
-                $whoops->pushHandler($textHandler);
                 if ($isLoggerEnabled) {
                     $whoops->setLogger(array($this, 'setupErrorLogger'));
                 }
