@@ -50,9 +50,9 @@ return array(
     ),
     'error' => array(
         // Error manager for PHP 7 and up, requires Whoops 1.x
-        'manager' => 'Aplia\Bootstrap\ThrowableManager',
+        'manager' => 'Aplia\\Bootstrap\\ThrowableManager',
         // Error manager for PHP versions earlier than 7, requires Whoops 2.x
-        'managerCompat' => 'Aplia\Bootstrap\ErrorManager',
+        'managerCompat' => 'Aplia\\Bootstrap\\ErrorManager',
     ),
     'log' => array(
         // Defines all log handlers available to use, the key is the name of the
