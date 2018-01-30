@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.9.3
+
+- Added two implementations for the error manager, ErrorManager is the
+  old handler which works with PHP 5 and lower, and ThrowableManager is
+  the new which works with PHP 7.
+- Improved support for setting up editor urls.
+
 ## 1.9.2
 
 - Embedded Run.php from Whoops and fixed PHP7 issues.

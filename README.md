@@ -171,16 +171,47 @@ for more details.
 
 ### Using editor links
 
-By setting the configuration `error_handler.editor` the error handler
-will change the links for files to use an editor link. Please consult
-the Whoops documentation for supported editors.
+By setting the configuration `editor.name` the error handler
+will change the links for files to use an editor link.
 
-Example of `local.php` configuration:
+The following editors are supported:
+- 'sublime' for SublimeText
+- 'textmate' for TextMate
+- 'emacs' for Emacs
+- 'macvim' for MacVim
+- 'phpstorm' for PHP Storm
+- 'idea' for IDEA
+- 'vscode' for VS Code
+
+Additional editors can be used by setting `editor.editors`.
+
+By default it assumes the file paths are on a remote server and
+will map them to the local path. However for this to work properly
+a mapping needs to be setup in `editor.fileMappings`.
+e.g.
+
+```
+array(
+    'editor' => array(
+        'fileMappings' => array(
+            // Example 1: Map root of project to local path
+            '' => '~/src/myproject'
+        ),
+    ),
+)
+```
+
+To disable remote file mapping set `editor.remoteFilesystem` to `false`.
+
+Example of `extension/site/config/local.php` configuration:
 ```
 <?php
 return array(
-    'error_handler' => array(
-        'editor' => 'sublime',
+    'editor' => array(
+        'name' => 'sublime',
+        'fileMappings' => array(
+            '' => '~/src/myproject'
+        ),
     ),
 );
 ```
