@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.9.5
+
+- Use Whoops 2.x PHP 5.x as well, as this version will still install
+  Whoops 2.x.
+
 ## 1.9.3
 
 - Added two implementations for the error manager, ErrorManager is the

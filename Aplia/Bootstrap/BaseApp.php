@@ -55,6 +55,11 @@ class BaseApp implements Log\ManagerInterface
      */
     public $editors = array();
 
+    /**
+     * Determines if Whoops 1.x or 2.x is used, set in bootstrapWhoops.
+     */
+    protected $hasWhoops2;
+
     public function __construct($config = null)
     {
         $this->isPhp7 = version_compare(PHP_VERSION, "7") >= 0;
@@ -230,7 +235,8 @@ class BaseApp implements Log\ManagerInterface
         if (class_exists('\\Whoops\\Run')) {
             // A custom Whoops runner which filters out certain errors to eZDebug
             // Pick manager according to PHP version
-            if ($this->isPhp7) {
+            $this->hasWhoops2 = interface_exists('\\Whoops\\RunInterface');
+            if ($this->hasWhoops2) {
                 $errorManagerClass = $this->config->get('error.manager');
             } else {
                 $errorManagerClass = $this->config->get('error.managerCompat');
@@ -257,7 +263,7 @@ class BaseApp implements Log\ManagerInterface
                 } else {
                     // Handler for plain-text
                     $textHandler = new \Whoops\Handler\PlainTextHandler;
-                    if (!$this->isPhp7) {
+                    if (!$this->hasWhoops2) {
                         $textHandler->outputOnlyIfCommandLine(true);
                     }
                     $whoops->pushHandler($textHandler);
