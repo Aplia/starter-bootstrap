@@ -32,7 +32,15 @@ if (isset($GLOBALS['STARTER_BASE_DEBUG']) && $GLOBALS['STARTER_BASE_DEBUG']) {
         $errorHandler->pushHandler(new \Whoops\Handler\PrettyPageHandler);
         // Additional handler for plain-text but will only activate for CLI
         $textHandler = new \Whoops\Handler\PlainTextHandler;
-        $textHandler->outputOnlyIfCommandLine(true);
+        $hasWhoops2 = interface_exists('\\Whoops\\RunInterface');
+        if ($hasWhoops2) {
+            if (PHP_SAPI == 'cli') {
+                $textHandler->loggerOnly(true);
+            }
+        } else {
+            $textHandler->outputOnlyIfCommandLine(true);
+        }
+
         $errorHandler->pushHandler($textHandler);
         $errorHandler->register();
     }
