@@ -264,9 +264,7 @@ class BaseApp implements Log\ManagerInterface
                     // Handler for plain-text
                     $textHandler = new \Whoops\Handler\PlainTextHandler;
                     if ($this->hasWhoops2) {
-                        if (!Whoops\Util\Misc::isCommandLine()){
-                            $textHandler->loggerOnly(true);
-                        }
+                        $textHandler->loggerOnly(true);
                     } else {
                         $textHandler->outputOnlyIfCommandLine(true);
                     }
