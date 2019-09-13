@@ -34,7 +34,7 @@ if (isset($GLOBALS['STARTER_BASE_DEBUG']) && $GLOBALS['STARTER_BASE_DEBUG']) {
         $textHandler = new \Whoops\Handler\PlainTextHandler;
         $hasWhoops2 = interface_exists('\\Whoops\\RunInterface');
         if ($hasWhoops2) {
-            if (PHP_SAPI == 'cli') {
+            if (PHP_SAPI !== 'cli') {
                 $textHandler->loggerOnly(true);
             }
         } else {
