@@ -26,6 +26,13 @@ if (isset($GLOBALS['STARTER_DEBUG_TRACE']) ? $GLOBALS['STARTER_DEBUG_TRACE'] : f
 // If the bootstrap process needs to be debugged for errors set $GLOBALS['STARTER_BASE_DEBUG'] to true
 // This will install the Whoops error handler as early as possible
 $errorHandler = null;
+
+// Automatically turn on error handling for startup code if 'dev' is part of STARTER_CONFIGS
+// Unless STARTER_BASE_DEBUG is explicitly set
+if (!isset($GLOBALS['STARTER_BASE_DEBUG']) && isset($GLOBALS['STARTER_CONFIGS']) && is_array($GLOBALS['STARTER_CONFIGS']) && in_array('dev', $GLOBALS['STARTER_CONFIGS'])) {
+    $GLOBALS['STARTER_BASE_DEBUG'] = true;
+}
+
 if (isset($GLOBALS['STARTER_BASE_DEBUG']) && $GLOBALS['STARTER_BASE_DEBUG']) {
     if (class_exists('\\Whoops\\Run')) {
         $errorHandler = new \Whoops\Run;
