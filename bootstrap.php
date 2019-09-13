@@ -93,7 +93,7 @@ if (isset($GLOBALS['STARTER_APP_CACHE']) ? $GLOBALS['STARTER_APP_CACHE'] : true)
 // Fallback to dynamically setting up the application
 if (!isset($GLOBALS['STARTER_APP'])) {
     $GLOBALS['STARTER_APP'] = $app = \Aplia\Bootstrap\Base::createApp(array(
-        'errorHandler' => $errorHandler,
+        'startupErrorHandler' => $errorHandler,
     ));
 
     // Configure the app unless STARTER_BASE_CONFIGURE tells us not to

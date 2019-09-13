@@ -254,12 +254,14 @@ class Base
         }
 
         $errorHandler = isset($params['errorHandler']) ? $params['errorHandler'] : null;
-        if ($errorHandler === null) {
-            $errorHandler = isset($GLOBALS['STARTER_ERROR_INSTANCE']) ? $GLOBALS['STARTER_ERROR_INSTANCE'] : null;
-        }
         if ($errorHandler !== null) {
             $app->errorHandler = $errorHandler;
         }
+        $startupErrorHandler = isset($params['startupErrorHandler']) ? $params['startupErrorHandler'] : null;
+        if ($startupErrorHandler === null) {
+            $startupErrorHandler = isset($GLOBALS['STARTER_ERROR_INSTANCE']) ? $GLOBALS['STARTER_ERROR_INSTANCE'] : null;
+        }
+        $app->startupErrorHandler = $startupErrorHandler;
 
         // Store it so Base::app() and Base::config() can access it
         self::setConfig($app->config);

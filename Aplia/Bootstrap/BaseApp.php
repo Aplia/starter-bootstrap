@@ -19,6 +19,13 @@ class BaseApp implements Log\ManagerInterface
      */
     public $errorHandler;
     /**
+     * The error handler used for the startup part of the bootstrap process.
+     * It will be unregistered right before a new error handler is activated.
+     * Can be null.
+     *
+     */
+    public $startupErrorHandler;
+    /**
      * Associative array of loggers.
      */
     public $loggers = array();
@@ -305,6 +312,13 @@ class BaseApp implements Log\ManagerInterface
                 $whoops->setErrorLevels(0);
             }
             $whoops->setLogLevels($logLevelMask);
+
+            // If an existing error handler is currently used then unregister it right
+            // before the new one is registered. This ensures that we catch all kinds
+            // of errors, even problems in bootstrap startup.
+            if ($this->startupErrorHandler) {
+                $this->startupErrorHandler->unregister();
+            }
 
             if ($register) {
                 $whoops->register();
