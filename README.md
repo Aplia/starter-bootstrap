@@ -243,6 +243,7 @@ This tells the bootstrap system to stop for notice, warning and errors.
 ## Debugging the bootstrap process
 
 The bootstrap process can be debugged by setting global variable `STARTER_BASE_DEBUG` to true.
+If the `dev` mode is part of `STARTER_CONFIGS` then it will be automatically enabled.
 This will install an error handler as soon as possible.
 
 ```php
