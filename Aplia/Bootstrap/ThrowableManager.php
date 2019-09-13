@@ -4,6 +4,8 @@ namespace Aplia\Bootstrap;
 use Aplia\Bootstrap\WhoopsRun2;
 use Whoops\Util\SystemFacade;
 
+// Note: This code is for Whoops 2.x, not 1.x or lower
+
 /**
  * Customized error manager which overrides the error handler
  * of Whoops to ensure that certain errors are logged before

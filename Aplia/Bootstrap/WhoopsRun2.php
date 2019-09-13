@@ -16,6 +16,8 @@ use Whoops\Handler\HandlerInterface;
 use Whoops\Util\Misc;
 use Whoops\Util\SystemFacade;
 
+// Note: This code is for Whoops 2.x, not 1.x or lower
+
 class WhoopsRun2 implements RunInterface
 {
     protected $isRegistered;

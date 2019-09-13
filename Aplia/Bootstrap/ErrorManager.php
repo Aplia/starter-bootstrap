@@ -4,7 +4,7 @@ namespace Aplia\Bootstrap;
 use Exception;
 use Whoops\Run;
 
-// Note: This code is for Whoop 1.x, not 2.x or higher
+// Note: This code is for Whoops 1.x, not 2.x or higher
 
 /**
  * Customized error manager which overrides the error handler
