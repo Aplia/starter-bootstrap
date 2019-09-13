@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.9.7
+
+- Fixed several issues with using PHP 5 and Whoops 1.x.
+- Added better support for debugging the startup process of bootstrap.
+  It is now enabled by default for dev mode.
+
 ## 1.9.5
 
 - Use Whoops 2.x PHP 5.x as well, as this version will still install
