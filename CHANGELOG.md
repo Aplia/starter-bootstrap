@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.10.0
+
+- Added support for disabling eZDebug internal logging and instead
+  sending logs to the monlog loggers.
+- Run-time control og logs and log levels, see LOGGING.md for more
+  details.
+
 ## 1.9.7
 
 - Fixed several issues with using PHP 5 and Whoops 1.x.
