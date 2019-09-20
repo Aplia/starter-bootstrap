@@ -107,6 +107,11 @@ class Ezp
                     $GLOBALS['eZDebugAlwaysLog'][$logLevelMap[$logLevel]] = true;
                 }
             }
+            // Configure loggers for use by eZDebug which has log override support
+            // The factory will fetch the logger instance based on the eZDebug log level
+            if ($app->config->get('ezp.log_mode') !== 'ezdebug') {
+                $GLOBALS['ezpDebug']['loggerFactory'] = array('Aplia\Bootstrap\Ezp', 'makeLogger');
+            }
 
             if ($app->errorHandler) {
                 // There is already an error handler installed, most likely for bootstrap debugging purpose
@@ -118,6 +123,29 @@ class Ezp
                 $app->errorHandler = $app->bootstrapErrorHandler(true, /*logLevel*/null, /*$integrateEzp*/ true);
             }
         }
+    }
+
+    /**
+     * Fetches the specified logger for eZ publish, the $level is used to
+     * lookup the actual logger channel to use by reading config `ezp.loggers`.
+     * If the error level is not configured it throw an exception.
+     *
+     * @param string $level String containing the error level, e.g. "info"
+     * @throws Aplia\Bootstrap\Error\UnknownErrorLevel If the error level is not configured
+     * @return Psr\Log\LoggerInterface
+     */
+    public static function makeLogger($level)
+    {
+        $mode = \Aplia\Bootstrap\Base::config('ezp.log_mode');
+        if ($mode === 'disabled') {
+            return null;
+        }
+        $loggers = \Aplia\Bootstrap\Base::config('ezp.loggers');
+        if (!isset($loggers[$level])) {
+            throw new \Aplia\Bootstrap\Error\UnknownErrorLevel("Unknown or unconfigured error level: $level");
+        }
+        $name = $loggers[$level];
+        return \Aplia\Bootstrap\Base::app()->fetchLogger($name);
     }
 
     /**

@@ -49,6 +49,20 @@ return array(
     ),
     'ezp' => array(
         'path' => $_ENV['EZP_ROOT'],
+        // Controls how eZDebug will log
+        // - psr - Logs are sent to configured psr log channel
+        // - ezdebug - Logs are handled internally in eZDebug.
+        // - disabled - All logging in eZDebug are disabled.
+        'log_mode' => 'psr',
+        // Maps ezpublish log levels to a log channel
+        'loggers' => array(
+            'strict' => 'ezpdebug.strict',
+            'error' => 'ezpdebug.error',
+            'warning' => 'ezpdebug.warning',
+            'info' => 'ezpdebug.info',
+            'debug' => 'ezpdebug.debug',
+            'timing' => 'ezpdebug.timing',
+        ),
     ),
     'log' => array(
         'handlers' => array(
@@ -57,13 +71,89 @@ return array(
                 'class' => '\\Aplia\\Bootstrap\\EzdebugHandler',
                 'parameters' => array(),
             ),
+            'var_log_error' => array(
+                'class' => 'Monolog\\Handler\\StreamHandler',
+                'parameters' => array(
+                    'var/log/error.log'
+                ),
+            ),
+            'var_log_deprecated' => array(
+                'class' => 'Monolog\\Handler\\StreamHandler',
+                'parameters' => array(
+                    'var/log/deprecated.log'
+                ),
+            ),
+            'var_log_warning' => array(
+                'class' => 'Monolog\\Handler\\StreamHandler',
+                'parameters' => array(
+                    'var/log/warning.log'
+                ),
+            ),
+            'var_log_notice' => array(
+                'class' => 'Monolog\\Handler\\StreamHandler',
+                'parameters' => array(
+                    'var/log/notice.log'
+                ),
+            ),
+            'var_log_debug' => array(
+                'class' => 'Monolog\\Handler\\StreamHandler',
+                'parameters' => array(
+                    'var/log/debug.log'
+                ),
+            ),
+            // Combined log for all levels
+            'var_log_ezp' => array(
+                'class' => 'Monolog\\Handler\\StreamHandler',
+                'parameters' => array(
+                    'var/log/ezp.log'
+                ),
+            ),
         ),
         'loggers' => array(
+            'ezpdebug.strict' => array(
+                'handlers' => array(
+                    // Strict errors are placed in a separate log
+                    'var_log_error' => 100,
+                    'var_log_ezp' => 150,
+                )
+            ),
+            'ezpdebug.error' => array(
+                'handlers' => array(
+                    // Errors are placed in a separate log
+                    'var_log_error' => 100,
+                    'var_log_ezp' => 150,
+                )
+            ),
+            // The rest of the ezp channels are all placed in the same file
+            'ezpdebug.warning' => array(
+                'handlers' => array(
+                    'var_log_ezp' => 150,
+                )
+            ),
+
+            'ezpdebug.info' => array(
+                'handlers' => array(
+                    'var_log_ezp' => 150,
+                )
+            ),
+            'ezpdebug.debug' => array(
+                'handlers' => array(
+                    'var_log_ezp' => 150,
+                )
+            ),
+            'ezpdebug.timing' => array(
+                'handlers' => array(
+                    // Timing points are not generally interesting, goes nowhere by default
+                )
+            ),
             // This receives logs from the error handler
             'phperror' => array(
                 'handlers' => array(
                     // Enables ezdebug
-                    'ezdebug' => 100,
+                    // 'ezdebug' => 100,
+                    // Log errors to error.log and ezp.log
+                    'var_log_error' => 100,
+                    'var_log_ezp' => 150,
                 )
             ),
         ),
