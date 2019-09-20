@@ -108,6 +108,74 @@ class BaseApp implements Log\ManagerInterface
         ));
         $this->errorLevel = isset($GLOBALS['STARTER_ERROR_LEVEL']) ? $GLOBALS['STARTER_ERROR_LEVEL'] : \Aplia\Bootstrap\Base::config('app.errorLevel', 'error');
         $this->logLevels = isset($GLOBALS['STARTER_LOG_LEVELS']) ? $GLOBALS['STARTER_LOG_LEVELS'] : $this->config->get('app.logLevels', array('strict', 'error'));
+
+        // Logs can be enabled/disabled by using the environment variable
+        // LOG_ENABLED and LOG_DISABLED. They may be set to a comma
+        // separated list of log types to enable or disable.
+        // Logs are first disabled, then enabled
+        // If the variable only contain the text 'all' then all logs are enabled or disabled.
+        // e.g. LOG_ENABLED=console will enable the console loggers which are off by default
+        $logEnabled = array_key_exists('LOG_ENABLED', $_ENV) ? explode(",", $_ENV['LOG_ENABLED']) : null;
+        $logDisabled = array_key_exists('LOG_DISABLED', $_ENV) ? explode(",", $_ENV['LOG_DISABLED']) : null;
+        $inputLevels = array_key_exists('LOG_LEVELS', $_ENV) ? explode(",", $_ENV['LOG_LEVELS']) : null;
+        $logTypeMap = array();
+        foreach (array_filter($this->config->get('log.types')) as $logType => $logValue) {
+            $logTypeMap[$logType] = null;
+        }
+        if ($logDisabled !== null) {
+            if (count($logDisabled) == 1 && current($logDisabled) == 'all') {
+                $logDisabled = array_keys($logTypeMap);
+            }
+            foreach ($logDisabled as $logType) {
+                if (array_key_exists($logType, $logTypeMap)) {
+                    $logTypeMap[$logType] = false;
+                }
+            }
+        }
+        if ($logEnabled !== null) {
+            if (count($logEnabled) == 1 && current($logEnabled) == 'all') {
+                $logEnabled = array_keys($logTypeMap);
+            }
+            foreach ($logEnabled as $logType) {
+                if (array_key_exists($logType, $logTypeMap)) {
+                    $logTypeMap[$logType] = true;
+                }
+            }
+        }
+
+        // Decode LOG_LEVEL entries, they should be supplied as <type>:<level>
+        $logLevels = array();
+        if ($inputLevels) {
+            $allowedLogLevels = array('critical', 'alert', 'emergency', 'strict', 'error', 'warning', 'info', 'notice');
+            foreach ($inputLevels as $logLevelText) {
+                $logLevelTuple = explode(":", $logLevelText, 2);
+                if (count($logLevelTuple) >= 2 && in_array($logLevelTuple[1], $allowedLogLevels)) {
+                    $logLevels[$logLevelTuple[0]] = $logLevelTuple[1];
+                }
+            }
+        }
+
+        $handlerConfig = array();
+        foreach ($logTypeMap as $logType => $handlerEnabled) {
+            if ($handlerEnabled === null) {
+                continue;
+            }
+            $logHandlers = $this->config->get('log.' . $logType . '_handlers');
+            $handlerNames = $logHandlers ? array_keys(array_filter($logHandlers)) : array();
+            foreach ($handlerNames as $handlerName) {
+                $handlerConfig[$handlerName] = array(
+                    'enabled' => $handlerEnabled,
+                );
+                if (isset($logLevels[$logType])) {
+                    $handlerConfig[$handlerName]['level'] = $logLevels[$logType];
+                }
+            }
+        }
+        $this->config->update(array(
+            'log' => array(
+                'handlers' => $handlerConfig,
+            ),
+        ));
     }
 
     public function configure($names)
@@ -506,12 +574,14 @@ class BaseApp implements Log\ManagerInterface
         }
 
         $handlerNames = array_filter(\Aplia\Support\Arr::get($definition, 'handlers', array()));
-        // Suppress automatic logging to stderr when there are no handlers defined
-        if (!$handlerNames) {
-            $handlerNames = array('noop' => 1);
-        }
         asort($handlerNames);
         $handlers = $this->fetchLogHandlers(array_keys($handlerNames));
+        // Suppress automatic logging to stderr when there are no handlers defined
+        // or if all handlers are disabled
+        if (!$handlers) {
+            $handlerNames = array('noop');
+            $handlers = $this->fetchLogHandlers($handlerNames);
+        }
         foreach ($handlers as $handler) {
             $logger->pushHandler($handler);
         }

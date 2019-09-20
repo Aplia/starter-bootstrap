@@ -91,6 +91,8 @@ return array(
         // Each handler is an array which must contain:
         // 'class' - The class to use for the handler
         // It may contain:
+        // 'enabled' - Boolean which controls whether the handler is used or not, defaults to true
+        // 'level' - String determining the maximum log level to accept, e.g. 'info' or 'debug'
         // 'parameters' - Parameters to use when instantiating the class.
         'handlers' => array(
             // Handler which does nothing, used when no handlers are defined on a logger
@@ -113,16 +115,49 @@ return array(
             ),
             'console' => array(
                 'class' => 'Monolog\\Handler\\StreamHandler',
+                'enabled' => false,
                 'parameters' => array(
                     'php://stdout'
                 ),
             ),
             'console-err' => array(
                 'class' => 'Monolog\\Handler\\StreamHandler',
+                'enabled' => false,
                 'parameters' => array(
                     'php://stderr'
                 ),
             ),
+        ),
+        // Log types:
+        // A logical grouping of log handlers, used by the
+        // LOG_ENABLED, LOG_DISABLED and LOG_LEVELS env variables.
+        'types' => array(
+            'console' => 10,
+            'file' => 20,
+            'sentry' => 30,
+            'http' => 40,
+        ),
+        // A reverse array of log handlers which are meant to output to the
+        // console, ie. stdout and stderr. This allows the bootstrap
+        // system to enable/disable them based on how PHP code is
+        // run. For instance to show them when run in cli mode and
+        // when an environment variable is set.
+        // Handlers added in custom configs should use values of
+        // 1000 or higher.
+        'console_handlers' => array(
+            'console' => 100,
+            'console-err' => 110,
+        ),
+        // Same as console_handlers but for handlers for logging to Sentry
+        'sentry_handlers' => array(
+            'sentry' => 100,
+        ),
+        // Same as console_handlers but for handlers for logging to HTTP/Web
+        'http_handlers' => array(
+            'firephp' => 100,
+        ),
+        // Same as console_handlers but for handlers for logging to files
+        'file_handlers' => array(
         ),
         // The default class to use for loggers
         'default_logger_class' => '\\Aplia\\Bootstrap\\Log\\Logger',
@@ -138,12 +173,15 @@ return array(
         'loggers' => array(
             // This receives logs from the error handler
             'phperror' => array(
+                'console-err' => 170,
             ),
             // Logger for the base system
             'base' => array(
+                'console-err' => 170,
             ),
             // Logger for the site
             'site' => array(
+                'console-err' => 170,
             ),
         ),
         // Defines all processors, processors are callbacks/instances which are

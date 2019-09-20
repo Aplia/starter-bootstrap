@@ -366,3 +366,89 @@ return array(
     ),
 );
 ```
+
+## eZDebug integration
+
+If a newer eZ publish legacy installation is used the bootstrap system
+will automatically disable the internal log mechanism and instead
+pass the logs to a monolog channel.
+The config `ezp.log_mode` controls this feature, it can be one of:
+
+- psr - Disable internal logger and pass to PSR log channel
+- ezdebug - Use internal logger only, this is base eZ publish legacy feature
+- disabled - Disable internal logger and PSR log channel
+
+The different eZDebug log levels are mapped to a PSR log channel.
+This is configured in the config `ezp.loggers`.
+
+Each log channel is then configured to use different log handlers,
+there are multiple handlers that write to the `var/log` log files,
+called `var_log_<name>`. By default error and strict are written
+to `var/log/error.log`, a combined log `var/log/ezp.log` contains
+all the log levels. This is a bit different than eZ publish legacy
+defaults which uses one file per type.
+
+## Run-time control
+
+The loggers can be controlled at run-time by using environment
+variables, for instance when running a script. The logs are
+grouped together in log types, the following types are supported:
+
+- console - Console output, stdout and stderr
+- file - File output, for instance `var/log/error.log` etc.
+- sentry - Sentry logging, will also require a DSN configured
+- http - Web/HTTP logging, for instance PHPFire
+
+The log handlers which are included in each type is controlled
+by config entries of the form `log.<type>_handlers`, e.g.
+`console` would use `log.console_handlers`. This uses a
+reverse array mapping the name to a value, the value can be
+set to `false` to disable it in a local config.
+
+Additional log types can be created by adding to the
+`log.types` configuration.
+
+### LOG_DISABLED
+
+Can be set to a comma separated list of log types to disable.
+Use `all` to disable all logs.
+
+Example, disables file logs for a given script:
+
+```console
+LOG_DISABLED=file php some_script.php
+```
+
+### LOG_ENABLED
+
+Can be set to a comma separated list of log types to enable.
+Use `all` to enable all logs. `LOG_ENABLED` is processed
+after `LOG_DISABLED`.
+
+Example, disables all logs but enables console:
+
+```console
+LOG_DISABLED=all LOG_ENABLED=console php some_script.php
+```
+
+### LOG_LEVELS
+
+Override log levels for the various log types. This is a
+comma separated list of `<type>:<level>` entries.
+
+The supported levels are:
+
+- critical
+- alert
+- emergency
+- strict
+- error
+- warning
+- info
+- notice
+
+Example, only output errors on console:
+
+```console
+LOG_ENABLED=console LOG_LEVELS=console:error php some_script.php
+```

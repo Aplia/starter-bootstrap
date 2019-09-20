@@ -73,30 +73,35 @@ return array(
             ),
             'var_log_error' => array(
                 'class' => 'Monolog\\Handler\\StreamHandler',
+                'level' => 'error',
                 'parameters' => array(
                     'var/log/error.log'
                 ),
             ),
             'var_log_deprecated' => array(
                 'class' => 'Monolog\\Handler\\StreamHandler',
+                'level' => 'error',
                 'parameters' => array(
                     'var/log/deprecated.log'
                 ),
             ),
             'var_log_warning' => array(
                 'class' => 'Monolog\\Handler\\StreamHandler',
+                'level' => 'warning',
                 'parameters' => array(
                     'var/log/warning.log'
                 ),
             ),
             'var_log_notice' => array(
                 'class' => 'Monolog\\Handler\\StreamHandler',
+                'level' => 'notice',
                 'parameters' => array(
                     'var/log/notice.log'
                 ),
             ),
             'var_log_debug' => array(
                 'class' => 'Monolog\\Handler\\StreamHandler',
+                'level' => 'debug',
                 'parameters' => array(
                     'var/log/debug.log'
                 ),
@@ -109,12 +114,22 @@ return array(
                 ),
             ),
         ),
+        // Add var/log/*.log files to log type 'file'
+        'file_handlers' => array(
+            'var_log_error' => 200,
+            'var_log_deprecated' => 201,
+            'var_log_warning' => 202,
+            'var_log_notice' => 203,
+            'var_log_debug' => 204,
+            'var_log_ezp' => 205,
+        ),
         'loggers' => array(
             'ezpdebug.strict' => array(
                 'handlers' => array(
                     // Strict errors are placed in a separate log
                     'var_log_error' => 100,
                     'var_log_ezp' => 150,
+                    'console-err' => 170,
                 )
             ),
             'ezpdebug.error' => array(
@@ -122,23 +137,27 @@ return array(
                     // Errors are placed in a separate log
                     'var_log_error' => 100,
                     'var_log_ezp' => 150,
+                    'console-err' => 170,
                 )
             ),
             // The rest of the ezp channels are all placed in the same file
             'ezpdebug.warning' => array(
                 'handlers' => array(
                     'var_log_ezp' => 150,
+                    'console' => 170,
                 )
             ),
 
             'ezpdebug.info' => array(
                 'handlers' => array(
                     'var_log_ezp' => 150,
+                    'console' => 170,
                 )
             ),
             'ezpdebug.debug' => array(
                 'handlers' => array(
                     'var_log_ezp' => 150,
+                    'console' => 170,
                 )
             ),
             'ezpdebug.timing' => array(
