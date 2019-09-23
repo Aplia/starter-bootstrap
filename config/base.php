@@ -200,19 +200,25 @@ return array(
         // 'parameters' - Parameters to use when instantiating the class.
         // 'handlers' - Array of handlers to use for this logger,
         //              note: The key is the name of handler, and the value is
-        //              whether it is enabled or not.
+        //              whether it is enabled or not. See log.handlers
         'loggers' => array(
             // This receives logs from the error handler
             'phperror' => array(
-                'console-err' => 170,
+                'handlers' => array(
+                    'console-err' => 170,
+                ),
             ),
             // Logger for the base system
             'base' => array(
-                'console-err' => 170,
+                'handlers' => array(
+                    'console-err' => 170,
+                ),
             ),
             // Logger for the site
             'site' => array(
-                'console-err' => 170,
+                'handlers' => array(
+                    'console-err' => 170,
+                ),
             ),
         ),
         // Defines all processors, processors are callbacks/instances which are
