@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.11.0
+
+- Added support for Symfony dump() method for dumping variables.
+  It can be used instead of var_dump() as it has better output
+  and output will also be present for error pages.
+
 ## 1.10.0
 
 - Added support for disabling eZDebug internal logging and instead

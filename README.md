@@ -154,14 +154,25 @@ but normally just use a high value (300 or more) to load it last.
 During development the system will stop on erros and display an error page.
 A limitiation in PHP makes it impossible to view the contents of variables
 in the stack trace.
-To work around this the `starter_debug_var` function can be used to store
+To work around this the `dump` function can be used to store
 a variable in the base application until the error occurs. Once the error
 page is rendered it will display these debug variables in a table.
+`dump` will also output the content of variable on the page like `var_dump`
+but has better output for both HTML and CLI runs.
 
 Example usage:
 ```
 <?php
-starter_debug_var("name", $name);
+dump($data);
+```
+
+If you want to dump variables and tie it to a name use the `inspect` function
+as it will also store the name of the variable or expression used.
+
+Example usage:
+```
+<?php
+inspect($name, '$name');
 ```
 
 ### Logging

@@ -35,6 +35,17 @@ return array(
             'strict',
             'error',
         ),
+        // Configuration for dump() functionality
+        // If comment is prefixed with cli: it is for cli only, html: for html
+        'dump' => array(
+            // The level of output for dump, 'terse' for minimal output and 'verbose' for maximum
+            // amount of details.
+            'level' => 'terse',
+            // cli: Whether color output is on or off
+            'colors' => true,
+            // cli: Maximum width of strings
+            'maxStringWidth' => 0,
+        ),
         // Define helpers to use for application, maps to a number which is the priority
         // A lower number means the file is included first.
         // In addition it also looks for helpesr with same name as the `app.mode` config defines, with the priority value of 500

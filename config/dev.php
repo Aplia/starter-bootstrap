@@ -14,6 +14,11 @@ return array(
             'notice',
             'debug',
         ),
+        'bootstrap' => array(
+            'classes' => array(
+                'starter.dev' => 'Aplia\Bootstrap\Development',
+            ),
+        ),
     ),
     'helpers' => array(
         'common' => array(
