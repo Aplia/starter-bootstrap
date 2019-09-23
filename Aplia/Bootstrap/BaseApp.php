@@ -744,6 +744,7 @@ class BaseApp implements Log\ManagerInterface
                 $definition['name'] = $name;
                 $enabled = \Aplia\Support\Arr::get($definition, 'enabled', true);
                 if (!$enabled) {
+                    $this->logProcessors[$name] = false;
                     continue;
                 }
                 $setup = \Aplia\Support\Arr::get($definition, 'setup');
