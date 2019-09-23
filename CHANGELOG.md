@@ -13,6 +13,15 @@
   This will be executed and may set the `EZP_ROOT` env variable.
 - Fixed bug in BaseApp which prevented log processors to be attached
   to loggers.
+- Added support for configuring log formatters and assigning them
+  to log handlers.
+- Added support for setting up a log introspector, this will attach
+  file and line numbers to log messages. The introspector can be
+  enabled by setting env variable `LOG_INTROSPECT=1`.
+- Default log function starter_log* now uses `app.defaultLog` to
+  determine which log channel to use. Use function
+  `starter_log_name` to get the name of the default channel.
+- Added prevention of recursive calls to fetchLoggers().
   
 
 ## 1.10.0
