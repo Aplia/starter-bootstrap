@@ -35,6 +35,8 @@ return array(
             'strict',
             'error',
         ),
+        // Name of the default log channel to use for all starter_log* functions
+        'defaultLog' => 'site',
         // Configuration for dump() functionality
         // If comment is prefixed with cli: it is for cli only, html: for html
         'dump' => array(
@@ -127,6 +129,7 @@ return array(
             'console' => array(
                 'class' => 'Monolog\\Handler\\StreamHandler',
                 'enabled' => false,
+                'formatter' => 'line',
                 'parameters' => array(
                     'php://stdout'
                 ),
@@ -134,9 +137,26 @@ return array(
             'console-err' => array(
                 'class' => 'Monolog\\Handler\\StreamHandler',
                 'enabled' => false,
+                'formatter' => 'line',
                 'parameters' => array(
                     'php://stderr'
                 ),
+            ),
+        ),
+        // Defines log formatters to use, the key is the name of the
+        // formatter which is referenced in the handler.
+        // Each formatter is an array which must contain:
+        // - 'class' - The class to use for the formatter
+        // - 'setup' - Callback for setting up a formatter, callback must return the formatter instance.
+        // It may contain:
+        // 'parameters' - Parameters to use when instantiating the class.
+        'formatters' => array(
+            'line' => array(
+                'class' => 'Monolog\\Formatter\LineFormatter',
+                'parameters' => array("[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n", null, true),
+            ),
+            'json' => array(
+                'class' => 'Monolog\\Formatter\JsonFormatter',
             ),
         ),
         // Log types:

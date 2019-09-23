@@ -23,15 +23,26 @@ if (!function_exists('starter_log')) {
     {
         static $logger = null;
         if ($logger === null) {
-            $logger = \Aplia\Bootstrap\Base::app()->fetchLogger('site');
+            $channel = \Aplia\Bootstrap\Base::app()->config->get('app.defaultLog', 'site');
+            $logger = \Aplia\Bootstrap\Base::app()->fetchLogger($channel);
         }
         $logger->log($level, $message, $context);
     }
 }
 
+if (!function_exists('starter_log_name')) {
+    /**
+     * Returns the name of the logger channel that is used for all starter_log* functions.
+     */
+    function starter_log_name()
+    {
+        return \Aplia\Bootstrap\Base::app()->config->get('app.defaultLog', 'site');
+    }
+}
+
 if (!function_exists('starter_emergency')) {
     /**
-     * Logs the message to 'site' channel with level EMERGENCY.
+     * Logs the message to default channel with level EMERGENCY.
      *
      * See Monolog\Logger::emergency() for documentation on parameters.
      */
@@ -39,7 +50,8 @@ if (!function_exists('starter_emergency')) {
     {
         static $logger = null;
         if ($logger === null) {
-            $logger = \Aplia\Bootstrap\Base::app()->fetchLogger('site');
+            $channel = \Aplia\Bootstrap\Base::app()->config->get('app.defaultLog', 'site');
+            $logger = \Aplia\Bootstrap\Base::app()->fetchLogger($channel);
         }
         $logger->emergency($message, $context);
     }
@@ -47,7 +59,7 @@ if (!function_exists('starter_emergency')) {
 
 if (!function_exists('starter_alert')) {
     /**
-     * Logs the message to 'site' channel with level ALERT.
+     * Logs the message to default channel with level ALERT.
      *
      * See Monolog\Logger::alert() for documentation on parameters.
      */
@@ -55,7 +67,8 @@ if (!function_exists('starter_alert')) {
     {
         static $logger = null;
         if ($logger === null) {
-            $logger = \Aplia\Bootstrap\Base::app()->fetchLogger('site');
+            $channel = \Aplia\Bootstrap\Base::app()->config->get('app.defaultLog', 'site');
+            $logger = \Aplia\Bootstrap\Base::app()->fetchLogger($channel);
         }
         $logger->alert($message, $context);
     }
@@ -63,7 +76,7 @@ if (!function_exists('starter_alert')) {
 
 if (!function_exists('starter_critical')) {
     /**
-     * Logs the message to 'site' channel with level CRITICAL.
+     * Logs the message to default channel with level CRITICAL.
      *
      * See Monolog\Logger::critical() for documentation on parameters.
      */
@@ -71,7 +84,8 @@ if (!function_exists('starter_critical')) {
     {
         static $logger = null;
         if ($logger === null) {
-            $logger = \Aplia\Bootstrap\Base::app()->fetchLogger('site');
+            $channel = \Aplia\Bootstrap\Base::app()->config->get('app.defaultLog', 'site');
+            $logger = \Aplia\Bootstrap\Base::app()->fetchLogger($channel);
         }
         $logger->critical($message, $context);
     }
@@ -79,7 +93,7 @@ if (!function_exists('starter_critical')) {
 
 if (!function_exists('starter_error')) {
     /**
-     * Logs the message to 'site' channel with level ERROR.
+     * Logs the message to default channel with level ERROR.
      *
      * See Monolog\Logger::error() for documentation on parameters.
      */
@@ -87,7 +101,8 @@ if (!function_exists('starter_error')) {
     {
         static $logger = null;
         if ($logger === null) {
-            $logger = \Aplia\Bootstrap\Base::app()->fetchLogger('site');
+            $channel = \Aplia\Bootstrap\Base::app()->config->get('app.defaultLog', 'site');
+            $logger = \Aplia\Bootstrap\Base::app()->fetchLogger($channel);
         }
         $logger->error($message, $context);
     }
@@ -95,7 +110,7 @@ if (!function_exists('starter_error')) {
 
 if (!function_exists('starter_warning')) {
     /**
-     * Logs the message to 'site' channel with level WARNING.
+     * Logs the message to default channel with level WARNING.
      *
      * See Monolog\Logger::warning() for documentation on parameters.
      */
@@ -103,7 +118,8 @@ if (!function_exists('starter_warning')) {
     {
         static $logger = null;
         if ($logger === null) {
-            $logger = \Aplia\Bootstrap\Base::app()->fetchLogger('site');
+            $channel = \Aplia\Bootstrap\Base::app()->config->get('app.defaultLog', 'site');
+            $logger = \Aplia\Bootstrap\Base::app()->fetchLogger($channel);
         }
         $logger->warning($message, $context);
     }
@@ -111,7 +127,7 @@ if (!function_exists('starter_warning')) {
 
 if (!function_exists('starter_notice')) {
     /**
-     * Logs the message to 'site' channel with level NOTICE.
+     * Logs the message to default channel with level NOTICE.
      *
      * See Monolog\Logger::notice() for documentation on parameters.
      */
@@ -119,7 +135,8 @@ if (!function_exists('starter_notice')) {
     {
         static $logger = null;
         if ($logger === null) {
-            $logger = \Aplia\Bootstrap\Base::app()->fetchLogger('site');
+            $channel = \Aplia\Bootstrap\Base::app()->config->get('app.defaultLog', 'site');
+            $logger = \Aplia\Bootstrap\Base::app()->fetchLogger($channel);
         }
         $logger->notice($message, $context);
     }
@@ -127,7 +144,7 @@ if (!function_exists('starter_notice')) {
 
 if (!function_exists('starter_info')) {
     /**
-     * Logs the message to 'site' channel with level INFO.
+     * Logs the message to default channel with level INFO.
      *
      * See Monolog\Logger::info() for documentation on parameters.
      */
@@ -135,7 +152,8 @@ if (!function_exists('starter_info')) {
     {
         static $logger = null;
         if ($logger === null) {
-            $logger = \Aplia\Bootstrap\Base::app()->fetchLogger('site');
+            $channel = \Aplia\Bootstrap\Base::app()->config->get('app.defaultLog', 'site');
+            $logger = \Aplia\Bootstrap\Base::app()->fetchLogger($channel);
         }
         $logger->info($message, $context);
     }
@@ -143,7 +161,7 @@ if (!function_exists('starter_info')) {
 
 if (!function_exists('starter_debug')) {
     /**
-     * Logs the message to 'site' channel with level debug.
+     * Logs the message to default channel with level debug.
      *
      * See Monolog\Logger::debug() for documentation on parameters.
      */
@@ -151,7 +169,8 @@ if (!function_exists('starter_debug')) {
     {
         static $logger = null;
         if ($logger === null) {
-            $logger = \Aplia\Bootstrap\Base::app()->fetchLogger('site');
+            $channel = \Aplia\Bootstrap\Base::app()->config->get('app.defaultLog', 'site');
+            $logger = \Aplia\Bootstrap\Base::app()->fetchLogger($channel);
         }
         $logger->debug($message, $context);
     }

@@ -34,6 +34,10 @@ class BaseApp implements Log\ManagerInterface
      */
     public $logHandlers = array();
     /**
+     * Associative array of log formatters.
+     */
+    protected $logFormatters = array();
+    /**
      * Array of error levels which are to be logged.
      */
     public $logLevels = array();
@@ -466,7 +470,7 @@ class BaseApp implements Log\ManagerInterface
     /**
      * Converts a log level from a string to the Monolog constant.
      */
-    public function levelStringToMonolog($level)
+    public static function levelStringToMonolog($level)
     {
         if ($level === null) {
             return \Monolog\Logger::DEBUG;
@@ -631,7 +635,7 @@ class BaseApp implements Log\ManagerInterface
                 if (is_string($class)) {
                     $class = str_replace("/", "\\", $class);
                 }
-                $level = $this->levelStringToMonolog(\Aplia\Support\Arr::get($definition, 'level'));
+                $level = self::levelStringToMonolog(\Aplia\Support\Arr::get($definition, 'level'));
                 $bubble = \Aplia\Support\Arr::get($definition, 'bubble', true);
                 $setup = \Aplia\Support\Arr::get($definition, 'setup');
                 $parameters = \Aplia\Support\Arr::get($definition, 'parameters');
@@ -662,6 +666,13 @@ class BaseApp implements Log\ManagerInterface
                     }
                     $handler->setLevel($level);
                     $handler->setBubble($bubble);
+                }
+                $formatterName = \Aplia\Support\Arr::get($definition, 'formatter');
+                if ($formatterName) {
+                    $formatter = $this->fetchLogFormatter($formatterName);
+                    if ($formatter) {
+                        $handler->setFormatter($formatter);
+                    }
                 }
                 $processorNames = array_filter(\Aplia\Support\Arr::get($definition, 'processors', array()));
                 asort($processorNames);
@@ -750,6 +761,76 @@ class BaseApp implements Log\ManagerInterface
             }
         }
         return $processors;
+    }
+
+    /**
+     * Fetches the log formatter with given name.
+     * If the formatter is not yet created it reads the configuration for it
+     * from log.formatters and creates the formatter instance or sets up a callback.
+     *
+     * Calling this multiple times is safe, it will only create each
+     * formatter one time.
+     *
+     * @return \Monolog\Formatter\FormatterInterface
+     */
+    public function fetchLogFormatter($name)
+    {
+        if (!$name || !$this->config->get('app.logger', true)) {
+            return null;
+        }
+        if (isset($this->logFormatters[$name])) {
+            if ($this->logFormatters[$name]) {
+                return $this->logFormatters[$name];
+            }
+            return null;
+        }
+
+        $formatter = null;
+        $availableFormatters = $this->config->get('log.formatters');
+        if (!isset($availableFormatters[$name])) {
+            throw new \Exception("No log formatter defined for name: $name");
+        }
+        $definition = $availableFormatters[$name];
+        $definition['name'] = $name;
+        $setup = \Aplia\Support\Arr::get($definition, 'setup');
+        if (is_string($setup)) {
+            $setup = str_replace("/", "\\", $setup);
+        }
+        if ($setup) {
+            if (is_string($setup) && strpos($setup, '::') !== false) {
+                $setup = explode("::", $setup, 2);
+            }
+            $formatter = call_user_func_array($setup, array($definition));
+            // If the setup callback returns null it means the formatter should be ignored
+            if ($formatter === null) {
+                $this->logFormatters[$name] = false;
+                continue;
+            }
+        } else {
+            $class = \Aplia\Support\Arr::get($definition, 'class');
+            if (is_string($class)) {
+                $class = str_replace("/", "\\", $class);
+            }
+            $call = \Aplia\Support\Arr::get($definition, 'call');
+            if (is_string($call) && strpos($call, '::') !== false) {
+                if (is_string($call)) {
+                    $call = str_replace("/", "\\", $call);
+                }
+                $formatter = explode("::", $call, 2);
+            } else if ($class) {
+                $parameters = \Aplia\Support\Arr::get($definition, 'parameters');
+                if (!$parameters) {
+                    $formatter = new $class();
+                } else {
+                    $reflection = new \ReflectionClass($class);
+                    $formatter = $reflection->newInstanceArgs($parameters);
+                }
+            } else {
+                throw new \Exception("Log formatter $name has no 'class' or 'call' defined");
+            }
+        }
+        $this->logFormatters[$name] = $formatter;
+        return $formatter;
     }
 
     /**

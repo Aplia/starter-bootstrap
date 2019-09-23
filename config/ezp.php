@@ -144,7 +144,8 @@ return array(
                     'var_log_error' => 100,
                     'var_log_ezp' => 150,
                     'console-err' => 170,
-                )
+                ),
+                'formatter' => 'line',
             ),
             'ezpdebug.error' => array(
                 'handlers' => array(
@@ -152,32 +153,37 @@ return array(
                     'var_log_error' => 100,
                     'var_log_ezp' => 150,
                     'console-err' => 170,
-                )
+                ),
+                'formatter' => 'line',
             ),
             // The rest of the ezp channels are all placed in the same file
             'ezpdebug.warning' => array(
                 'handlers' => array(
                     'var_log_ezp' => 150,
                     'console' => 170,
-                )
+                ),
+                'formatter' => 'line',
             ),
 
             'ezpdebug.info' => array(
                 'handlers' => array(
                     'var_log_ezp' => 150,
                     'console' => 170,
-                )
+                ),
+                'formatter' => 'line',
             ),
             'ezpdebug.debug' => array(
                 'handlers' => array(
                     'var_log_ezp' => 150,
                     'console' => 170,
-                )
+                ),
+                'formatter' => 'line',
             ),
             'ezpdebug.timing' => array(
                 'handlers' => array(
                     // Timing points are not generally interesting, goes nowhere by default
-                )
+                ),
+                'formatter' => 'line',
             ),
             // This receives logs from the error handler
             'phperror' => array(
@@ -187,7 +193,8 @@ return array(
                     // Log errors to error.log and ezp.log
                     'var_log_error' => 100,
                     'var_log_ezp' => 150,
-                )
+                ),
+                'formatter' => 'line',
             ),
         ),
     ),
