@@ -129,7 +129,7 @@ return array(
             'console' => array(
                 'class' => 'Monolog\\Handler\\StreamHandler',
                 'enabled' => false,
-                'formatter' => 'line',
+                'formatter' => 'console_line',
                 'parameters' => array(
                     'php://stdout'
                 ),
@@ -137,7 +137,7 @@ return array(
             'console-err' => array(
                 'class' => 'Monolog\\Handler\\StreamHandler',
                 'enabled' => false,
-                'formatter' => 'line',
+                'formatter' => 'console_line',
                 'parameters' => array(
                     'php://stderr'
                 ),
@@ -153,7 +153,11 @@ return array(
         'formatters' => array(
             'line' => array(
                 'class' => 'Monolog\\Formatter\LineFormatter',
-                'parameters' => array("[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n", null, true),
+                'parameters' => array("[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n"),
+            ),
+            'console_line' => array(
+                'class' => 'Monolog\\Formatter\LineFormatter',
+                'parameters' => array("[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n", null, true, true),
             ),
             'json' => array(
                 'class' => 'Monolog\\Formatter\JsonFormatter',
