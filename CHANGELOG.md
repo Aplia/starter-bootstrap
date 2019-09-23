@@ -5,6 +5,9 @@
 - Added support for Symfony dump() method for dumping variables.
   It can be used instead of var_dump() as it has better output
   and output will also be present for error pages.
+- Env variable STARTER_BOOTSTRAP_MODE now also controls
+  STARTER_FRAMEWORK unless it is set. This makes it possible to
+  start plain mode by setting `$GLOBALS["STARTER_FRAMEWORK"]="plain";`
 
 ## 1.10.0
 

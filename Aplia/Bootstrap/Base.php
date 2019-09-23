@@ -202,11 +202,30 @@ class Base
         }
     }
 
+    /**
+     * Returns the names of all configuration that are to be used,
+     * e.g. array('base', 'ezp', 'prod', 'local');
+     * The names are determined from these globals variables:
+     *
+     * - STARTER_BOOTSTRAP_MODE - The type of bootstrap mode, may override STARTER_FRAMEWORK
+     * - STARTER_FRAMEWORK - The framework that is to be bootstrapped, e.g. 'ezp' or 'plain'
+     * - STARTER_BASE_CONFIGS - Array of configuration used as base, defaults to array('base')
+     * - STARTER_CONFIGS - Array of app configuration to load, defaults to array('prod')
+     * - STARTER_USE_LOCAL_CONFIG - Whether to also include a 'local' config, defaults to true.
+     *
+     * @return array
+     */
     public static function fetchConfigNames()
     {
+        if (!isset($GLOBALS['STARTER_FRAMEWORK']) && isset($GLOBALS['STARTER_BOOTSTRAP_MODE'])) {
+            // Use STARTER_BOOTSTRAP_MODE as the defaults for STARTER_FRAMEWORK
+            // This means that whatever is used as the bootstrap mode will also be loaded as a config
+            // In most cases this is 'ezp' or 'plain'.
+            $GLOBALS['STARTER_FRAMEWORK'] = $GLOBALS['STARTER_BOOTSTRAP_MODE'];
+        }
         $configNames = array_merge(
             isset($GLOBALS['STARTER_BASE_CONFIGS']) ? $GLOBALS['STARTER_BASE_CONFIGS'] : array('base'),
-            // The default framework is eZ publish
+            // The default framework is eZ publish, unless STARTER_FRAMEWORK is set
             isset($GLOBALS['STARTER_FRAMEWORK']) ? array($GLOBALS['STARTER_FRAMEWORK']) : array('ezp'),
             // We default to 'prod' when nothing is defined, this is the safest option
             isset($GLOBALS['STARTER_CONFIGS']) ? $GLOBALS['STARTER_CONFIGS'] : array('prod')
