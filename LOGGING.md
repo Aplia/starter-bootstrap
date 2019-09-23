@@ -452,3 +452,13 @@ Example, only output errors on console:
 ```console
 LOG_ENABLED=console LOG_LEVELS=console:error php some_script.php
 ```
+
+### LOG_INTROSPECT
+
+Can be set to a true value to enable log introspection. This
+adds file and line numbers to log messages based on where the
+log call was initiated.
+
+```console
+LOG_ENABLED=1 php some_script.php
+```
