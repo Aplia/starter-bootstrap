@@ -136,11 +136,13 @@ class VarDumper
             $this->app->setDebugVariable($name, $value);
 
             // Log the value using debug level, value must first dumped to memory
-            $memOutput = fopen('php://memory', 'r+b');
-            self::$logDumper->dump(self::$cloner->cloneVar($value), $memOutput);
-            $logOutput = stream_get_contents($memOutput, -1, 0);
-            fclose($memOutput);
-            starter_debug("dump($nameText) result: " . $logOutput);
+            if (!$this->app->isLoggerInitializing(starter_log_name())) {
+                $memOutput = fopen('php://memory', 'r+b');
+                self::$logDumper->dump(self::$cloner->cloneVar($value), $memOutput);
+                $logOutput = stream_get_contents($memOutput, -1, 0);
+                fclose($memOutput);
+                starter_debug("dump($nameText) result: " . $logOutput);
+            }
 
             self::$dumper->dump(self::$cloner->cloneVar($value));
         } catch (\Exception $exc) {

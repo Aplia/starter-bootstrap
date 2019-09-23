@@ -520,6 +520,17 @@ class BaseApp implements Log\ManagerInterface
     }
 
     /**
+     * Returns true if the logger is currently being initialized.
+     * If this is true then avoid calling fetchLogger() with this name.
+     *
+     * This is mainly a helper to avoid recursive calls to fetchLogger().
+     */
+    public function isLoggerInitializing($name)
+    {
+        return isset($this->loggerInit[$name]);
+    }
+
+    /**
      * Fetches the logger with given name.
      * If the logger is not yet created it reads the configuration for it
      * from log.loggers.$name and creates the logger instance.
@@ -541,6 +552,10 @@ class BaseApp implements Log\ManagerInterface
         if (!isset($loggers[$name])) {
             throw new \Exception("No logger defined for name: $name");
         }
+        if (isset($this->loggerInit[$name])) {
+            throw new \Exception("Logger channel is already being initialized, recursive fetchLogger(): $name");
+        }
+        $this->loggerInit[$name] = true;
         $definition = $loggers[$name];
         $definition['name'] = $name;
         $class = \Aplia\Support\Arr::get($definition, 'class');
@@ -565,11 +580,13 @@ class BaseApp implements Log\ManagerInterface
             // If the setup callback returns null it means the logger should be ignored
             if ($logger === null) {
                 $this->loggers[$name] = null;
+                unset($this->loggerInit[$name]);
                 return null;
             }
         } else {
             if ($parameters) {
                 if (!is_array($parameters)) {
+                    unset($this->loggerInit[$name]);
                     throw new \Exception("Configuration 'parameters' for logger $name must be an array, got: " . gettype($parameters));
                 }
                 array_unshift($parameters, $channel);
@@ -605,6 +622,7 @@ class BaseApp implements Log\ManagerInterface
             $logger->pushProcessor($processor);
         }
         $this->loggers[$name] = $logger;
+        unset($this->loggerInit[$name]);
         return $logger;
     }
 
