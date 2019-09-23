@@ -589,7 +589,7 @@ class BaseApp implements Log\ManagerInterface
         asort($processorNames);
         $processors = $this->fetchLogProcessors(array_keys($processorNames));
         foreach ($processors as $processor) {
-            $handler->pushProcessor($processor);
+            $logger->pushProcessor($processor);
         }
         $this->loggers[$name] = $logger;
         return $logger;

@@ -11,6 +11,8 @@
 - eZ publish legacy kernel can be found using a bootstrap file called
   vendor/ezsystems/ezlegacy/bootstrap_kernel.php.
   This will be executed and may set the `EZP_ROOT` env variable.
+- Fixed bug in BaseApp which prevented log processors to be attached
+  to loggers.
   
 
 ## 1.10.0
