@@ -175,7 +175,8 @@ The following keys can be set:
               parent.
 - setup - A callback function to call to initialize the logger. Can been
           used if you need to dynamically determine parameters for
-          the logger. Must be a name of a callable function or full namespace path to class + static method. The callback will receive the
+          the logger. Must be a name of a callable function or full namespace path
+          to class + static method. The callback will receive the
           definition array as the first parameter and must return
           the logger instance or null to skip the logger.
 - parameters - Parameters for the logger class, normally only needed for custom logger
@@ -258,9 +259,12 @@ The following keys can be set:
 - level - The log level this handler accepts, if the log level is lower
           than specified the log message is not sent to this logger.
           e.g. a handler with `error` level will not receive `debug` messages.
+- formatter - The name of a formatter to use, this will override the default
+              formatter for the handler. See formatters below.
 - setup - A callback function to call to initialize the handler. Can been
           used if you need to dynamically determine parameters for
-          the handler. Must be a name of a callable function or full namespace path to class + static method. The callback will receive the
+          the handler. Must be a name of a callable function or full namespace path
+          to class + static method. The callback will receive the
           definition array as the first parameter and must return
           the handler instance or null to skip the handler.
 - parameters - Parameters for the handler class.
@@ -312,6 +316,46 @@ return array(
 );
 ```
 
+### formatters
+
+Defines the configuration for a formatter, the formatter must be given
+a name and class to instantiate. The class can be any class
+as long is supports the Monolog formatter interface.
+
+The following keys can be set:
+
+- class - Full namespace path to class, backwards slashes must be escaped.
+          Forward slashes will be turned into backward slashes.
+- setup - A callback function to call to initialize the formatter. Can been
+          used if you need to dynamically determine parameters for
+          the formatter. Must be a name of a callable function or full namespace path to
+          class + static method. The callback will receive the
+          definition array as the first parameter and must return
+          the handler instance or null to skip the handler.
+- parameters - Parameters for the handler class.
+
+Full example:
+```php
+<?php
+// Defines two formatters:
+// 'line' for file logs, everything is on one line
+// 'console_line' for console output, allows multi-line messages.
+return array(
+    'log' => array(
+        'formatters' => array(
+            'line' => array(
+                'class' => 'Monolog\\Formatter\LineFormatter',
+                'parameters' => array("[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n"),
+            ),
+            'console_line' => array(
+                'class' => 'Monolog\\Formatter\LineFormatter',
+                'parameters' => array("[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n", null, true, true),
+            ),
+        ),
+    ),
+);
+```
+
 ### processors
 
 A processor is a piece of code that adds extra information to a log
@@ -329,7 +373,8 @@ The following keys can be set:
             to true.
 - setup - A callback function to call to initialize the processor. Can been
           used if you need to dynamically determine parameters for
-          the processor. Must be a name of a callable function or full namespace path to class + static method. The callback will receive the
+          the processor. Must be a name of a callable function or full namespace
+          path to class + static method. The callback will receive the
           definition array as the first parameter and must return
           the processor instance or null to skip the processor.
 - call - A callback which should act as a processor, must be defined as namespace class
