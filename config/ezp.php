@@ -8,6 +8,20 @@ if (!isset($_ENV['EZP_ROOT'])) {
         putenv("EZP_ROOT=" . $_ENV['EZP_ROOT'] = $ezpRoot);
         $foundKernel = true;
     }
+    // If the kernel bootstrap file exists then use that to figure out the path
+    if (!$foundKernel) {
+        $wwwRoot = $_ENV['WWW_ROOT'];
+        if (!$wwwRoot) {
+            $wwwRoot = __DIR__ . "/../../../..";
+        }
+        if (file_exists($wwwRoot . '/vendor/ezsystems/ezlegacy/bootstrap_kernel.php')) {
+            require_once $wwwRoot . '/vendor/ezsystems/ezlegacy/bootstrap_kernel.php';
+            if (isset($_ENV['EZP_ROOT'])) {
+                $foundKernel = true;
+            }
+        }
+    }
+    // Fall back to automagic guessing based on known files
     if (!$foundKernel) {
         if (file_exists($_ENV['WWW_ROOT'] . '/lib/ezutils') && file_exists($_ENV['WWW_ROOT'] . '/lib/version.php')) {
             putenv("EZP_ROOT=" . $_ENV['EZP_ROOT'] = realpath($_ENV['WWW_ROOT']));

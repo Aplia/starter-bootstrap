@@ -8,6 +8,10 @@
 - Env variable STARTER_BOOTSTRAP_MODE now also controls
   STARTER_FRAMEWORK unless it is set. This makes it possible to
   start plain mode by setting `$GLOBALS["STARTER_FRAMEWORK"]="plain";`
+- eZ publish legacy kernel can be found using a bootstrap file called
+  vendor/ezsystems/ezlegacy/bootstrap_kernel.php.
+  This will be executed and may set the `EZP_ROOT` env variable.
+  
 
 ## 1.10.0
 
