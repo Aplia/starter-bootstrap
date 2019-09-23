@@ -19,6 +19,9 @@
         "sentry/sentry": "1.5.0",
         "monolog/monolog": "1.21.0"
     },
+    "require-dev": {
+        "symfony/var-dumper": "^3.4"
+    },
     "bin": [
         "bin/ezp_dump_extensions",
         "bin/bootstrap_build",
