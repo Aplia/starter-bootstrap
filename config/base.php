@@ -201,11 +201,17 @@ return array(
         // 'handlers' - Array of handlers to use for this logger,
         //              note: The key is the name of handler, and the value is
         //              whether it is enabled or not. See log.handlers
+        // 'processors' - Array of processors to use for this logger.
+        //              note: The key is the name of the process, and the value is
+        //              whether it is enabled or not. See log.processors
         'loggers' => array(
             // This receives logs from the error handler
             'phperror' => array(
                 'handlers' => array(
                     'console-err' => 170,
+                ),
+                'processors' => array(
+                    'introspect' => 100,
                 ),
             ),
             // Logger for the base system
@@ -213,11 +219,17 @@ return array(
                 'handlers' => array(
                     'console-err' => 170,
                 ),
+                'processors' => array(
+                    'introspect' => 100,
+                ),
             ),
             // Logger for the site
             'site' => array(
                 'handlers' => array(
                     'console-err' => 170,
+                ),
+                'processors' => array(
+                    'introspect' => 100,
                 ),
             ),
         ),
@@ -238,6 +250,36 @@ return array(
             'web' => array(
                 'class' => 'Monolog\\Processor\\WebProcessor',
             ),
+            // The introspection processor can provide file and line numbers
+            // of log callers. This is turned off by default but can be enabled
+            // by providing env variable LOG_INTROSPECT=1
+            'introspect' => array(
+                'class' => 'Aplia\\Bootstrap\\Processor\\IntrospectionProcessor',
+                'setup' => 'Aplia\\Bootstrap\\BaseApp::setupIntrospection',
+                'enabled' => false,
+                // List of class names or namespace prefixes to skip in stacktrace when determining
+                // file and line numbers.
+                'skipClasses' => array(
+                    'Aplia\\Bootstrap\\Log' => 10,
+                ),
+                // List of functions skip in stacktrace when determining file and line numbers.
+                'skipFunctions' => array(
+                    'starter_log' => 10,
+                    'starter_emergency' => 11,
+                    'starter_alert' => 12,
+                    'starter_critical' => 13,
+                    'starter_error' => 14,
+                    'starter_warning' => 15,
+                    'starter_notice' => 16,
+                    'starter_info' => 17,
+                    'starter_debug' => 18,
+                ),
+            ),
+        ),
+        // Array of processors which are considered introspectors, they will be turned on
+        // if LOG_INTROSPECT=1
+        'introspectors' => array(
+            'introspect' => 100,
         ),
     ),
     // Configuration for the sentry handler

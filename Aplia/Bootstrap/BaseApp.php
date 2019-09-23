@@ -184,9 +184,23 @@ class BaseApp implements Log\ManagerInterface
                 }
             }
         }
+
+        $trueValues = array('1', 'true', 'on');
+        // Check if introspection processors should be enabled
+        $processorConfig = array();
+        $introspectEnabled = array_key_exists('LOG_INTROSPECT', $_ENV) ? in_array($_ENV['LOG_INTROSPECT'], $trueValues) : false;
+        if ($introspectEnabled) {
+            foreach (array_filter($this->config->get('log.introspectors', array())) as $introspectName => $value) {
+                $processorConfig[$introspectName] = array(
+                    'enabled' => true,
+                );
+            }
+        }
+
         $this->config->update(array(
             'log' => array(
                 'handlers' => $handlerConfig,
+                'processors' => $processorConfig,
             ),
         ));
     }
@@ -859,6 +873,28 @@ class BaseApp implements Log\ManagerInterface
         }
         $this->logFormatters[$name] = $formatter;
         return $formatter;
+    }
+
+    /**
+     * Initialize the introspection processor by injecting the correct
+     * parameters for skipping certain classes and functions.
+     */
+    public static function setupIntrospection($definition)
+    {
+        $level = \Aplia\Support\Arr::get($definition, 'level');
+        $level = self::levelStringToMonolog($level);
+        $class = \Aplia\Support\Arr::get($definition, 'class', 'Aplia\\Bootstrap\\Processor\\IntrospectionProcessor');
+        if ($class === 'Monolog\\Processor\\IntrospectionProcessor') {
+            $skipClasses = \Aplia\Support\Arr::get($definition, 'skipClasses', array());
+            $processor = new $class($level, $skipClasses);
+        } else if ($class === 'Aplia\\Bootstrap\\Processor\\IntrospectionProcessor') {
+            $skipClasses = array_keys(array_filter(\Aplia\Support\Arr::get($definition, 'skipClasses', array())));
+            $skipFunctions = array_keys(array_filter(\Aplia\Support\Arr::get($definition, 'skipFunctions', array())));
+            $processor = new $class($level, $skipClasses, 0, $skipFunctions);
+        } else {
+            $processor = new $class($level);
+        }
+        return $processor;
     }
 
     /**

@@ -145,6 +145,9 @@ return array(
                     'var_log_ezp' => 150,
                     'console-err' => 170,
                 ),
+                'processors' => array(
+                    'introspect' => 100,
+                ),
                 'formatter' => 'line',
             ),
             'ezpdebug.error' => array(
@@ -154,6 +157,9 @@ return array(
                     'var_log_ezp' => 150,
                     'console-err' => 170,
                 ),
+                'processors' => array(
+                    'introspect' => 100,
+                ),
                 'formatter' => 'line',
             ),
             // The rest of the ezp channels are all placed in the same file
@@ -161,6 +167,9 @@ return array(
                 'handlers' => array(
                     'var_log_ezp' => 150,
                     'console' => 170,
+                ),
+                'processors' => array(
+                    'introspect' => 100,
                 ),
                 'formatter' => 'line',
             ),
@@ -170,6 +179,9 @@ return array(
                     'var_log_ezp' => 150,
                     'console' => 170,
                 ),
+                'processors' => array(
+                    'introspect' => 100,
+                ),
                 'formatter' => 'line',
             ),
             'ezpdebug.debug' => array(
@@ -177,11 +189,17 @@ return array(
                     'var_log_ezp' => 150,
                     'console' => 170,
                 ),
+                'processors' => array(
+                    'introspect' => 100,
+                ),
                 'formatter' => 'line',
             ),
             'ezpdebug.timing' => array(
                 'handlers' => array(
                     // Timing points are not generally interesting, goes nowhere by default
+                ),
+                'processors' => array(
+                    'introspect' => 100,
                 ),
                 'formatter' => 'line',
             ),
