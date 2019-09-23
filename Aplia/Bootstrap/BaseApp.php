@@ -34,9 +34,18 @@ class BaseApp implements Log\ManagerInterface
      */
     public $logHandlers = array();
     /**
+     * Associative array of log processors.
+     */
+    protected $logProcessors = array();
+    /**
      * Associative array of log formatters.
      */
     protected $logFormatters = array();
+    /**
+     * Array map of logger names which are currently being initialized, once
+     * they are initialized the entry is removed.
+     */
+    protected $loggerInit = array();
     /**
      * Array of error levels which are to be logged.
      */
