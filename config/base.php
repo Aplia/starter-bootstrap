@@ -20,6 +20,11 @@ return array(
     'app' => array(
         'errorMode' => $errorMode,
         'errorLevel' => 'error',
+        // How deprecations are handled:
+        // - error - Deprecations are treated as errors, and are also logged
+        // - log - Deprecations are treated as warnings, will only be logged
+        // - ignore - Deprecations are totally ignored
+        'deprecation' => 'log',
         'bootstrap' => array(
             'classes' => array(
                 'starter.base' => 'Aplia\Bootstrap\BaseApp',

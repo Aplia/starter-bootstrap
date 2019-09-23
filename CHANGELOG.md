@@ -22,6 +22,12 @@
   determine which log channel to use. Use function
   `starter_log_name` to get the name of the default channel.
 - Added prevention of recursive calls to fetchLoggers().
+- Added flag app.deprecation to control how deprecation errors are
+  treated. They can either be treated as an error, logged as a
+  an error or ignored. Defaults to logging for prod and error for
+  development.
+  This can be controlled at run-time by setting the env variable
+  `ERROR_DEPRECATION` to one of `error`, `log` or `ignore`.
   
 
 ## 1.10.0

@@ -148,6 +148,20 @@ The priority value is important as it determines when the file is loaded.
 e.g. use a lower value if you want to override an existing function,
 but normally just use a high value (300 or more) to load it last.
 
+### Deprecations
+
+Deprecation errors which are reported by PHP will be default be sent
+to the error logs. This behaviour is controlled by the configuration
+`app.deprecation`. For development this changes to `error` which means
+to stop on the error and show an error page.
+
+The deprecation mode can changed at run-time by setting the
+`ERROR_DEPRECATION` to one of the valid values.
+
+For example:
+```console
+ERROR_DEPRECATION=ignore php old_script.php
+```
 
 ### Debugging errors
 

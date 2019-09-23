@@ -50,6 +50,12 @@ if (isset($GLOBALS['STARTER_BASE_DEBUG']) && $GLOBALS['STARTER_BASE_DEBUG']) {
 
         $errorHandler->pushHandler($textHandler);
         $errorHandler->register();
+
+        // Turn on all types of errors excepts deprecations, this should help with
+        // catching any problems during startup
+        // Once BaseApp is initialized it will be changed according what the application
+        // is currently configured as.
+        error_reporting(~E_DEPRECATED);
     }
 }
 

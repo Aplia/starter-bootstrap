@@ -386,27 +386,83 @@ class BaseApp implements Log\ManagerInterface
                 $errorLevel = $this->errorLevel;
             }
             $logLevelMask = 0;
+            $strictTypes = $whoops->strictTypes;
+            $errorTypes = $whoops->errorTypes;
+            $warningTypes = $whoops->warningTypes;
+            $deprecationMode = $this->config->get('app.deprecation');
+            if (array_key_exists('ERROR_DEPRECATION', $_ENV)) {
+                $deprecationMode = $_ENV['ERROR_DEPRECATION'];
+                if (!in_array($deprecationMode, array('error', 'log', 'ignore'))) {
+                    $deprecationMode = $this->config->get('app.deprecation');
+                }
+            } else {
+                $deprecationMode = $this->config->get('app.deprecation');
+            }
+
+            // Turn on all error types including E_DEPRECATED
+            $errorReportTypes = $strictTypes | $errorTypes | $warningTypes | E_DEPRECATED;
+
             foreach ($this->logLevels as $logLevel) {
                 if ($logLevel == 'strict') {
-                    $logLevelMask |= $whoops->strictTypes;
+                    $logLevelMask |= $strictTypes;
                 } elseif ($logLevel == 'error') {
-                    $logLevelMask |= $whoops->errorTypes;
+                    $logLevelMask |= $errorTypes;
                 } elseif ($logLevel == 'warning') {
-                    $logLevelMask |= $whoops->warningTypes;
+                    $logLevelMask |= $warningTypes;
                 } elseif ($logLevel == 'notice') {
-                    $logLevelMask |= -1 & ~($whoops->strictTypes | $whoops->errorTypes | $whoops->warningTypes);
+                    $logLevelMask |= -1 & ~($strictTypes | $errorTypes | $warningTypes);
                 }
             }
+
+            // Determine error level, with special handling of deprecation errors.
+            // $deprecationMode determines if E_DEPRECATED is added or removed from
+            // what is considered an error and what is considered a log.
+            // If ignored it is removed from both.
             if ($errorLevel == 'error') {
-                $whoops->setErrorLevels($whoops->errorTypes | $whoops->strictTypes);
+                if ($deprecationMode === 'error') {
+                    $whoops->setErrorLevels($errorTypes | $strictTypes | E_DEPRECATED);
+                    $logLevelMask |= ~E_DEPRECATED;
+                } else if ($deprecationMode === 'ignore') {
+                    $whoops->setErrorLevels(($errorTypes | $strictTypes) & ~E_DEPRECATED);
+                    $logLevelMask &= ~E_DEPRECATED;
+                } else {
+                    // Default is to log
+                    $whoops->setErrorLevels(($errorTypes | $strictTypes) & ~E_DEPRECATED);
+                    $logLevelMask |= E_DEPRECATED;
+                }
             } elseif ($errorLevel == 'warning') {
-                $whoops->setErrorLevels($whoops->warningTypes | $whoops->errorTypes | $whoops->strictTypes);
+                if ($deprecationMode === 'error') {
+                    $whoops->setErrorLevels($warningTypes | $errorTypes | $strictTypes | E_DEPRECATED);
+                    $logLevelMask |= ~E_DEPRECATED;
+                } else if ($deprecationMode === 'ignore') {
+                    $whoops->setErrorLevels(($warningTypes | $errorTypes | $strictTypes) & ~E_DEPRECATED);
+                    $logLevelMask &= ~E_DEPRECATED;
+                } else {
+                    // Default is to log
+                    $whoops->setErrorLevels(($warningTypes | $errorTypes | $strictTypes) & ~E_DEPRECATED);
+                    $logLevelMask |= E_DEPRECATED;
+                }
             } elseif ($errorLevel == 'notice') {
-                $whoops->setErrorLevels(-1);
+                if ($deprecationMode === 'error') {
+                    $whoops->setErrorLevels(-1);
+                } else if ($deprecationMode === 'ignore') {
+                    $whoops->setErrorLevels(~E_DEPRECATED);
+                    $logLevelMask &= ~E_DEPRECATED;
+                } else {
+                    // Default is to log
+                    $whoops->setErrorLevels(~E_DEPRECATED);
+                    $logLevelMask |= E_DEPRECATED;
+                }
             } elseif ($errorLevel == 'ignore') {
+                dump(0);
                 $whoops->setErrorLevels(0);
+                if ($deprecationMode !== 'ignore') {
+                    $logLevelMask |= E_DEPRECATED;
+                }
             }
             $whoops->setLogLevels($logLevelMask);
+            // Change error reporting bitmask, this overrides the error levels set on the system
+            error_reporting($errorReportTypes);
 
             // If an existing error handler is currently used then unregister it right
             // before the new one is registered. This ensures that we catch all kinds
