@@ -902,7 +902,7 @@ class BaseApp implements Log\ManagerInterface
             // If the setup callback returns null it means the formatter should be ignored
             if ($formatter === null) {
                 $this->logFormatters[$name] = false;
-                continue;
+                return;
             }
         } else {
             $class = \Aplia\Support\Arr::get($definition, 'class');
