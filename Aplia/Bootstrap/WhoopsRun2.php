@@ -17,7 +17,7 @@ use Whoops\Util\Misc;
 use Whoops\Util\SystemFacade;
 
 // Note: This code is for Whoops 2.x, not 1.x or lower
-
+// Note: This code is a copy of Whoopes/Run.php to allow it be extended, the original is final
 class WhoopsRun2 implements RunInterface
 {
     protected $isRegistered;
