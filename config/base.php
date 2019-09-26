@@ -20,6 +20,10 @@ return array(
     'app' => array(
         'errorMode' => $errorMode,
         'errorLevel' => 'error',
+        // How values are dumped on the error page:
+        // - 'basic' - Hide normal object details, most secure.
+        // - 'verbose' - Show normal object details.
+        'errorDumper' => 'basic',
         // How deprecations are handled:
         // - error - Deprecations are treated as errors, and are also logged
         // - log - Deprecations are treated as warnings, will only be logged

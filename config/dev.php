@@ -4,6 +4,8 @@ return array(
     'app' => array(
         // Trap notice, warnings and error as errors during development
         'errorLevel' => 'notice',
+        // Show more details for development
+        'errorDumper' => 'verbose',
         // Make sure deprecations are caught during development
         'deprecation' => 'error',
         // Allow errors to stop execution and show a trace
