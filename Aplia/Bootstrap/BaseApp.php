@@ -363,6 +363,20 @@ class BaseApp implements Log\ManagerInterface
                     $prettyHandler->addDataTableCallback('Variables', array($this, 'setupDebugVariables'));
                     $prettyHandler->addDataTableCallback('Variable locations', array($this, 'setupDebugVariableLocations'));
 
+                    // Change the private property templateHelper to allow installing our own var dumper
+                    // This var dumper does not exclude showing details for common objects
+                    $prettyCloner = new \Symfony\Component\VarDumper\Cloner\VarCloner();
+                    $templateHelper = new \Whoops\Util\TemplateHelper();
+                    $templateHelper->setCloner($prettyCloner);
+
+                    // Modify private property templateHelper, this is a hack but needed as
+                    // PrettyPageHandler does not provide means to modify this ourselves.
+                    $reflection = new \ReflectionClass($prettyHandler);
+                    $property = $reflection->getProperty('templateHelper');
+                    $property->setAccessible(true);
+                    $property->setValue($prettyHandler, $templateHelper);
+                    $property->setAccessible(false);
+
                     $whoops->pushHandler($prettyHandler);
                 } else {
                     // Handler for plain-text
