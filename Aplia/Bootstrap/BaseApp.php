@@ -94,9 +94,9 @@ class BaseApp implements Log\ManagerInterface
      *
      * Setting the same varible multiple times will simply overwrite the previous value.
      */
-    public function setDebugVariable($name, $value)
+    public function setDebugVariable($name, $value, $location)
     {
-        $this->debugVariables[$name] = $value;
+        $this->debugVariables[$name] = array('value' => $value, 'location' => $location);
     }
 
     /**
@@ -361,6 +361,8 @@ class BaseApp implements Log\ManagerInterface
                     }
                     $prettyHandler->addDataTableCallback('eZ Templates', array($this, 'setupTemplateUsageTable'));
                     $prettyHandler->addDataTableCallback('Variables', array($this, 'setupDebugVariables'));
+                    $prettyHandler->addDataTableCallback('Variable locations', array($this, 'setupDebugVariableLocations'));
+
                     $whoops->pushHandler($prettyHandler);
                 } else {
                     // Handler for plain-text
@@ -1001,9 +1003,23 @@ class BaseApp implements Log\ManagerInterface
     public function setupDebugVariables()
     {
         $data = array();
-        $jsonFlags = JSON_PRETTY_PRINT | (version_compare(PHP_VERSION, "5.4") >= 0 ? JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE : 0);
-        foreach ($this->debugVariables as $name => $value) {
-            $data[$name] = json_encode($value, $jsonFlags);
+        foreach ($this->debugVariables as $name => $entry) {
+            $data[$name] = $entry['value'];
+        }
+        return $data;
+    }
+
+    /**
+     * Sets up the data table for debug variable locations.
+     */
+    public function setupDebugVariableLocations()
+    {
+        $data = array();
+        foreach ($this->debugVariables as $name => $entry) {
+            if (!$entry['location']) {
+                continue;
+            }
+            $data[$name] = $entry['location'];
         }
         return $data;
     }

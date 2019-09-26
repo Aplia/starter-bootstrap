@@ -52,6 +52,14 @@ return array(
             'colors' => true,
             // cli: Maximum width of strings
             'maxStringWidth' => 0,
+            'skipClasses' => array(
+                'Aplia\\Bootstrap\\Development' => 10,
+                'Aplia\\Bootstrap\\VarDumper' => 11,
+                'Symfony\\Component\\VarDumper' => 50,
+            ),
+            'skipFunctions' => array(
+                'dump' => 50,
+            ),
         ),
         // Define helpers to use for application, maps to a number which is the priority
         // A lower number means the file is included first.

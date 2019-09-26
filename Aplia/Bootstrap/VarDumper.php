@@ -54,6 +54,22 @@ class VarDumper
      */
     public $app;
 
+    /**
+     * Array of classes to skip in backtrace lookup.
+     * If it is null it will use defaults from config `app.dump.skipClasses`.
+     *
+     * @var array
+     */
+    public static $skipClasses = null;
+
+    /**
+     * Array of functions to skip in backtrace lookup.
+     * If it is null it will use defaults from config `app.dump.skipFunctions`.
+     *
+     * @var array
+     */
+    public static $skipFunctions = null;
+
     public function __construct($app)
     {
         $this->app = $app;
@@ -65,7 +81,7 @@ class VarDumper
      *
      * This function is not called directly but called as part of the dump()
      * function provided by symfony/var-dumper.
-     * 
+     *
      * This effectively replaces var_dump() for debugging variables
      * as it will display a better looking and easier to read
      * output using symfony/var-dumper.
@@ -107,11 +123,11 @@ class VarDumper
                 }
                 if ($format === 'html') {
                     $dumper = self::$dumper = new \Symfony\Component\VarDumper\Dumper\HtmlDumper(null, null, $flags);
-                 } else {
+                } else {
                     $dumper = self::$dumper = new \Symfony\Component\VarDumper\Dumper\CliDumper(null, null, $flags);
                     $dumper->setColors($useColors);
                     $dumper->setMaxStringWidth($useColors = $this->app->config->get('app.dump.maxStringWidth', 0));
-                 }
+                }
             }
 
             if (self::$logDumper === null) {
@@ -132,8 +148,29 @@ class VarDumper
                 $nameText = '';
             }
 
+            $location = null;
+
+            if (self::$skipClasses === null) {
+                self::$skipClasses = array_keys(array_filter($this->app->config->get('app.dump.skipClasses')));
+            }
+            if (self::$skipFunctions === null) {
+                self::$skipFunctions = array_keys(array_filter($this->app->config->get('app.dump.skipFunctions')));
+            }
+            $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+            $stack = new \Aplia\Bootstrap\CallStackAnalyzer($trace, 0);
+            if (self::$skipClasses) {
+                $stack->addSkipClassesPartials(self::$skipClasses);
+            }
+            if (self::$skipFunctions) {
+                $stack->addSkipFunctions(self::$skipFunctions);
+            }
+            $stack->walk();
+            if ($stack->file && $stack->line) {
+                $location = $stack->file . ":" . $stack->line;
+            }
+
             // Store debug variable for display if an error occurs
-            $this->app->setDebugVariable($name, $value);
+            $this->app->setDebugVariable($name, $value, $location);
 
             // Log the value using debug level, value must first dumped to memory
             if (!$this->app->isLoggerInitializing(starter_log_name())) {
