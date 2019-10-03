@@ -26,6 +26,14 @@ class VarDumper
     public static $dumper = null;
 
     /**
+     * The current format used for the $dumper instance, should either be "html" or "cli".
+     * If it is null then the dumper instance has not yet been created.
+     *
+     * @var str
+     */
+    protected static $format = null;
+
+    /**
      * The current variable cloner.
      * If null it automatically determines the clone class to use, instantiates
      * it and stores it in this variable.
@@ -114,6 +122,7 @@ class VarDumper
                 } else {
                     $format = \in_array(\PHP_SAPI, ['cli', 'phpdbg'], true) ? 'cli' : 'html';
                 }
+                self::$format = $format;
                 $level = $this->app->config->get('app.dump.level', 'terse');
                 $useColors = $this->app->config->get('app.dump.colors', true);
                 if ($level === 'verbose') {
@@ -181,6 +190,23 @@ class VarDumper
                 starter_debug("dump($nameText) result: " . $logOutput);
             }
 
+            // Fill in file, line and code snippet if possible
+            if ($stack->file && $stack->line && self::$format === 'html') {
+                if ($stack->codeLine) {
+                    self::$dumper->setDumpBoundaries(
+                        "<pre class=sf-dump id=%s data-indent-pad=\"%s\">\n" .
+                        "In {$stack->file}:{$stack->line}\n" .
+                        "> {$stack->codeLine}",
+                        '</pre><script>Sfdump(%s)</script>'
+                    );
+                } else {
+                    self::$dumper->setDumpBoundaries(
+                        "<pre class=sf-dump id=%s data-indent-pad=\"%s\">\n" .
+                        "{$stack->file}:{$stack->line}\n",
+                        '</pre><script>Sfdump(%s)</script>'
+                    );
+                }
+            }
             self::$dumper->dump(self::$cloner->cloneVar($value));
         } catch (\Exception $exc) {
             starter_error("Failed to dump() variable, got exception: " . get_class($exc) . ": " . $exc->getMessage());
