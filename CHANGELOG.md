@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.11.1
+
+- Fixed issue with error report on prod, it tried to use the class
+  \Symfony\Component\VarDumper\Cloner\VarCloner which only exists
+  in dev mode.
+
 ## 1.11.0
 
 - Added support for Symfony dump() method for dumping variables.
