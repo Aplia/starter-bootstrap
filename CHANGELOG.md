@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.11.2
+
+- Only use custom var dumper if Whoops 2+ is used
+- Avoid throwing exceptions in log setup
+  This avoids disrupting the callers code base due to incorrect
+  configuration or if the channel simply is not defined.
+- Channels site and base are logged to var/log for ezp apps
+- Catch exceptions in bootstrapping of Whoops error handler
+
 ## 1.11.1
 
 - Fixed issue with error report on prod, it tried to use the class
