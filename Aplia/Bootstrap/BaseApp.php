@@ -363,7 +363,7 @@ class BaseApp implements Log\ManagerInterface
                     $prettyHandler->addDataTableCallback('Variables', array($this, 'setupDebugVariables'));
                     $prettyHandler->addDataTableCallback('Variable locations', array($this, 'setupDebugVariableLocations'));
 
-                    if ($this->config->get('app.errorDumper') === 'verbose' && class_exists('\\Symfony\\Component\\VarDumper\\Cloner\\VarCloner')) {
+                    if ($this->config->get('app.errorDumper') === 'verbose' && class_exists('\\Symfony\\Component\\VarDumper\\Cloner\\VarCloner') && $this->hasWhoops2) {
                         // Change the private property templateHelper to allow installing our own var dumper
                         // This var dumper does not exclude showing details for common objects
                         $prettyCloner = new \Symfony\Component\VarDumper\Cloner\VarCloner();
