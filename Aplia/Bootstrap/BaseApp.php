@@ -203,6 +203,14 @@ class BaseApp implements Log\ManagerInterface
                 'processors' => $processorConfig,
             ),
         ));
+
+        // Reset loggers, handlers, processors and formatters in case some were already defined
+        // This forces them to be recreated using the newly loaded config
+        $this->loggers = array();
+        $this->loggerInit = array();
+        $this->logHandlers = array();
+        $this->logFormatters = array();
+        $this->logProcessors = array();
     }
 
     public function configure($names)
@@ -619,12 +627,43 @@ class BaseApp implements Log\ManagerInterface
     }
 
     /**
+     * Create a log channel with a noop handler which will suppress all
+     * log events. This is meant to be used when logging is disable or
+     * there are no configuration found for a log channel.
+     * The log channel is registered using $name.
+     *
+     * @param string $name Name of log channel
+     * @return Monolog\Logger
+     */
+    public function registerNoopLogger($name)
+    {
+        $defaultLoggerClass = $this->config->get('log.default_logger_class', "\\Aplia\\Bootstrap\\Log\\Logger");
+        $logger = new $defaultLoggerClass($name);
+        $handlers = $this->fetchLogHandlers(array('noop'));
+        if (!$handlers) {
+            // Fallback code in case noop log handler is not defined
+            $handlers = array(new \Aplia\Bootstrap\Log\NoopHandler());
+        }
+        foreach ($handlers as $handler) {
+            $logger->pushHandler($handler);
+        }
+        $this->loggers[$name] = $logger;
+        unset($this->loggerInit[$name]);
+        return $logger;
+    }
+
+    /**
      * Fetches the logger with given name.
      * If the logger is not yet created it reads the configuration for it
      * from log.loggers.$name and creates the logger instance.
      *
      * Calling this multiple times is safe, it will only create the
      * logger one time.
+     *
+     * If the log channel is not defined anywhere or logging is disabled
+     * it will still return a log instance but which does not log anywhere.
+     * This avoids introducing errors into the caller codebase if the
+     * configuration is missing.
      *
      * @return The logger instance.
      */
@@ -634,11 +673,13 @@ class BaseApp implements Log\ManagerInterface
             return $this->loggers[$name];
         }
         if (!$this->config->get('app.logger', true)) {
-            return null;
+            // If logging is disable we still return a no-op log channel
+            return $this->registerNoopLogger($name);
         }
         $loggers = $this->config->get('log.loggers');
         if (!isset($loggers[$name])) {
-            throw new \Exception("No logger defined for name: $name");
+            // No logger defined, create a noop log channel
+            return $this->registerNoopLogger($name);
         }
         if (isset($this->loggerInit[$name])) {
             throw new \Exception("Logger channel is already being initialized, recursive fetchLogger(): $name");
@@ -648,7 +689,7 @@ class BaseApp implements Log\ManagerInterface
         $definition['name'] = $name;
         $class = \Aplia\Support\Arr::get($definition, 'class');
         if (!$class) {
-            $class = $this->config->get('log.default_logger_class', 'class', "\\Aplia\\Bootstrap\\Log\\Logger");
+            $class = $this->config->get('log.default_logger_class', "\\Aplia\\Bootstrap\\Log\\Logger");
         }
         if (is_string($class)) {
             $class = str_replace("/", "\\", $class);
@@ -669,13 +710,14 @@ class BaseApp implements Log\ManagerInterface
             if ($logger === null) {
                 $this->loggers[$name] = null;
                 unset($this->loggerInit[$name]);
-                return null;
+                return $this->registerNoopLogger($name);
             }
         } else {
             if ($parameters) {
                 if (!is_array($parameters)) {
                     unset($this->loggerInit[$name]);
-                    throw new \Exception("Configuration 'parameters' for logger $name must be an array, got: " . gettype($parameters));
+                    \Aplia\Bootstrap\Base::error("Bootstrap: Configuration 'parameters' for logger $name must be an array, got: " . gettype($parameters));
+                    return $this->registerNoopLogger($name);
                 }
                 array_unshift($parameters, $channel);
                 $reflection = new \ReflectionClass($class);
@@ -722,6 +764,9 @@ class BaseApp implements Log\ManagerInterface
      * Calling this multiple times is safe, it will only create each
      * handler one time.
      *
+     * If a handler definition does not exist or has problems setting up an error
+     * is issued and the handler is skipped.
+     *
      * @return Array of handler instances.
      */
     public function fetchLogHandlers($names)
@@ -738,7 +783,9 @@ class BaseApp implements Log\ManagerInterface
             } else {
                 $availableHandlers = $this->config->get('log.handlers');
                 if (!isset($availableHandlers[$name])) {
-                    throw new \Exception("No log handler defined for name: $name");
+                    \Aplia\Bootstrap\Base::error("Bootstrap: No log handler defined for: $name");
+                    $this->logHandlers[$name] = false;
+                    continue;
                 }
                 $definition = $availableHandlers[$name];
                 $definition['name'] = $name;
@@ -772,7 +819,9 @@ class BaseApp implements Log\ManagerInterface
                 } else {
                     if ($parameters) {
                         if (!is_array($parameters)) {
-                            throw new \Exception("Configuration 'parameters' for handler $name must be an array, got: " . gettype($parameters));
+                            \Aplia\Bootstrap\Base::error("Bootstrap: Configuration 'parameters' for handler $name must be an array, got: " . gettype($parameters));
+                            $this->logHandlers[$name] = false;
+                            continue;
                         }
                         $reflection = new \ReflectionClass($class);
                         $handler = $reflection->newInstanceArgs($parameters);
@@ -810,6 +859,9 @@ class BaseApp implements Log\ManagerInterface
      * Calling this multiple times is safe, it will only create each
      * processor one time.
      *
+     * If a processor definition does not exist or has problems setting up an error
+     * is issued and the processor is skipped.
+     *
      * @return Array of processor instances.
      */
     public function fetchLogProcessors($names)
@@ -826,7 +878,9 @@ class BaseApp implements Log\ManagerInterface
             } else {
                 $availableProcessors = $this->config->get('log.processors');
                 if (!isset($availableProcessors[$name])) {
-                    throw new \Exception("No log processor defined for name: $name");
+                    \Aplia\Bootstrap\Base::error("Bootstrap: No log processor defined for: $name");
+                    $this->logProcessors[$name] = false;
+                    continue;
                 }
                 $definition = $availableProcessors[$name];
                 $definition['name'] = $name;
@@ -869,7 +923,9 @@ class BaseApp implements Log\ManagerInterface
                             $processor = $reflection->newInstanceArgs($parameters);
                         }
                     } else {
-                        throw new \Exception("Log processor $name has no 'class' or 'call' defined");
+                        \Aplia\Bootstrap\Base::error("Bootstrap: Log processor $name has no 'class' or 'call' defined");
+                        $this->logProcessors[$name] = false;
+                        continue;
                     }
                 }
                 $this->logProcessors[$name] = $processor;
@@ -886,6 +942,9 @@ class BaseApp implements Log\ManagerInterface
      *
      * Calling this multiple times is safe, it will only create each
      * formatter one time.
+     *
+     * If the formatter definition is missing or an error occurs during setup an
+     * error is logged and the functions returns null.
      *
      * @return \Monolog\Formatter\FormatterInterface
      */
@@ -904,7 +963,9 @@ class BaseApp implements Log\ManagerInterface
         $formatter = null;
         $availableFormatters = $this->config->get('log.formatters');
         if (!isset($availableFormatters[$name])) {
-            throw new \Exception("No log formatter defined for name: $name");
+            \Aplia\Bootstrap\Base::error("Bootstrap: No log formatter defined for: $name");
+            $this->logFormatters[$name] = false;
+            return null;
         }
         $definition = $availableFormatters[$name];
         $definition['name'] = $name;
@@ -942,7 +1003,9 @@ class BaseApp implements Log\ManagerInterface
                     $formatter = $reflection->newInstanceArgs($parameters);
                 }
             } else {
-                throw new \Exception("Log formatter $name has no 'class' or 'call' defined");
+                \Aplia\Bootstrap\Base::error("Bootstrap: Log formatter $name has no 'class' or 'call' defined");
+                $this->logFormatters[$name] = false;
+                return null;
             }
         }
         $this->logFormatters[$name] = $formatter;
