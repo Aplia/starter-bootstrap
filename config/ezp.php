@@ -214,6 +214,23 @@ return array(
                 ),
                 'formatter' => 'line',
             ),
+            // Add base and site channels to the var/log files
+            'base' => array(
+                'handlers' => array(
+                    // Strict errors are placed in a separate log
+                    'var_log_error' => 100,
+                    'var_log_ezp' => 150,
+                ),
+                'formatter' => 'line',
+            ),
+            'site' => array(
+                'handlers' => array(
+                    // Strict errors are placed in a separate log
+                    'var_log_error' => 100,
+                    'var_log_ezp' => 150,
+                ),
+                'formatter' => 'line',
+            ),
         ),
     ),
 );
