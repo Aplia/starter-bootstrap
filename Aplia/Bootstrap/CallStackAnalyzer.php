@@ -225,7 +225,7 @@ class CallStackAnalyzer
      * @param int $line Line number to fetch
      * @return string
      */
-    public static function fetchCodeLine(string $path, int $line)
+    public static function fetchCodeLine($path, $line)
     {
         if (!file_exists($path)) {
             return null;
