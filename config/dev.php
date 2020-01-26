@@ -45,6 +45,7 @@ return array(
         'loggers' => array(
             'phperror' => array(
                 'handlers' => array(
+                    'console' => 160,
                     // Enable FirePHP for development
                     'firephp' => 200,
                     'sentry' => 20,
@@ -52,6 +53,7 @@ return array(
             ),
             'base' => array(
                 'handlers' => array(
+                    'console' => 160,
                     // Enable FirePHP for development
                     'firephp' => 200,
                     'sentry' => 20,
@@ -59,6 +61,7 @@ return array(
             ),
             'site' => array(
                 'handlers' => array(
+                    'console' => 160,
                     // Enable FirePHP for development
                     'firephp' => 200,
                     'sentry' => 20,

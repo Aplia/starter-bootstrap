@@ -128,9 +128,9 @@ class BaseApp implements Log\ManagerInterface
         // Logs are first disabled, then enabled
         // If the variable only contain the text 'all' then all logs are enabled or disabled.
         // e.g. LOG_ENABLED=console will enable the console loggers which are off by default
-        $logEnabled = array_key_exists('LOG_ENABLED', $_ENV) ? explode(",", $_ENV['LOG_ENABLED']) : null;
-        $logDisabled = array_key_exists('LOG_DISABLED', $_ENV) ? explode(",", $_ENV['LOG_DISABLED']) : null;
-        $inputLevels = array_key_exists('LOG_LEVELS', $_ENV) ? explode(",", $_ENV['LOG_LEVELS']) : null;
+        $logEnabled = getenv('LOG_ENABLED') !== false ? explode(",", getenv('LOG_ENABLED')) : null;
+        $logDisabled = getenv('LOG_DISABLED') !== false ? explode(",", getenv('LOG_DISABLED')) : null;
+        $inputLevels = getenv('LOG_LEVELS') !== false ? explode(",", getenv('LOG_LEVELS')) : null;
         $logTypeMap = array();
         foreach (array_filter($this->config->get('log.types')) as $logType => $logValue) {
             $logTypeMap[$logType] = null;
@@ -159,7 +159,7 @@ class BaseApp implements Log\ManagerInterface
         // Decode LOG_LEVEL entries, they should be supplied as <type>:<level>
         $logLevels = array();
         if ($inputLevels) {
-            $allowedLogLevels = array('critical', 'alert', 'emergency', 'strict', 'error', 'warning', 'info', 'notice');
+            $allowedLogLevels = array('critical', 'alert', 'emergency', 'strict', 'error', 'warning', 'info', 'notice', 'debug');
             foreach ($inputLevels as $logLevelText) {
                 $logLevelTuple = explode(":", $logLevelText, 2);
                 if (count($logLevelTuple) >= 2 && in_array($logLevelTuple[1], $allowedLogLevels)) {
@@ -167,7 +167,6 @@ class BaseApp implements Log\ManagerInterface
                 }
             }
         }
-
         $handlerConfig = array();
         foreach ($logTypeMap as $logType => $handlerEnabled) {
             if ($handlerEnabled === null) {
@@ -188,7 +187,7 @@ class BaseApp implements Log\ManagerInterface
         $trueValues = array('1', 'true', 'on');
         // Check if introspection processors should be enabled
         $processorConfig = array();
-        $introspectEnabled = array_key_exists('LOG_INTROSPECT', $_ENV) ? in_array($_ENV['LOG_INTROSPECT'], $trueValues) : false;
+        $introspectEnabled = getenv('LOG_INTROSPECT') !== false ? in_array(getenv('LOG_INTROSPECT'), $trueValues) : false;
         if ($introspectEnabled) {
             foreach (array_filter($this->config->get('log.introspectors', array())) as $introspectName => $value) {
                 $processorConfig[$introspectName] = array(
