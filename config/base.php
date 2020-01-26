@@ -18,6 +18,12 @@ if ($envErrorHandler !== null) {
 
 return array(
     'app' => array(
+        // Export configurations to PHP $GLOBALS, key is the global name and the value the config key
+        // Exports logging and debug options
+        'configExports' => array(
+            'APP_LOGGING' => 'app.logger',
+            'APP_DEBUG' => 'app.debug',
+        ),
         'errorMode' => $errorMode,
         'errorLevel' => 'error',
         // How values are dumped on the error page:

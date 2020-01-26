@@ -211,6 +211,12 @@ class BaseApp implements Log\ManagerInterface
         $this->logHandlers = array();
         $this->logFormatters = array();
         $this->logProcessors = array();
+
+        // Export certain configuration to global variables
+        $exports = $this->config->get('app.configExports');
+        foreach ($exports as $gname => $cname) {
+            $GLOBALS[$gname] = $this->config->get($cname);
+        }
     }
 
     public function configure($names)
