@@ -1056,9 +1056,12 @@ class BaseApp implements Log\ManagerInterface
     {
         $dsn = Base::env('RAVEN_DSN', $this->config->get('sentry.dsn'));
         if ($dsn) {
-            $client = new \Raven_Client($dsn, array(
+            $defaultOptions = array(
                 'install_default_breadcrumb_handlers' => false,
-            ));
+            );
+            $otherOptions = $this->config->get('sentry.options', array());
+            $options = array_merge($defaultOptions, $otherOptions);
+            $client = new \Raven_Client($dsn, $options);
             $level = \Aplia\Support\Arr::get($definition, 'level');
             $bubble = \Aplia\Support\Arr::get($definition, 'bubble', true);
             $class = \Aplia\Support\Arr::get($definition, 'class', 'Monolog\\Handler\\RavenHandler');
