@@ -486,7 +486,6 @@ class BaseApp implements Log\ManagerInterface
                         $logLevelMask |= E_DEPRECATED;
                     }
                 } elseif ($errorLevel == 'ignore') {
-                    dump(0);
                     $whoops->setErrorLevels(0);
                     if ($deprecationMode !== 'ignore') {
                         $logLevelMask |= E_DEPRECATED;
