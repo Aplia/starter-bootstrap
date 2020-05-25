@@ -210,13 +210,13 @@ will change the links for files to use an editor link.
 
 The following editors are supported:
 
-- 'sublime' for SublimeText
-- 'textmate' for TextMate
-- 'emacs' for Emacs
-- 'macvim' for MacVim
-- 'phpstorm' for PHP Storm
-- 'idea' for IDEA
-- 'vscode' for VS Code
+-   'sublime' for SublimeText
+-   'textmate' for TextMate
+-   'emacs' for Emacs
+-   'macvim' for MacVim
+-   'phpstorm' for PHP Storm
+-   'idea' for IDEA
+-   'vscode' for VS Code
 
 Additional editors can be used by setting `editor.editors`.
 
@@ -372,14 +372,21 @@ Note: This is normally not recommended to set.
 $GLOBALS['STARTER_BASE_CONFIGS'] = ['base', 'core'];
 ```
 
+Alternatively control it with environment variable `BASE_CONFIGS`. It is a
+comma separated list of config names, e.g. `base,core`
+
 For specifying the current framework set the global variable `STARTER_FRAMEWORK`.
-This defaults to `ezp`.
+This defaults to `ezp`. It can either be a string for a single framework or
+an array for activation of multiple frameworks.
 
 ```php
 <?php
 // Enabling specific config for laravel
 $GLOBALS['STARTER_FRAMEWORK'] = 'laravel';
 ```
+
+Alternatively control it with environment variable `FRAMEWORK`. It is a
+comma separated list of config names, e.g. `laravel,ezp`
 
 For specifying the current run-mode set the global variable `STARTER_CONFIGS`.
 This defaults to `prod`.
@@ -390,7 +397,21 @@ This defaults to `prod`.
 $GLOBALS['STARTER_CONFIGS'] = ['dev'];
 ```
 
-### Specifying a bootstrap class
+Alternatively control it with environment variable `APP_ENV`. It is a
+comma separated list of config names, e.g. `dev,other`
+
+Additional configs may also be set with the global variable `STARTER_EXTRA_CONFIGS`.
+
+```php
+<?php
+// Enabling development config
+$GLOBALS['STARTER_EXTRA_CONFIGS'] = ['extra'];
+```
+
+Alternatively control it with environment variable `EXTRA_CONFIGS`. It is a
+comma separated list of config names, e.g. `extra`
+
+## Specifying a bootstrap class
 
 For each configuration setting there may be a class set which is used for
 bootstrapping the system. For instance the `base` config sets the class
