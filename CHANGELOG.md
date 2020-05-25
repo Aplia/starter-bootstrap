@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.11.6
+
+- Support for using env variables to control the various configuration
+  which are loaded.
+
 ## 1.11.2
 
 - Only use custom var dumper if Whoops 2+ is used

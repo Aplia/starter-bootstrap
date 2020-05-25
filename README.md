@@ -361,14 +361,21 @@ Note: This is normally not recommended to set.
 $GLOBALS['STARTER_BASE_CONFIGS'] = array('base', 'core');
 ```
 
+Alternatively control it with environment variable `BASE_CONFIGS`. It is a
+comma separated list of config names, e.g. `base,core`
+
 For specifying the current framework set the global variable `STARTER_FRAMEWORK`.
-This defaults to `ezp`.
+This defaults to `ezp`. It can either be a string for a single framework or
+an array for activation of multiple frameworks.
 
 ```php
 <?php
 // Enabling specific config for laravel
 $GLOBALS['STARTER_FRAMEWORK'] = 'laravel';
 ```
+
+Alternatively control it with environment variable `FRAMEWORK`. It is a
+comma separated list of config names, e.g. `laravel,ezp`
 
 For specifying the current run-mode set the global variable `STARTER_CONFIGS`.
 This defaults to `prod`.
@@ -378,6 +385,21 @@ This defaults to `prod`.
 // Enabling development config
 $GLOBALS['STARTER_CONFIGS'] = array('dev');
 ```
+
+Alternatively control it with environment variable `APP_ENV`. It is a
+comma separated list of config names, e.g. `dev,other`
+
+Additional configs may also be set with the global variable `STARTER_EXTRA_CONFIGS`.
+
+```php
+<?php
+// Enabling development config
+$GLOBALS['STARTER_EXTRA_CONFIGS'] = array('extra');
+```
+
+Alternatively control it with environment variable `EXTRA_CONFIGS`. It is a
+comma separated list of config names, e.g. `extra`
+
 
 ## Specifying a bootstrap class
 

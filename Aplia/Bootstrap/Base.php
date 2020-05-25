@@ -217,18 +217,55 @@ class Base
      */
     public static function fetchConfigNames()
     {
-        if (!isset($GLOBALS['STARTER_FRAMEWORK']) && isset($GLOBALS['STARTER_BOOTSTRAP_MODE'])) {
+        // Pick the base, framework, app and extra config names from either $_ENV or $GLOBALS
+        // The defaults are 'base', 'ezp' and 'prod'
+        // Base: Defaults to 'base', unless BASE_CONFIGS or STARTER_BASE_CONFIGS is set
+        if (isset($_ENV['BASE_CONFIGS'])) {
+            $baseNames = explode(",", $_ENV['BASE_CONFIGS']);
+        } elseif (isset($GLOBALS['STARTER_BASE_CONFIGS'])) {
+            $baseNames = $GLOBALS['STARTER_BASE_CONFIGS'];
+        } else {
+            $baseNames = array('base');
+        }
+        // Framework: The default framework is eZ publish, unless FRAMEWORK or STARTER_FRAMEWORK is set
+        if (isset($_ENV['FRAMEWORK'])) {
+            $frameworkNames = explode(",", $_ENV['FRAMEWORK']);
+        } elseif (isset($GLOBALS['STARTER_FRAMEWORK'])) {
+            $frameworkNames = $GLOBALS['STARTER_FRAMEWORK'];
+            if (!is_array($frameworkNames)) {
+                $frameworkNames = array($frameworkNames);
+            }
+        } elseif (isset($GLOBALS['STARTER_BOOTSTRAP_MODE'])) {
             // Use STARTER_BOOTSTRAP_MODE as the defaults for STARTER_FRAMEWORK
             // This means that whatever is used as the bootstrap mode will also be loaded as a config
             // In most cases this is 'ezp' or 'plain'.
+            $frameworkNames = array($GLOBALS['STARTER_BOOTSTRAP_MODE']);
             $GLOBALS['STARTER_FRAMEWORK'] = $GLOBALS['STARTER_BOOTSTRAP_MODE'];
+        } else {
+            $frameworkNames = array('ezp');
         }
+        // Application environment: We default to 'prod' when nothing is defined, this is the safest option
+        if (isset($_ENV['APP_ENV'])) {
+            $envNames = explode(",", $_ENV['APP_ENV']);
+        } elseif (isset($GLOBALS['STARTER_CONFIGS'])) {
+            $envNames = $GLOBALS['STARTER_CONFIGS'];
+        } else {
+            $envNames = array('prod');
+        }
+        // Extra: Additional configs to load
+        if (isset($_ENV['EXTRA_CONFIGS'])) {
+            $extraNames = explode(",", $_ENV['EXTRA_CONFIGS']);
+        } elseif (isset($GLOBALS['STARTER_EXTRA_CONFIGS'])) {
+            $extraNames = $GLOBALS['STARTER_EXTRA_CONFIGS'];
+        } else {
+            $extraNames = array();
+        }
+
         $configNames = array_merge(
-            isset($GLOBALS['STARTER_BASE_CONFIGS']) ? $GLOBALS['STARTER_BASE_CONFIGS'] : array('base'),
-            // The default framework is eZ publish, unless STARTER_FRAMEWORK is set
-            isset($GLOBALS['STARTER_FRAMEWORK']) ? array($GLOBALS['STARTER_FRAMEWORK']) : array('ezp'),
-            // We default to 'prod' when nothing is defined, this is the safest option
-            isset($GLOBALS['STARTER_CONFIGS']) ? $GLOBALS['STARTER_CONFIGS'] : array('prod')
+            $baseNames,
+            $frameworkNames,
+            $envNames,
+            $extraNames
         );
         // The bootstrap config is always the first to run
         array_unshift($configNames, 'bootstrap');

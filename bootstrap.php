@@ -87,9 +87,19 @@ if (isset($GLOBALS['STARTER_APP_CACHE']) ? $GLOBALS['STARTER_APP_CACHE'] : true)
     } else {
         $buildPath = isset($GLOBALS['STARTER_BOOTSTRAP_BUILD']) ? $GLOBALS['STARTER_BOOTSTRAP_BUILD'] : 'build/bootstrap';
     }
-    $framework = isset($GLOBALS['STARTER_FRAMEWORK']) ? $GLOBALS['STARTER_FRAMEWORK'] : 'ezp';
-    $configPath = "$wwwPath/$buildPath/config_$framework.json";
-    $bootstrapPath = "$wwwPath/$buildPath/bootstrap_$framework.php";
+    if (isset($_ENV['FRAMEWORK'])) {
+        $frameworks = explode(",", $_ENV['FRAMEWORK']);
+    } elseif (isset($GLOBALS['STARTER_FRAMEWORK'])) {
+        $frameworks = $GLOBALS['STARTER_FRAMEWORK'];
+        if (!is_array($frameworks)) {
+            $frameworks = array($frameworks);
+        }
+    } else {
+        $frameworks = array('ezp');
+    }
+    $frameworkIds = implode("_", $frameworks);
+    $configPath = "$wwwPath/$buildPath/config_$frameworkIds.json";
+    $bootstrapPath = "$wwwPath/$buildPath/bootstrap_$frameworkIds.php";
     if (file_exists($configPath) && file_exists($bootstrapPath)) {
         $settings = null;
         $jsonData = @file_get_contents($configPath);
