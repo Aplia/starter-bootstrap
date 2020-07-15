@@ -9,7 +9,7 @@ This integration takes care of setting up the logger, handlers and processors
 based on the Bootstrap config system. This means setting up some PHP
 array, instead of manually initializing the loggers with code.
 
-See [https://github.com/Seldaek/monolog](Monolog) documentation to learn about differences between loggers,
+See [Monolog](https://github.com/Seldaek/monolog) documentation to learn about differences between loggers,
 handlers and processors.
 
 ## Basic usage
