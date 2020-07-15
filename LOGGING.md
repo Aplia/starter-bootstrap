@@ -9,10 +9,8 @@ This integration takes care of setting up the logger, handlers and processors
 based on the Bootstrap config system. This means setting up some PHP
 array, instead of manually initializing the loggers with code.
 
-See Monolog documentation to learn about differences between loggers,
+See [https://github.com/Seldaek/monolog](Monolog) documentation to learn about differences between loggers,
 handlers and processors.
-https://github.com/Seldaek/monolog
-
 
 ## Basic usage
 
@@ -28,18 +26,17 @@ The 'base' logger is also available directly as:
 
 ```php
 <?php
-$logger = \Aplia\Bootstrap\Base::$logger
+$logger = \Aplia\Bootstrap\Base::$logger;
 ```
 
 With the logger object you call the needed method using the Monolog API.
 
 ```php
 <?php
-$logger->debug("Fetched data from DB");
+$logger->debug('Fetched data from DB');
 ```
 
 This will then send the log message to the configured handlers.
-
 
 A set of helper functions are available to make it even easier, use `starter_logger`
 to fetch a specific logger. Or to log directly a specific level use `starter_emergency`, `starter_alert`,
@@ -58,7 +55,6 @@ starter_debug("Fetched data from DB");
 starter_log(MonoLog\\Logger::DEBUG, "Fetched data from DB");
 ```
 
-
 ## Configuring a logger
 
 The logger is configured in one a config file, everting is placed
@@ -68,26 +64,24 @@ An example which logs to stdout:
 
 ```php
 <?php
-return array(
-    'log' => array(
-        'handlers' => array(
-            'console' => array(
+return [
+    'log' => [
+        'handlers' => [
+            'console' => [
                 'class' => 'Monolog\\Handler\\StreamHandler',
-                'parameters' => array(
-                    'php://stdout'
-                ),
+                'parameters' => ['php://stdout'],
                 'level' => 'debug',
-            ),
-        ),
-        'loggers' => array(
-            'mysite' => array(
-                'handlers' => array(
+            ],
+        ],
+        'loggers' => [
+            'mysite' => [
+                'handlers' => [
                     'console' => 50,
-                ),
-            ),
-        ),
-    ),
-);
+                ],
+            ],
+        ],
+    ],
+];
 ```
 
 This logger can then be used with:
@@ -95,7 +89,7 @@ This logger can then be used with:
 ```php
 <?php
 $logger = \Aplia\Bootstrap\Base::app()->fetchLogger('uia');
-$logger->debug("Site specific log");
+$logger->debug('Site specific log');
 ```
 
 Typically the configuration is split into multiple config files
@@ -106,50 +100,48 @@ the handlers to the loggers in either `prod.php`, `dev.php` or `local.php`.
 For instance to use the config above but only enable console output for
 development do:
 
+### base.php
 
-*base.php*
 ```php
 <?php
-return array(
-    'log' => array(
-        'handlers' => array(
-            'console' => array(
+return [
+    'log' => [
+        'handlers' => [
+            'console' => [
                 'class' => 'Monolog\\Handler\\StreamHandler',
-                'parameters' => array(
-                    'php://stdout'
-                ),
-            ),
-        ),
-        'loggers' => array(
+                'parameters' => ['php://stdout'],
+            ],
+        ],
+        'loggers' => [
             // Define logger, handlers are added in prod.php, dev.php
-            'mysite' => array(
-            ),
-        ),
-    ),
-);
+            'mysite' => [],
+        ],
+    ],
+];
 ```
 
-*dev.php*
+### dev.php
+
 ```php
 <?php
-return array(
-    'log' => array(
-        'handlers' => array(
+return [
+    'log' => [
+        'handlers' => [
             // Enable debug logging for dev
-            'console' => array(
+            'console' => [
                 'level' => 'debug',
-            ),
-        ),
-        'loggers' => array(
-            'mysite' => array(
-                'handlers' => array(
+            ],
+        ],
+        'loggers' => [
+            'mysite' => [
+                'handlers' => [
                     // Enable console logger for dev
                     'console' => 50,
-                ),
-            ),
-        ),
-    ),
-);
+                ],
+            ],
+        ],
+    ],
+];
 ```
 
 ### loggers
@@ -165,57 +157,55 @@ any class as long is supports the Monolog interface.
 The following keys can be set:
 
 - class - Full namespace path to class, backwards slashes must be escaped.
-          Forward slashes will be turned into backward slashes.
-          If not specified it default to `\Monolog\Logger`.
+  Forward slashes will be turned into backward slashes.
+  If not specified it default to `\Monolog\Logger`.
 - enabled - Boolean, if false then the logger will not be used. Defaults
-            to true.
+  to true.
 - channel - Name of channel, if unset it defaults to the name of the logger.
 - propagate - Whether log message propagation is active or not. Default is true.
-              When active it will alsos propagate the message to first existing
-              parent.
+  When active it will alsos propagate the message to first existing
+  parent.
 - setup - A callback function to call to initialize the logger. Can been
-          used if you need to dynamically determine parameters for
-          the logger. Must be a name of a callable function or full namespace path
-          to class + static method. The callback will receive the
-          definition array as the first parameter and must return
-          the logger instance or null to skip the logger.
+  used if you need to dynamically determine parameters for
+  the logger. Must be a name of a callable function or full namespace path
+  to class + static method. The callback will receive the
+  definition array as the first parameter and must return
+  the logger instance or null to skip the logger.
 - parameters - Parameters for the logger class, normally only needed for custom logger
-               classes.
+  classes.
 - handlers - Array of handler names to assign to this logger. Handlers
-             are defined in a separate structure.
+  are defined in a separate structure.
 - processors - Array of processor names to assign to this logger. Processors
-               are defined in a separate structure.
+  are defined in a separate structure.
 
 Full example:
+
 ```php
 <?php
-return array(
-    'log' => array(
-        'loggers' => array(
+return [
+    'log' => [
+        'loggers' => [
             // Logger for the site
-            'site' => array(
+            'site' => [
                 'enabled' => true,
-                'handlers' => array(
-                    'console',
-                ),
-                'processors' => array(
-                    'git',
-                ),
-            ),
-            'site.db' => array(
+                'handlers' => ['console'],
+                'processors' => ['git'],
+            ],
+            'site.db' => [
                 // Turn off propagation
                 'propagate' => false,
-            ),
-            'cli' => array(
+            ],
+            'cli' => [
                 'enabled' => false,
                 'channel' => 'site.cli',
-            ),
-        ),
-    ),
-);
+            ],
+        ],
+    ],
+];
 ```
 
 Example of a `setup` callback for static method.
+
 ```php
 <?php
 class SetupStream
@@ -227,19 +217,19 @@ class SetupStream
 ```
 
 The configuration is then:
+
 ```php
 <?php
-return array(
-    'log' => array(
-        'loggers' => array(
-            'site' => array(
+return [
+    'log' => [
+        'loggers' => [
+            'site' => [
                 'setup' => 'SetupStream::initLogger',
-            ),
-        ),
-    ),
-);
+            ],
+        ],
+    ],
+];
 ```
-
 
 ### handlers
 
@@ -250,46 +240,46 @@ as long is supports the Monolog interface.
 The following keys can be set:
 
 - class - Full namespace path to class, backwards slashes must be escaped.
-          Forward slashes will be turned into backward slashes.
+  Forward slashes will be turned into backward slashes.
 - enabled - Boolean, if false then the handler will not be used. Defaults
-            to true.
+  to true.
 - bubble - Set the bubble parameter for a handler, if true then the
-           log message is propagated to the next handler, otherwise
-           the logging stops here.
+  log message is propagated to the next handler, otherwise
+  the logging stops here.
 - level - The log level this handler accepts, if the log level is lower
-          than specified the log message is not sent to this logger.
-          e.g. a handler with `error` level will not receive `debug` messages.
+  than specified the log message is not sent to this logger.
+  e.g. a handler with `error` level will not receive `debug` messages.
 - formatter - The name of a formatter to use, this will override the default
-              formatter for the handler. See formatters below.
+  formatter for the handler. See formatters below.
 - setup - A callback function to call to initialize the handler. Can been
-          used if you need to dynamically determine parameters for
-          the handler. Must be a name of a callable function or full namespace path
-          to class + static method. The callback will receive the
-          definition array as the first parameter and must return
-          the handler instance or null to skip the handler.
+  used if you need to dynamically determine parameters for
+  the handler. Must be a name of a callable function or full namespace path
+  to class + static method. The callback will receive the
+  definition array as the first parameter and must return
+  the handler instance or null to skip the handler.
 - parameters - Parameters for the handler class.
 - processors - Array of processor names to assign to this handler. Processors
-               are defined in a separate structure.
+  are defined in a separate structure.
 
 Full example:
+
 ```php
 <?php
-return array(
-    'log' => array(
-        'handlers' => array(
-            'console' => array(
+return [
+    'log' => [
+        'handlers' => [
+            'console' => [
                 'class' => 'Monolog\\Handler\\StreamHandler',
-                'parameters' => array(
-                    'php://stdout'
-                ),
+                'parameters' => ['php://stdout'],
                 'level' => 'debug',
-            ),
-        ),
-    ),
-);
+            ],
+        ],
+    ],
+];
 ```
 
 Example of a `setup` callback for static method.
+
 ```php
 <?php
 class SetupStream
@@ -301,19 +291,20 @@ class SetupStream
 ```
 
 The configuration is then:
+
 ```php
 <?php
-return array(
-    'log' => array(
-        'handlers' => array(
-            'console' => array(
+return [
+    'log' => [
+        'handlers' => [
+            'console' => [
                 'class' => 'Monolog\\Handler\\StreamHandler',
                 'setup' => 'SetupStream::initHandler',
                 'level' => 'debug',
-            ),
-        ),
-    ),
-);
+            ],
+        ],
+    ],
+];
 ```
 
 ### formatters
@@ -325,35 +316,41 @@ as long is supports the Monolog formatter interface.
 The following keys can be set:
 
 - class - Full namespace path to class, backwards slashes must be escaped.
-          Forward slashes will be turned into backward slashes.
+  Forward slashes will be turned into backward slashes.
 - setup - A callback function to call to initialize the formatter. Can been
-          used if you need to dynamically determine parameters for
-          the formatter. Must be a name of a callable function or full namespace path to
-          class + static method. The callback will receive the
-          definition array as the first parameter and must return
-          the handler instance or null to skip the handler.
+  used if you need to dynamically determine parameters for
+  the formatter. Must be a name of a callable function or full namespace path to
+  class + static method. The callback will receive the
+  definition array as the first parameter and must return
+  the handler instance or null to skip the handler.
 - parameters - Parameters for the handler class.
 
 Full example:
+
 ```php
 <?php
 // Defines two formatters:
 // 'line' for file logs, everything is on one line
 // 'console_line' for console output, allows multi-line messages.
-return array(
-    'log' => array(
-        'formatters' => array(
-            'line' => array(
+return [
+    'log' => [
+        'formatters' => [
+            'line' => [
                 'class' => 'Monolog\\Formatter\LineFormatter',
-                'parameters' => array("[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n"),
-            ),
-            'console_line' => array(
+                'parameters' => ["[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n"],
+            ],
+            'console_line' => [
                 'class' => 'Monolog\\Formatter\LineFormatter',
-                'parameters' => array("[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n", null, true, true),
-            ),
-        ),
-    ),
-);
+                'parameters' => [
+                    "[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n",
+                    null,
+                    true,
+                    true,
+                ],
+            ],
+        ],
+    ],
+];
 ```
 
 ### processors
@@ -368,48 +365,49 @@ as long is defines the `__invoke` method.
 The following keys can be set:
 
 - class - Full namespace path to class, backwards slashes must be escaped.
-          Forward slashes will be turned into backward slashes.
+  Forward slashes will be turned into backward slashes.
 - enabled - Boolean, if false then the processor will not be used. Defaults
-            to true.
+  to true.
 - setup - A callback function to call to initialize the processor. Can been
-          used if you need to dynamically determine parameters for
-          the processor. Must be a name of a callable function or full namespace
-          path to class + static method. The callback will receive the
-          definition array as the first parameter and must return
-          the processor instance or null to skip the processor.
+  used if you need to dynamically determine parameters for
+  the processor. Must be a name of a callable function or full namespace
+  path to class + static method. The callback will receive the
+  definition array as the first parameter and must return
+  the processor instance or null to skip the processor.
 - call - A callback which should act as a processor, must be defined as namespace class
-         name + static method to call, e.g. `MyClass::process`. Will not be used if
-         `setup` is defined.
+  name + static method to call, e.g. `MyClass::process`. Will not be used if
+  `setup` is defined.
 - parameters - Parameters for the processor class.
 
 Full example:
+
 ```php
 <?php
-return array(
-    'log' => array(
-        'processors' => array(
-            'git' => array(
+return [
+    'log' => [
+        'processors' => [
+            'git' => [
                 'class' => 'Monolog\\Processor\\GitProcessor',
                 'enabled' => true,
-            ),
-            'web' => array(
+            ],
+            'web' => [
                 'class' => 'Monolog\\Processor\\WebProcessor',
                 'enabled' => false,
-            ),
-            'uid' => array(
+            ],
+            'uid' => [
                 'class' => 'Monolog\\Processor\\UidProcessor',
-                'parameters' => array(
+                'parameters' => [
                     10, // Length of UID
-                ),
-            ),
-            'calltest' => array(
+                ],
+            ],
+            'calltest' => [
                 // Will be called as MyClass::process($record)
                 'call' => 'MyClass::process',
                 'enabled' => false,
-            ),
-        ),
-    ),
-);
+            ],
+        ],
+    ],
+];
 ```
 
 ## eZDebug integration

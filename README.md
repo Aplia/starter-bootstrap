@@ -24,15 +24,16 @@ Then add the following lines to `config.php`:
 // Bootstrap the system based on our configuration
 if (!file_exists(__DIR__ . '/vendor/aplia/starter-bootstrap/bootstrap.php')) {
     if (PHP_SAPI != 'cli') {
-        echo "<html><body><p>";
+        echo '<html><body><p>';
     }
-    $text = "aplia/starter-bootstrap is not installed, cannot continue.\n" .
-            "Make sure the bootstrap system is installed by running:\n" .
-            "composer require 'aplia/starter-bootstrap:^1.2'\n";
+    $text =
+        "aplia/starter-bootstrap is not installed, cannot continue.\n" .
+        "Make sure the bootstrap system is installed by running:\n" .
+        "composer require 'aplia/starter-bootstrap:^1.2'\n";
     if (PHP_SAPI == 'cli') {
         echo $text;
     } else {
-        echo nl2br($text), "</p></body></html>";
+        echo nl2br($text), '</p></body></html>';
     }
     exit(1);
 }
@@ -78,16 +79,17 @@ can be created. It must be a PHP file which returns an array with configuration
 entries.
 
 Example:
-```
+
+```php
 <?php
-return array(
-    'app' => array(
+return [
+    'app' => [
         'errorLevel' => 'error',
-    ),
-    'sentry' => array(
+    ],
+    'sentry' => [
         'dsn' => 'https://....@sentry.aplia.no/..',
-    ),
-);
+    ],
+];
 ```
 
 This file will be loaded last so it will overwrite any values from other
@@ -112,38 +114,40 @@ must not perform any other code. It is also important to check if
 the function is not already defined, avoids PHP errors and also allows
 a function to be redefined. Example:
 
-*path/to/helper.php*
+#### path/to/helper.php
+
 ```php
 <?php
 if (!function_exists('my_helper')) {
-    function my_helper() {
+    function my_helper()
+    {
         // code here.
     }
 }
 ```
 
 Then define the helper entry with:
+
 ```php
 <?php
-return array(
-    'helpers' => array(
-        'site' => array(
-            "path/to/helper.php",
-        ),
-    ),
-);
+return [
+    'helpers' => [
+        'site' => ['path/to/helper.php'],
+    ],
+];
 ```
 
 And activate it with:
+
 ```php
 <?php
-return array(
-    'app' => array(
-        'helpers' => array(
+return [
+    'app' => [
+        'helpers' => [
             'site' => 300,
-        ),
-    ),
-);
+        ],
+    ],
+];
 ```
 
 The priority value is important as it determines when the file is loaded.
@@ -161,6 +165,7 @@ The deprecation mode can changed at run-time by setting the
 `ERROR_DEPRECATION` to one of the valid values.
 
 For example:
+
 ```console
 ERROR_DEPRECATION=ignore php old_script.php
 ```
@@ -177,7 +182,8 @@ page is rendered it will display these debug variables in a table.
 but has better output for both HTML and CLI runs.
 
 Example usage:
-```
+
+```php
 <?php
 dump($data);
 ```
@@ -186,7 +192,8 @@ If you want to dump variables and tie it to a name use the `inspect` function
 as it will also store the name of the variable or expression used.
 
 Example usage:
-```
+
+```php
 <?php
 inspect($name, '$name');
 ```
@@ -202,6 +209,7 @@ By setting the configuration `editor.name` the error handler
 will change the links for files to use an editor link.
 
 The following editors are supported:
+
 - 'sublime' for SublimeText
 - 'textmate' for TextMate
 - 'emacs' for Emacs
@@ -217,37 +225,38 @@ will map them to the local path. However for this to work properly
 a mapping needs to be setup in `editor.fileMappings`.
 e.g.
 
-```
-array(
-    'editor' => array(
-        'fileMappings' => array(
+```php
+[
+    'editor' => [
+        'fileMappings' => [
             // Example 1: Map root of project to local path
-            '' => '~/src/myproject'
-        ),
-    ),
-)
+            '' => '~/src/myproject',
+        ],
+    ],
+];
 ```
 
 To disable remote file mapping set `editor.remoteFilesystem` to `false`.
 
 Example of `extension/site/config/local.php` configuration:
-```
+
+```php
 <?php
-return array(
-    'editor' => array(
+return [
+    'editor' => [
         'name' => 'sublime',
-        'fileMappings' => array(
-            '' => '~/src/myproject'
-        ),
-    ),
-);
+        'fileMappings' => [
+            '' => '~/src/myproject',
+        ],
+    ],
+];
 ```
 
-# Configuration
+## Configuration
 
-The bootstrap can be configured using global variables or $_ENV variables.
+The bootstrap can be configured using global variables or \$\_ENV variables.
 
-## Choosing which errors to stop on
+### Choosing which errors to stop on
 
 The default behaviour is to only stop on errors which have the level `error`,
 this is to avoid having issues from the existing extensions or eZ publish
@@ -256,18 +265,18 @@ During development though the level should be changed to catch all levels.
 
 Create a file in `extension/site/config/local.php` and the following content:
 
-```
+```php
 <?php
-return array(
-    'app' => array(
+return [
+    'app' => [
         'errorLevel' => 'notice',
-    ),
-);
+    ],
+];
 ```
 
 This tells the bootstrap system to stop for notice, warning and errors.
 
-## Debugging the bootstrap process
+### Debugging the bootstrap process
 
 The bootstrap process can be debugged by setting global variable `STARTER_BASE_DEBUG` to true.
 If the `dev` mode is part of `STARTER_CONFIGS` then it will be automatically enabled.
@@ -299,7 +308,7 @@ $GLOBALS['STARTER_DEBUG_TRACE'] = true;
 Filename and options for the trace are controlled by `STARTER_DEBUG_TRACE_FILE` and
 `STARTER_DEBUG_TRACE_OPTIONS` global variables.
 
-## Using a custom BaseConfig class
+### Using a custom BaseConfig class
 
 The config class that is used to store the base configuration can be overridden by setting
 the global variable `STARTER_CONFIG_CLASS`. The class will be loaded using the autoloader.
@@ -309,7 +318,7 @@ the global variable `STARTER_CONFIG_CLASS`. The class will be loaded using the a
 $GLOBALS['STARTER_CONFIG_CLASS'] = '\\Custom\Config';
 ```
 
-## Using custom BaseApp class
+### Using custom BaseApp class
 
 The application class that is used to store the current application and its config object
 can be overriden by setting the global variable `STARTER_APP_CLASS`. The class will be loaded
@@ -320,7 +329,7 @@ using the autoloader.
 $GLOBALS['STARTER_APP_CLASS'] = '\\Custom\\App';
 ```
 
-## Specifying the www-root
+### Specifying the www-root
 
 The www-root is where the web-server serves all files, this is automatically determined to be
 the root where the `vendor` folder is installed. To override the automatic behaviour
@@ -331,7 +340,7 @@ set the env variable `WWW_ROOT`.
 $_ENV['WWW_ROOT'] = 'www';
 ```
 
-## Specifying the eZ publish root
+### Specifying the eZ publish root
 
 eZ publish is automatically detected, either in the www-root or inside the vendor folder.
 If a custom folder is used for eZ publish this can be overridden by setting the env
@@ -339,10 +348,10 @@ variable `EZP_ROOT`.
 
 ```php
 <?php
-$_ENV['EZP_ROOT'] = 'ezpublish'
+$_ENV['EZP_ROOT'] = 'ezpublish';
 ```
 
-## Specifying the vendor folder
+### Specifying the vendor folder
 
 The vendor folder for composer is automically set `vendor` in the www-root but can be
 overridden by setting the env variable `VENDOR_ROOT`.
@@ -352,7 +361,7 @@ overridden by setting the env variable `VENDOR_ROOT`.
 $_ENV['VENDOR_ROOT'] = 'custom_vendor';
 ```
 
-## Specifying which configurations to use
+### Specifying which configurations to use
 
 For specifying the base configurations set the global variable `STARTER_BASE_CONFIGS`.
 Note: This is normally not recommended to set.
@@ -360,7 +369,7 @@ Note: This is normally not recommended to set.
 ```php
 <?php
 // Adding an additional base config
-$GLOBALS['STARTER_BASE_CONFIGS'] = array('base', 'core');
+$GLOBALS['STARTER_BASE_CONFIGS'] = ['base', 'core'];
 ```
 
 For specifying the current framework set the global variable `STARTER_FRAMEWORK`.
@@ -378,10 +387,10 @@ This defaults to `prod`.
 ```php
 <?php
 // Enabling development config
-$GLOBALS['STARTER_CONFIGS'] = array('dev');
+$GLOBALS['STARTER_CONFIGS'] = ['dev'];
 ```
 
-## Specifying a bootstrap class
+### Specifying a bootstrap class
 
 For each configuration setting there may be a class set which is used for
 bootstrapping the system. For instance the `base` config sets the class
@@ -396,13 +405,13 @@ is primarily meant to be used by the application.
 ```php
 <?php
 // Example configuration
-return array(
-    'app' => array(
-        'bootstrap' => array(
-            'classes' => array(
+return [
+    'app' => [
+        'bootstrap' => [
+            'classes' => [
                 'starter.base' => 'Aplia\Bootstrap\BaseApp',
-            ),
-        ),
-    ),
-);
+            ],
+        ],
+    ],
+];
 ```
