@@ -1,12 +1,12 @@
 {
     "name": "aplia/starter-bootstrap",
-    "description": "Common code for bootstrapping Starter projects for use with eZ publish",
-    "homepage": "https://bitbucket.org/aplia/starter-bootstrap",
+    "description": "Common code for bootstrapping eZ publish projects",
+    "homepage": "https://github.com/Aplia/starter-bootstrap",
     "license": "MIT",
     "authors": [
         {
             "name": "Aplia dev-team",
-            "homepage": "https://bitbucket.org/aplia"
+            "homepage": "https://github.com/Aplia"
         }
     ],
     "require": {
