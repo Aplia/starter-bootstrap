@@ -1054,7 +1054,7 @@ class BaseApp implements Log\ManagerInterface
     public function setupSentry($definition)
     {
         $dsn = Base::env('RAVEN_DSN', $this->config->get('sentry.dsn'));
-        if ($dsn) {
+        if ($dsn && class_exists("\\Raven_Client")) {
             $defaultOptions = array(
                 'install_default_breadcrumb_handlers' => false,
             );

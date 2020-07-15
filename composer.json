@@ -16,8 +16,10 @@
         "filp/whoops": "2.1.14|1.1.10",
         "vlucas/phpdotenv": "2.0.1|2.3.0",
         "nikic/php-parser": "^2.1.1|^1.4.1|~3.0",
-        "sentry/sentry": "1.5.0",
         "monolog/monolog": "1.21.0"
+    },
+    "suggest": {
+        "sentry/sentry": "Package for integrating with Sentry error service"
     },
     "require-dev": {
         "symfony/var-dumper": "^3.4"
