@@ -6,6 +6,8 @@ It sets up necessary global variables, loads the Composer autoloader and install
 It does not however start the eZ publish kernel, instead this bootstrap system should be included
 in the `config.php` file as part of the project.
 
+[![Latest Stable Version](https://img.shields.io/packagist/v/aplia/starter-bootstrap.svg?style=flat-square)](https://packagist.org/packages/aplia/starter-bootstrap)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%205.3-8892BF.svg?style=flat-square)](https://php.net/)
 
 ## Installation
 
