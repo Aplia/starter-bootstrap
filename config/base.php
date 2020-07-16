@@ -142,7 +142,10 @@ return array(
             ),
             // Remote logging to Sentry, requires configuration 'sentry.dsn' setup to be enabled
             'sentry' => array(
-                'class' => 'Aplia\\Bootstrap\\RavenHandler',
+                // New handler which uses Sentry 2.x SDK
+                'class' => 'Aplia\\Bootstrap\\SentryHandler',
+                // Old handler which uses Sentry 1.x SDK
+                'compatClass' => 'Aplia\\Bootstrap\\RavenHandler',
                 'setup' => 'Aplia\\Bootstrap\\BaseApp::setupSentry',
                 'level' => 'warning',
                 'processors' => array(
@@ -313,5 +316,25 @@ return array(
     'sentry' => array(
         // Copy this to your site config and set the dsn string in this field
         // 'dsn' => '',
+
+        // Defines eZ publish events to record as breadcrumbs
+        'events' => array(
+            // Events related to navigation (request etc.)
+            'navigation' => array('request/preinput', 'request/input'),
+            // Events related to user, e.g. login, currently no events to log from eZ publish
+            'user' => array(),
+            // Default events
+            'default' => array('session/destroy', 'session/regenerate', 'session/cleanup'),
+        ),
+        'user' => array(
+            // Determines how user are reported in sentry events
+            // - false - Turns off user logging
+            // - username - Report username
+            // - email - Report username and email
+            // - hash - Report a obfuscated hash of the user
+            'logging' => 'hash',
+            // Salt to use when creating user ID hash
+            'salt' => '',
+        ),
     ),
 );

@@ -1054,18 +1054,36 @@ class BaseApp implements Log\ManagerInterface
     public function setupSentry($definition)
     {
         $dsn = Base::env('RAVEN_DSN', $this->config->get('sentry.dsn'));
-        if ($dsn && class_exists("\\Raven_Client")) {
-            $defaultOptions = array(
-                'install_default_breadcrumb_handlers' => false,
-            );
-            $otherOptions = $this->config->get('sentry.options', array());
-            $options = array_merge($defaultOptions, $otherOptions);
-            $client = new \Raven_Client($dsn, $options);
-            $level = \Aplia\Support\Arr::get($definition, 'level');
-            $bubble = \Aplia\Support\Arr::get($definition, 'bubble', true);
-            $class = \Aplia\Support\Arr::get($definition, 'class', 'Monolog\\Handler\\RavenHandler');
-            $handler = new $class($client, $level, $bubble);
-            return $handler;
+        if ($dsn) {
+            //  Try latest SDK (2.x) first
+            if (class_exists("\\Sentry\\SentrySdk")) {
+                $defaultOptions = array();
+                $otherOptions = $this->config->get('sentry.options', array());
+                $options = array_merge($defaultOptions, $otherOptions);
+                $options['dsn'] = $dsn;
+                \Sentry\init($options);
+
+                $hub = \Sentry\SentrySdk::getCurrentHub();
+
+                $level = \Aplia\Support\Arr::get($definition, 'level');
+                $bubble = \Aplia\Support\Arr::get($definition, 'bubble', true);
+                $class = \Aplia\Support\Arr::get($definition, 'class', 'Sentry\\Monolog\\Handler');
+                $handler = new $class($hub, $level, $bubble);
+                return $handler;
+            } else if (class_exists("\\Raven_Client")) {
+                // Fallback to older client (1.x)
+                $defaultOptions = array(
+                    'install_default_breadcrumb_handlers' => false,
+                );
+                $otherOptions = $this->config->get('sentry.options', array());
+                $options = array_merge($defaultOptions, $otherOptions);
+                $client = new \Raven_Client($dsn, $options);
+                $level = \Aplia\Support\Arr::get($definition, 'level');
+                $bubble = \Aplia\Support\Arr::get($definition, 'bubble', true);
+                $class = \Aplia\Support\Arr::get($definition, 'compatClass', 'Monolog\\Handler\\RavenHandler');
+                $handler = new $class($client, $level, $bubble);
+                return $handler;
+            }
         }
     }
 
