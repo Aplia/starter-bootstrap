@@ -184,7 +184,10 @@ final class SentryHandler extends AbstractProcessingHandler
                 // eZSys::requestURI()
             }
             if (class_exists("\\eZSys", false)) {
-                $scope->setTag("ezp.request_url", \eZSys::requestURI());
+                $requestUri = \eZSys::requestURI();
+                if ($requestUri) {
+                    $scope->setTag("ezp.request_url", $requestUri);
+                }
             }
             if (class_exists("\\eZSiteAccess", false)) {
                 $siteAccess = \eZSiteAccess::current();
