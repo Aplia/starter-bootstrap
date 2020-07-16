@@ -1,0 +1,49 @@
+#!/usr/bin/env php
+<?php
+use Aplia\Bootstrap\Base;
+use Aplia\Bootstrap\BaseConfig;
+
+require_once __DIR__ . '/../../../../config.php';
+
+$hub = \Sentry\SentrySdk::getCurrentHub();
+$client = $hub->getClient();
+if (!$client) {
+    echo "No Sentry client found\n";
+    echo "Your DSN is probably missing, check your configuration";
+
+    exit(1);
+}
+
+$dsn = Base::env('RAVEN_DSN', Base::config('sentry.dsn'));
+if ($dsn) {
+    echo "DSN correctly configured\n";
+} else {
+    echo <<<EOT
+No DSN configured, please check your configuration
+
+Example configuration for extension/site/config/local.php
+<?php
+return [
+    'sentry' => [
+        'dsn' => '<dsn-value>',
+    ],
+];
+EOT;
+    exit(1);
+}
+
+echo "Sending test message directly\n";
+
+$eventId = $hub->captureMessage('This is a test message from Starter Bootstrap');
+
+if ($eventId) {
+    echo "Message sent successfully with ID $eventId\n";
+} else {
+    echo "Message not sent!\n";
+    echo "Check your DSN or your before_send callback if used";
+
+    exit(1);
+}
+echo "Sending test message via trigger_error\n";
+
+trigger_error('This is a test log from Starter Bootstrap');
