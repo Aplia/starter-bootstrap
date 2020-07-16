@@ -6,6 +6,8 @@ if (!function_exists('base_debug_var')) {
      * This is useful when debugging errors to see what variables contain.
      *
      * Setting the same varible multiple times will simply overwrite the previous value.
+     * 
+     * @return void
      */
     function base_debug_var($name, $value)
     {
@@ -19,6 +21,8 @@ if (!function_exists('starter_debug_var')) {
      * This is useful when debugging errors to see what variables contain.
      *
      * Setting the same varible multiple times will simply overwrite the previous value.
+     * 
+     * @return void
      */
     function starter_debug_var($name, $value)
     {
