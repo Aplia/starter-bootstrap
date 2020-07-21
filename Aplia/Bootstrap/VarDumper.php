@@ -192,15 +192,17 @@ class VarDumper
 
             // Fill in file, line and code snippet if possible
             if ($stack->file && $stack->line && self::$format === 'html') {
+                /** @var \Symfony\Component\VarDumper\Dumper\HtmlDumper */
+                $dumper = self::$dumper;
                 if ($stack->codeLine) {
-                    self::$dumper->setDumpBoundaries(
+                    $dumper->setDumpBoundaries(
                         "<pre class=sf-dump id=%s data-indent-pad=\"%s\">\n" .
                         "In {$stack->file}:{$stack->line}\n" .
                         "> {$stack->codeLine}",
                         '</pre><script>Sfdump(%s)</script>'
                     );
                 } else {
-                    self::$dumper->setDumpBoundaries(
+                    $dumper->setDumpBoundaries(
                         "<pre class=sf-dump id=%s data-indent-pad=\"%s\">\n" .
                         "{$stack->file}:{$stack->line}\n",
                         '</pre><script>Sfdump(%s)</script>'
