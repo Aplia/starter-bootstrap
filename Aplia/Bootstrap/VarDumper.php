@@ -182,7 +182,7 @@ class VarDumper
             $this->app->setDebugVariable($name, $value, $location);
 
             // Log the value using debug level, value must first dumped to memory
-            if (!$this->app->isLoggerInitializing(starter_log_name())) {
+            if (function_exists('starter_log_name') && !$this->app->isLoggerInitializing(starter_log_name())) {
                 $memOutput = fopen('php://memory', 'r+b');
                 self::$logDumper->dump(self::$cloner->cloneVar($value), $memOutput);
                 $logOutput = stream_get_contents($memOutput, -1, 0);
