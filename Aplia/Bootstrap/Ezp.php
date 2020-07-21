@@ -114,8 +114,10 @@ class Ezp
                 $GLOBALS['ezpDebug']['loggerFactory'] = array('Aplia\Bootstrap\Ezp', 'makeLogger');
             }
 
+            $app->errorMode = $errorMode;
             if ($app->errorHandler) {
                 // There is already an error handler installed, most likely for bootstrap debugging purpose
+                $app->errorMode = 'unmanaged';
             } elseif ($errorMode == 'local' || $errorMode == 'remote') {
                 // Restores CWD on shutdown
                 register_shutdown_function(array('\\Aplia\\Bootstrap\\Ezp', 'restoreWwwRoot'));
@@ -124,6 +126,44 @@ class Ezp
                 $app->errorHandler = $app->bootstrapErrorHandler(true, /*logLevel*/null, /*$integrateEzp*/ true);
             }
         }
+    }
+
+    public static function describeSubSystem($app, array &$description)
+    {
+        $description['GLOBALS'] = array_merge(
+            isset($description['GLOBALS']) ? $description['GLOBALS'] : array(),
+            array(
+                'STARTER_RELOCATE_INI' => isset($GLOBALS['STARTER_RELOCATE_INI']) ? $GLOBALS['STARTER_RELOCATE_INI'] : false,
+                'STARTER_CONFIGS' => isset($GLOBALS['STARTER_CONFIGS']) ? $GLOBALS['STARTER_CONFIGS'] : null,
+                'EZP_INI_ORDER_SITEACCESS' => isset($GLOBALS['EZP_INI_ORDER_SITEACCESS']) ? $GLOBALS['EZP_INI_ORDER_SITEACCESS'] : null,
+                'STARTER_APP_PATH' => isset($GLOBALS['STARTER_APP_PATH']) ? $GLOBALS['STARTER_APP_PATH'] : null,
+                'EZP_USE_FILE_PERMISSIONS' => isset($GLOBALS['EZP_USE_FILE_PERMISSIONS']) ? $GLOBALS['EZP_USE_FILE_PERMISSIONS'] : null,
+                'EZP_INI_OVERRIDE_FOLDERS' => isset($GLOBALS['EZP_INI_OVERRIDE_FOLDERS']) ? $GLOBALS['EZP_INI_OVERRIDE_FOLDERS'] : null,
+                'EZP_INI_SITEACCESS_FOLDERS' => isset($GLOBALS['EZP_INI_SITEACCESS_FOLDERS']) ? $GLOBALS['EZP_INI_SITEACCESS_FOLDERS'] : null,
+                'STARTER_USE_LOCAL_CONFIG' => isset($GLOBALS['STARTER_USE_LOCAL_CONFIG']) ? $GLOBALS['STARTER_USE_LOCAL_CONFIG'] : true,
+                'ezpDebug' => isset($GLOBALS['ezpDebug']) ? $GLOBALS['ezpDebug'] : null,
+                'ezpExecution' => isset($GLOBALS['ezpExecution']) ? $GLOBALS['ezpExecution'] : null,
+                'eZDebugAlwaysLog' => isset($GLOBALS['eZDebugAlwaysLog']) ? $GLOBALS['eZDebugAlwaysLog'] : null,
+            )
+        );
+
+        $errorMode = $app->errorMode;
+        if ($errorMode == 'local' || $errorMode == 'remote') {
+            if (!isset($description['php'])) {
+                $description['php'] = array();
+            }
+            if (!isset($description['php']['shutdown_functions'])) {
+                $description['php']['shutdown_functions'] = array();
+            }
+            $description['php']['shutdown_functions'][] = array('\\Aplia\\Bootstrap\\Ezp', 'restoreWwwRoot');
+        }
+
+        $description['defines'] = array_merge(
+            isset($description['defines']) ? $description['defines'] : array(),
+            array(
+                'EZP_USE_FILE_PERMISSIONS' => defined('EZP_USE_FILE_PERMISSIONS') ? EZP_USE_FILE_PERMISSIONS : null,
+            )
+        );
     }
 
     /**

@@ -1,0 +1,11 @@
+#!/usr/bin/env php
+<?php
+use Aplia\Bootstrap\Base;
+use Aplia\Bootstrap\BaseConfig;
+
+// Load config and bootstrap system
+require_once __DIR__ . '/../../../../config.php';
+
+$app = Base::app();
+$description = $app->describe();
+dump($description);

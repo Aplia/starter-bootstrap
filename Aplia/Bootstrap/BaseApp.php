@@ -288,6 +288,33 @@ class BaseApp implements Log\ManagerInterface
     }
 
     /**
+     * Describes the bootstrap process by return an array with details on what has been changed,
+     * e.g. which GLOBAL variables have been set.
+     * 
+     * Example:
+     * array(
+     *     '_ENV' => array(
+     *         'VENDOR_ROOT' => 'vendor',
+     *     ),
+     * )
+     * 
+     * @return array
+     */
+    public function describe()
+    {
+        $bootstrapMap = $this->config->get('app.bootstrap.classes', array());
+        $description = array();
+        // Call static method `describeSubSystem` on all registered bootstrap classes if it has one
+        foreach ($this->config->get('app.bootstrap.names') as $bootstrapName) {
+            if (isset($bootstrapMap[$bootstrapName]) &&
+                method_exists($bootstrapMap[$bootstrapName], 'describeSubSystem')) {
+                $bootstrapMap[$bootstrapName]::describeSubSystem($this, $description);
+            }
+        }
+        return $description;
+    }
+
+    /**
      * Bootstrap the base sub-system.
      */
     public static function bootstrapSubSystem()
@@ -305,6 +332,26 @@ class BaseApp implements Log\ManagerInterface
         }
 
         set_include_path(Base::config('www.path') . ':' . get_include_path());
+    }
+
+    /**
+     * Describe the changes made by the base system.
+     */
+    public static function describeSubSystem($app, array &$description)
+    {
+        $description['env'] = array_merge(
+            isset($description['env']) ? $description['env'] : array(),
+            array(
+                'VENDOR_ROOT' => getenv('VENDOR_ROOT'),
+                'WWW_ROOT' => isset($_ENV['WWW_ROOT']) ? $_ENV['WWW_ROOT'] : null,
+            )
+        );
+        $description['php'] = array_merge(
+            isset($description['php']) ? $description['php'] : array(),
+            array(
+                'include_path' => get_include_path(),
+            )
+        );
     }
 
     public function makePath($elements)

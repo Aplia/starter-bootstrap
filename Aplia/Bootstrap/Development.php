@@ -16,4 +16,17 @@ class Development
             });
         }
     }
+
+    public static function describeSubSystem($app, array &$description)
+    {
+        if (class_exists('Symfony\\Component\\VarDumper\\VarDumper')) {
+            $description['vardumper'] = array_merge(
+                isset($description['vardumper']) ? $description['vardumper'] : array(),
+                array(
+                    'handler' => '\Aplia\Bootstrap\VarDumper',
+                )
+            );
+        }
+    }
+
 }
