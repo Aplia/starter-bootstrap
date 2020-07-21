@@ -44,6 +44,7 @@ class Ezp
         if (isset($GLOBALS['STARTER_DISABLE_FILE_PERMISSIONS']) && $GLOBALS['STARTER_DISABLE_FILE_PERMISSIONS']) {
             // Turn off all file permission modifications
             define('EZP_USE_FILE_PERMISSIONS', false);
+            $GLOBALS['EZP_USE_FILE_PERMISSIONS'] = false;
         }
 
         if (isset($GLOBALS['STARTER_ERROR_HANDLER']) ? $GLOBALS['STARTER_ERROR_HANDLER'] : false) {
