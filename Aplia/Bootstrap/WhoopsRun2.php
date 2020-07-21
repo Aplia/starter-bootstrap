@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Whoops - php errors for cool kids
  * @author Filipe Dobreira <http://github.com/filp>
@@ -58,8 +59,8 @@ class WhoopsRun2 implements RunInterface
 
         if (!$handler instanceof HandlerInterface) {
             throw new InvalidArgumentException(
-                  "Argument to " . __METHOD__ . " must be a callable, or instance of "
-                . "Whoops\\Handler\\HandlerInterface"
+                "Argument to " . __METHOD__ . " must be a callable, or instance of "
+                    . "Whoops\\Handler\\HandlerInterface"
             );
         }
 
@@ -219,7 +220,7 @@ class WhoopsRun2 implements RunInterface
 
         if ($code < 400 || 600 <= $code) {
             throw new InvalidArgumentException(
-                 "Invalid status code '$code', must be 4xx or 5xx"
+                "Invalid status code '$code', must be 4xx or 5xx"
             );
         }
 

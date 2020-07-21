@@ -1,4 +1,5 @@
 <?php
+
 namespace Aplia\Bootstrap\Error;
 
 use Exception;

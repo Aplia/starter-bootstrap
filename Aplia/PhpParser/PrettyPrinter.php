@@ -1,4 +1,5 @@
 <?php
+
 namespace Aplia\PhpParser;
 
 use Aplia\Support\Arr;

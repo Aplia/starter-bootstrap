@@ -63,51 +63,57 @@ final class SentryHandler extends AbstractProcessingHandler
         if ($navigationEvents) {
             // Record navigation events, will have eZURI as parameter
             foreach ($navigationEvents as $eventName) {
-                \ezpEvent::getInstance()->attach($eventName,
-                function ($uri) use ($eventName) {
-                    \Sentry\addBreadcrumb(new \Sentry\Breadcrumb(
-                        \Sentry\Breadcrumb::LEVEL_ERROR,
-                        \Sentry\Breadcrumb::TYPE_NAVIGATION,
-                        $eventName,
-                        null,
-                        array(
-                            'uri' => $uri->uriString(true),
-                        )
-                    ));
-                });
+                \ezpEvent::getInstance()->attach(
+                    $eventName,
+                    function ($uri) use ($eventName) {
+                        \Sentry\addBreadcrumb(new \Sentry\Breadcrumb(
+                            \Sentry\Breadcrumb::LEVEL_ERROR,
+                            \Sentry\Breadcrumb::TYPE_NAVIGATION,
+                            $eventName,
+                            null,
+                            array(
+                                'uri' => $uri->uriString(true),
+                            )
+                        ));
+                    }
+                );
             }
         }
 
         // Record user events
         if ($userEvents) {
             foreach ($userEvents as $eventName) {
-                \ezpEvent::getInstance()->attach($eventName,
-                function ($uri) use ($eventName) {
-                    \Sentry\addBreadcrumb(new \Sentry\Breadcrumb(
-                        \Sentry\Breadcrumb::LEVEL_ERROR,
-                        \Sentry\Breadcrumb::TYPE_USER,
-                        $eventName,
-                        null,
-                        array(
-                            'uri' => $uri,
-                        )
-                    ));
-                });
+                \ezpEvent::getInstance()->attach(
+                    $eventName,
+                    function ($uri) use ($eventName) {
+                        \Sentry\addBreadcrumb(new \Sentry\Breadcrumb(
+                            \Sentry\Breadcrumb::LEVEL_ERROR,
+                            \Sentry\Breadcrumb::TYPE_USER,
+                            $eventName,
+                            null,
+                            array(
+                                'uri' => $uri,
+                            )
+                        ));
+                    }
+                );
             }
         }
 
         // Record normal events
         if ($defaultEvents) {
             foreach ($defaultEvents as $eventName) {
-                \ezpEvent::getInstance()->attach($eventName,
-                function () use ($eventName) {
-                    \Sentry\addBreadcrumb(new \Sentry\Breadcrumb(
-                        \Sentry\Breadcrumb::LEVEL_ERROR,
-                        \Sentry\Breadcrumb::TYPE_DEFAULT,
-                        $eventName,
-                        null
-                    ));
-                });
+                \ezpEvent::getInstance()->attach(
+                    $eventName,
+                    function () use ($eventName) {
+                        \Sentry\addBreadcrumb(new \Sentry\Breadcrumb(
+                            \Sentry\Breadcrumb::LEVEL_ERROR,
+                            \Sentry\Breadcrumb::TYPE_DEFAULT,
+                            $eventName,
+                            null
+                        ));
+                    }
+                );
             }
         }
     }

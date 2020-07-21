@@ -1,4 +1,5 @@
 <?php
+
 namespace Aplia\Error\Handler;
 
 use Whoops\Handler\Handler;
@@ -17,7 +18,8 @@ class ServerErrorHandler extends Handler
     {
         $exception = $this->getException();
         if (PHP_SAPI == 'cli') {
-            return sprintf("%s: %s\n",
+            return sprintf(
+                "%s: %s\n",
                 get_class($exception),
                 $exception->getMessage()
             );

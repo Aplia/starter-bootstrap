@@ -1,4 +1,5 @@
 <?php
+
 namespace Aplia\Bootstrap;
 
 interface AppInterface
@@ -94,7 +95,7 @@ interface AppInterface
      * @param bool $integrateEzp True if the handler should be integrated with eZ publish
      * @return object
      */
-    public function bootstrapErrorHandler($register = false, $errorLevel=null, $integrateEzp=false);
+    public function bootstrapErrorHandler($register = false, $errorLevel = null, $integrateEzp = false);
 
     /**
      * Check if logger exists or is defined.

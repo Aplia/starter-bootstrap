@@ -1,5 +1,6 @@
 #!/usr/bin/env php
 <?php
+
 use Aplia\Bootstrap\Base;
 
 // Disable cache loading, we want to create it from scratch

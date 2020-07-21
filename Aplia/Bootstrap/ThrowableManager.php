@@ -1,4 +1,5 @@
 <?php
+
 namespace Aplia\Bootstrap;
 
 use Aplia\Bootstrap\WhoopsRun2;
@@ -142,25 +143,27 @@ class ThrowableManager extends WhoopsRun2
     {
         if (!$this->levelNames) {
             $this->levelNames =
-                array( E_ERROR => 'E_ERROR',
-                       E_PARSE => 'E_PARSE',
-                       E_CORE_ERROR => 'E_CORE_ERROR',
-                       E_COMPILE_ERROR => 'E_COMPILE_ERROR',
-                       E_USER_ERROR => 'E_USER_ERROR',
-                       E_WARNING => 'E_WARNING',
-                       E_CORE_WARNING => 'E_CORE_WARNING',
-                       E_COMPILE_WARNING => 'E_COMPILE_WARNING',
-                       E_USER_WARNING => 'E_USER_WARNING',
-                       E_NOTICE => 'E_NOTICE',
-                       E_USER_NOTICE => 'E_USER_NOTICE',
-                       E_STRICT => 'E_STRICT' );
+                array(
+                    E_ERROR => 'E_ERROR',
+                    E_PARSE => 'E_PARSE',
+                    E_CORE_ERROR => 'E_CORE_ERROR',
+                    E_COMPILE_ERROR => 'E_COMPILE_ERROR',
+                    E_USER_ERROR => 'E_USER_ERROR',
+                    E_WARNING => 'E_WARNING',
+                    E_CORE_WARNING => 'E_CORE_WARNING',
+                    E_COMPILE_WARNING => 'E_COMPILE_WARNING',
+                    E_USER_WARNING => 'E_USER_WARNING',
+                    E_NOTICE => 'E_NOTICE',
+                    E_USER_NOTICE => 'E_USER_NOTICE',
+                    E_STRICT => 'E_STRICT'
+                );
             // Since PHP 5.2
-            if ( defined('E_RECOVERABLE_ERROR') )
+            if (defined('E_RECOVERABLE_ERROR'))
                 $this->levelNames[E_RECOVERABLE_ERROR] = 'E_RECOVERABLE_ERROR';
             // Since PHP 5.3
-            if ( defined('E_DEPRECATED') )
+            if (defined('E_DEPRECATED'))
                 $this->levelNames[E_DEPRECATED] = 'E_DEPRECATED';
-            if ( defined('E_USER_DEPRECATED') )
+            if (defined('E_USER_DEPRECATED'))
                 $this->levelNames[E_USER_DEPRECATED] = 'E_USER_DEPRECATED';
         }
         return isset($this->levelNames[$level]) ? $this->levelNames[$level] : null;
@@ -299,17 +302,17 @@ class ThrowableManager extends WhoopsRun2
                     } else {
                         $logger->notice($message, $context);
                     }
-                } catch(\Throwable $e) {
+                } catch (\Throwable $e) {
                     throw $e;
-                } catch(\Exception $e) {
+                } catch (\Exception $e) {
                     throw $e;
                 }
             } else {
                 try {
                     $logger->error($message, $context);
-                } catch(\Throwable $e) {
+                } catch (\Throwable $e) {
                     throw $e;
-                } catch(\Exception $e) {
+                } catch (\Exception $e) {
                     throw $e;
                 }
             }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Aplia\Bootstrap;
 
 class Ezp
@@ -123,7 +124,7 @@ class Ezp
                 register_shutdown_function(array('\\Aplia\\Bootstrap\\Ezp', 'restoreWwwRoot'));
 
                 // Initialize and register error handler
-                $app->errorHandler = $app->bootstrapErrorHandler(true, /*logLevel*/null, /*$integrateEzp*/ true);
+                $app->errorHandler = $app->bootstrapErrorHandler(true, /*logLevel*/ null, /*$integrateEzp*/ true);
             }
         }
     }
@@ -196,6 +197,6 @@ class Ezp
      */
     public static function restoreWwwRoot()
     {
-        chdir( $_ENV['WWW_ROOT'] );
+        chdir($_ENV['WWW_ROOT']);
     }
 }

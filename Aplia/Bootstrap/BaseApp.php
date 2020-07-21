@@ -1,4 +1,5 @@
 <?php
+
 namespace Aplia\Bootstrap;
 
 use Exception;
@@ -332,7 +333,7 @@ class BaseApp implements Log\ManagerInterface
             $bootNames[] = 'app.' . $name;
         }
 
-        $this->config->update(array('app' => array('bootstrap' => array('names' => $bootNames) ) ) );
+        $this->config->update(array('app' => array('bootstrap' => array('names' => $bootNames))));
     }
 
     /**
@@ -378,8 +379,10 @@ class BaseApp implements Log\ManagerInterface
         $description = array();
         // Call static method `describeSubSystem` on all registered bootstrap classes if it has one
         foreach ($this->config->get('app.bootstrap.names') as $bootstrapName) {
-            if (isset($bootstrapMap[$bootstrapName]) &&
-                method_exists($bootstrapMap[$bootstrapName], 'describeSubSystem')) {
+            if (
+                isset($bootstrapMap[$bootstrapName]) &&
+                method_exists($bootstrapMap[$bootstrapName], 'describeSubSystem')
+            ) {
                 $bootstrapMap[$bootstrapName]::describeSubSystem($this, $description);
             }
         }
@@ -483,13 +486,13 @@ class BaseApp implements Log\ManagerInterface
     /**
      * @inheritdoc
      */
-    public function bootstrapErrorHandler($register = false, $errorLevel=null, $integrateEzp=false)
+    public function bootstrapErrorHandler($register = false, $errorLevel = null, $integrateEzp = false)
     {
         // Bootstrap Whoops error handler, this is the only supported handler for now
         return $this->bootstrapWhoops($register, $errorLevel, $integrateEzp);
     }
 
-    public function bootstrapWhoops($register = false, $errorLevel=null, $integrateEzp=false)
+    public function bootstrapWhoops($register = false, $errorLevel = null, $integrateEzp = false)
     {
         try {
             if (class_exists('\\Whoops\\Run')) {
@@ -651,8 +654,7 @@ class BaseApp implements Log\ManagerInterface
                 }
                 return $whoops;
             }
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             // The error handler failed to initialize, report the error and return the startup handler
             $this->fetchLogger("base")->error("Failed to boostrap Whoops error logger due to error: " . $e);
             return $this->startupErrorHandler;
@@ -736,7 +738,7 @@ class BaseApp implements Log\ManagerInterface
             return \Monolog\Logger::DEBUG;
         }
         static $monologLevels = null;
-        if ($monologLevels === null ) {
+        if ($monologLevels === null) {
             $monologLevels = array(
                 "debug" => \Monolog\Logger::DEBUG,
                 "info" => \Monolog\Logger::INFO,
@@ -1190,8 +1192,7 @@ class BaseApp implements Log\ManagerInterface
         }
         $templatesUsageStatistics = \eZTemplate::templatesUsageStatistics();
         $data = array();
-        foreach ($templatesUsageStatistics as $templateInfo)
-        {
+        foreach ($templatesUsageStatistics as $templateInfo) {
             $actualTemplateName = $templateInfo['actual-template-name'];
             $requestedTemplateName = $templateInfo['requested-template-name'];
             $templateFileName = $templateInfo['template-filename'];

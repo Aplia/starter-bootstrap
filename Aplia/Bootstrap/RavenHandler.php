@@ -1,4 +1,5 @@
 <?php
+
 namespace Aplia\Bootstrap;
 
 use Monolog\Formatter\LineFormatter;

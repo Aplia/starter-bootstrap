@@ -1,4 +1,5 @@
 <?php
+
 namespace Aplia\Bootstrap;
 
 /**
@@ -36,7 +37,7 @@ class Plain
                 register_shutdown_function(array('\\Aplia\\Bootstrap\\ErrorManager', 'restoreWwwRoot'));
 
                 // Initialize and register error handler
-                $app->errorHandler = $app->bootstrapErrorHandler(true, /*logLevel*/null);
+                $app->errorHandler = $app->bootstrapErrorHandler(true, /*logLevel*/ null);
             }
         }
     }

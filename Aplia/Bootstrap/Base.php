@@ -1,4 +1,5 @@
 <?php
+
 namespace Aplia\Bootstrap;
 
 use Closure;
@@ -106,7 +107,7 @@ class Base
         echo json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
 
-    public static function setConfig($config=null)
+    public static function setConfig($config = null)
     {
         self::$config = $config;
     }
@@ -121,7 +122,7 @@ class Base
         return self::$app;
     }
 
-    public static function setApp($app=null)
+    public static function setApp($app = null)
     {
         self::$app = $app;
     }
@@ -136,7 +137,7 @@ class Base
         return self::app()->makePath($elements);
     }
 
-    public static function setLogger($func=null)
+    public static function setLogger($func = null)
     {
         self::$logger = $func;
     }
@@ -251,7 +252,7 @@ class Base
      * 
      * @return \Aplia\Bootstrap\AppInterface
      */
-    public static function createApp(array $params=null)
+    public static function createApp(array $params = null)
     {
         // www and app path must always be set before configuring the app
         $permanentConfig = array(

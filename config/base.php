@@ -1,6 +1,6 @@
 <?php
 // Error mode
-$mode = isset($GLOBALS['STARTER_BOOTSTRAP_MODE'] ) ? $GLOBALS['STARTER_BOOTSTRAP_MODE'] : 'plain';
+$mode = isset($GLOBALS['STARTER_BOOTSTRAP_MODE']) ? $GLOBALS['STARTER_BOOTSTRAP_MODE'] : 'plain';
 
 // Try and load settings from .env, if set they override local variables
 $envErrorHandler = \Aplia\Bootstrap\Base::env('ERROR_MODE_' . strtoupper($mode), null);
@@ -218,8 +218,7 @@ return array(
             'firephp' => 100,
         ),
         // Same as console_handlers but for handlers for logging to files
-        'file_handlers' => array(
-        ),
+        'file_handlers' => array(),
         // The default class to use for loggers
         'default_logger_class' => '\\Aplia\\Bootstrap\\Log\\Logger',
         // Defines all loggers available to use, the key is the name of the

@@ -1,4 +1,5 @@
 <?php
+
 namespace Aplia\Bootstrap;
 
 use SplFileObject;
@@ -43,8 +44,7 @@ class CallStackAnalyzer
      *
      * @var array
      */
-    protected $skipClassesPartials = array(
-    );
+    protected $skipClassesPartials = array();
 
     /**
      * Number of stack frames to skip for next walk().

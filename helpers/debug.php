@@ -45,7 +45,7 @@ if (!function_exists('inspect')) {
      * @param string $name The name of the variable or expression that is debugged
      * @return mixed The input value
      */
-    function inspect($value, $name=null)
+    function inspect($value, $name = null)
     {
         // Store the name for the dump call
         \Aplia\Bootstrap\VarDumper::$variableName = $name;

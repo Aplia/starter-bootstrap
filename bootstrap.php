@@ -19,9 +19,12 @@ if (!class_exists('\\Composer\\Autoload\\ClassLoader', false)) {
 }
 
 if ((isset($GLOBALS['STARTER_DEBUG_TRACE']) ? $GLOBALS['STARTER_DEBUG_TRACE'] : false) &&
-    function_exists('xdebug_stop_trace')) {
-    xdebug_start_trace(isset($GLOBALS['STARTER_DEBUG_TRACE_FILE']) ? $GLOBALS['STARTER_DEBUG_TRACE_FILE'] : "debug-trace",
-                       isset($GLOBALS['STARTER_DEBUG_TRACE_OPTIONS']) ? $GLOBALS['STARTER_DEBUG_TRACE_OPTIONS'] : 0);
+    function_exists('xdebug_stop_trace')
+) {
+    xdebug_start_trace(
+        isset($GLOBALS['STARTER_DEBUG_TRACE_FILE']) ? $GLOBALS['STARTER_DEBUG_TRACE_FILE'] : "debug-trace",
+        isset($GLOBALS['STARTER_DEBUG_TRACE_OPTIONS']) ? $GLOBALS['STARTER_DEBUG_TRACE_OPTIONS'] : 0
+    );
     $GLOBALS['STARTER_DEBUG_TRACE_STARTED'] = true;
 }
 // If the bootstrap process needs to be debugged for errors set $GLOBALS['STARTER_BASE_DEBUG'] to true
@@ -131,7 +134,8 @@ if (isset($GLOBALS['STARTER_BASE_DUMP_CONFIG']) && $GLOBALS['STARTER_BASE_DUMP_C
 }
 
 if ((isset($GLOBALS['STARTER_DEBUG_TRACE_STARTED']) ? $GLOBALS['STARTER_DEBUG_TRACE_STARTED'] : false) &&
-    function_exists('xdebug_stop_trace')) {
+    function_exists('xdebug_stop_trace')
+) {
     xdebug_stop_trace();
 }
 

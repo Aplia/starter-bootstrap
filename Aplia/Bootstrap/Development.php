@@ -1,4 +1,5 @@
 <?php
+
 namespace Aplia\Bootstrap;
 
 /**
@@ -11,7 +12,7 @@ class Development
         // Configure dump() function to call our own dumper code
         if (class_exists('Symfony\\Component\\VarDumper\\VarDumper')) {
             $dumper = new \Aplia\Bootstrap\VarDumper($app);
-            \Symfony\Component\VarDumper\VarDumper::setHandler(function ($value) use($dumper) {
+            \Symfony\Component\VarDumper\VarDumper::setHandler(function ($value) use ($dumper) {
                 $dumper->dumpVar($value);
             });
         }
@@ -28,5 +29,4 @@ class Development
             );
         }
     }
-
 }

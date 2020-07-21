@@ -1,4 +1,5 @@
 <?php
+
 namespace Aplia\Bootstrap\Processor;
 
 use Monolog\Logger;

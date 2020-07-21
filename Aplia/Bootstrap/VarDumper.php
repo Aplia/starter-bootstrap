@@ -1,4 +1,5 @@
 <?php
+
 namespace Aplia\Bootstrap;
 
 /**
@@ -197,14 +198,14 @@ class VarDumper
                 if ($stack->codeLine) {
                     $dumper->setDumpBoundaries(
                         "<pre class=sf-dump id=%s data-indent-pad=\"%s\">\n" .
-                        "In {$stack->file}:{$stack->line}\n" .
-                        "> {$stack->codeLine}",
+                            "In {$stack->file}:{$stack->line}\n" .
+                            "> {$stack->codeLine}",
                         '</pre><script>Sfdump(%s)</script>'
                     );
                 } else {
                     $dumper->setDumpBoundaries(
                         "<pre class=sf-dump id=%s data-indent-pad=\"%s\">\n" .
-                        "{$stack->file}:{$stack->line}\n",
+                            "{$stack->file}:{$stack->line}\n",
                         '</pre><script>Sfdump(%s)</script>'
                     );
                 }
