@@ -12,7 +12,7 @@ class Ezp
             if (!isset($GLOBALS['STARTER_CONFIGS'])) {
                 $GLOBALS['STARTER_CONFIGS'] = array('prod');
             }
-            if (isset($_ENV['USE_DOCKER']) && $_ENV['USE_DOCKER']) {
+            if (getenv('USE_DOCKER')) {
                 $GLOBALS['STARTER_CONFIGS'][] = 'docker';
             }
 
