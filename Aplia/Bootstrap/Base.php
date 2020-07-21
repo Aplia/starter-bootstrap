@@ -1,6 +1,8 @@
 <?php
 namespace Aplia\Bootstrap;
 
+use Closure;
+
 class Base
 {
     static $logger = null;
@@ -246,6 +248,8 @@ class Base
      * $params may contains:
      * - 'config' - The initial config for the application.
      * - 'errorHandler' - Set a specific error handler in the application.
+     * 
+     * @return \Aplia\Bootstrap\AppInterface
      */
     public static function createApp(array $params=null)
     {

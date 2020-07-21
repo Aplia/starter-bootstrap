@@ -1,85 +1,162 @@
 <?php
 namespace Aplia\Bootstrap;
 
+use Exception;
+use Closure;
+
 class BaseApp implements Log\ManagerInterface
 {
     const DEFAULT_ERROR_MODE = 'plain';
 
+    /**
+     * The configuration objects.
+     *
+     * @var BaseConfig
+     */
     public $config;
+
+    /**
+     * Path to the application files, e.g. '/var/www/app'
+     *
+     * @var string
+     */
     public $path;
-    public $usedBootstrap = array();
+
+    /**
+     * Boolean which is true if PHP 7 or higher is currently used, false otherwise.
+     * 
+     * @var bool
+     */
+    public $isPhp7;
+
+    /**
+     * Path to the www folder, e.g. '/var/www'
+     *
+     * @var string
+     */
+    public $wwwPath;
+
+    /**
+     * Array of PHP file loaded as function helpers
+     * 
+     * @var array
+     */
     public $usedHelpers = array();
 
     /**
      * The logger instance if one is setup.
+     * 
+     * @var \Monolog\Logger
      */
     public $logger;
+
     /**
      * The error logger instance if one is setup.
+     * 
+     * @var null|object
      */
     public $errorHandler;
+
     /**
      * The error handler used for the startup part of the bootstrap process.
      * It will be unregistered right before a new error handler is activated.
      * Can be null.
      *
+     * @var null|object
      */
     public $startupErrorHandler;
+
     /**
      * Associative array of loggers.
+     * 
+     * @var array
      */
     public $loggers = array();
+
     /**
      * Associative array of log handlers.
+     * 
+     * @var array
      */
     public $logHandlers = array();
+
     /**
      * Associative array of log processors.
+     * 
+     * @var array
      */
     protected $logProcessors = array();
+
     /**
      * Associative array of log formatters.
+     * 
+     * @var array
      */
     protected $logFormatters = array();
+
     /**
      * Array map of logger names which are currently being initialized, once
      * they are initialized the entry is removed.
+     * 
+     * @var array
      */
     protected $loggerInit = array();
+
     /**
      * Array of error levels which are to be logged.
+     * 
+     * @var array
      */
     public $logLevels = array();
+
     /**
      * Associative array containing variables to display on
      * error page when an error occurs.
+     * 
+     * @var array
      */
     public $debugVariables = array();
 
     /**
      * Controls whether the first-time setup of editor variables have finished.
+     * 
+     * @var bool
      */
     public $isEditorSetup = false;
+
     /**
      * The name of the editor to use or null if not in use.
+     *
+     * @var null|string
      */
     public $editorName;
+
     /**
      * An associative array which maps a regular expression to a local file path.
      * The value is null until it is setup.
+     *
+     * @var null|array
      */
     public $editorFileMapping;
+
     /**
      * Associative array of editors, maps the name to a url which opens the editor.
      * The url must contain %file and %line entries.
+     *
+     * @var array
      */
     public $editors = array();
 
     /**
      * Determines if Whoops 1.x or 2.x is used, set in bootstrapWhoops.
+     *
+     * @var bool
      */
     protected $hasWhoops2;
 
+    /**
+     * Initialize object with an optional config.
+     */
     public function __construct($config = null)
     {
         $this->isPhp7 = version_compare(PHP_VERSION, "7") >= 0;
@@ -89,10 +166,7 @@ class BaseApp implements Log\ManagerInterface
     }
 
     /**
-     * Sets a debug variable to be displayed on the error page when an error occur.
-     * This is useful when debugging errors to see what variables contain.
-     *
-     * Setting the same varible multiple times will simply overwrite the previous value.
+     * @inheritdoc
      */
     public function setDebugVariable($name, $value, $location)
     {
@@ -101,6 +175,9 @@ class BaseApp implements Log\ManagerInterface
 
     /**
      * Returns a path to a directory by ensuring it ends with a slash.
+     * 
+     * @param string $path A path string
+     * @return string
      */
     public static function dirPath($path)
     {
@@ -108,8 +185,7 @@ class BaseApp implements Log\ManagerInterface
     }
 
     /**
-     * Additional steps to run after reading in config (cached or dynamic)
-     * This code will always be executed dynamically
+     * @inheritdoc
      */
     public function postConfigure()
     {
@@ -218,6 +294,9 @@ class BaseApp implements Log\ManagerInterface
         }
     }
 
+    /**
+     * @inheritdoc
+     */
     public function configure($names)
     {
         $appPath = self::dirPath($this->path);
@@ -256,6 +335,9 @@ class BaseApp implements Log\ManagerInterface
         $this->config->update(array('app' => array('bootstrap' => array('names' => $bootNames) ) ) );
     }
 
+    /**
+     * @inheritdoc
+     */
     public function init()
     {
         // Call static method `bootstrapSubSystem` on all registered bootstrap classes
@@ -288,17 +370,7 @@ class BaseApp implements Log\ManagerInterface
     }
 
     /**
-     * Describes the bootstrap process by return an array with details on what has been changed,
-     * e.g. which GLOBAL variables have been set.
-     * 
-     * Example:
-     * array(
-     *     '_ENV' => array(
-     *         'VENDOR_ROOT' => 'vendor',
-     *     ),
-     * )
-     * 
-     * @return array
+     * @inheritdoc
      */
     public function describe()
     {
@@ -336,6 +408,9 @@ class BaseApp implements Log\ManagerInterface
 
     /**
      * Describe the changes made by the base system.
+     * 
+     * @param AppInterface $app The application
+     * @param array $description Storage for the description
      */
     public static function describeSubSystem($app, array &$description)
     {
@@ -352,8 +427,24 @@ class BaseApp implements Log\ManagerInterface
                 'include_path' => get_include_path(),
             )
         );
+        $description['app'] = array_merge(
+            isset($description['app']) ? $description['app'] : array(),
+            array(
+                'path' => $app->path,
+                'www_path' => $app->wwwPath,
+                'is_php7' => $app->isPhp7,
+                'editor' => array(
+                    'name' => $app->editorName,
+                    'file_mapping' => $app->editorFileMapping,
+                    'mapping' => $app->editors,
+                ),
+            )
+        );
     }
 
+    /**
+     * @inheritdoc
+     */
     public function makePath($elements)
     {
         if (!is_array($elements)) {
@@ -370,6 +461,9 @@ class BaseApp implements Log\ManagerInterface
         );
     }
 
+    /**
+     * @inheritdoc
+     */
     public function makeAppPath($elements)
     {
         if (!is_array($elements)) {
@@ -386,6 +480,9 @@ class BaseApp implements Log\ManagerInterface
         );
     }
 
+    /**
+     * @inheritdoc
+     */
     public function bootstrapErrorHandler($register = false, $errorLevel=null, $integrateEzp=false)
     {
         // Bootstrap Whoops error handler, this is the only supported handler for now
@@ -658,8 +755,7 @@ class BaseApp implements Log\ManagerInterface
     }
 
     /**
-     * Check if logger exists or is defined.
-     * Return true if so, false otherwise.
+     * @inheritdoc
      */
     public function hasLogger($name)
     {
@@ -674,10 +770,7 @@ class BaseApp implements Log\ManagerInterface
     }
 
     /**
-     * Returns true if the logger is currently being initialized.
-     * If this is true then avoid calling fetchLogger() with this name.
-     *
-     * This is mainly a helper to avoid recursive calls to fetchLogger().
+     * @inheritdoc
      */
     public function isLoggerInitializing($name)
     {
@@ -685,13 +778,7 @@ class BaseApp implements Log\ManagerInterface
     }
 
     /**
-     * Create a log channel with a noop handler which will suppress all
-     * log events. This is meant to be used when logging is disable or
-     * there are no configuration found for a log channel.
-     * The log channel is registered using $name.
-     *
-     * @param string $name Name of log channel
-     * @return Monolog\Logger
+     * @inheritdoc
      */
     public function registerNoopLogger($name)
     {
@@ -711,19 +798,7 @@ class BaseApp implements Log\ManagerInterface
     }
 
     /**
-     * Fetches the logger with given name.
-     * If the logger is not yet created it reads the configuration for it
-     * from log.loggers.$name and creates the logger instance.
-     *
-     * Calling this multiple times is safe, it will only create the
-     * logger one time.
-     *
-     * If the log channel is not defined anywhere or logging is disabled
-     * it will still return a log instance but which does not log anywhere.
-     * This avoids introducing errors into the caller codebase if the
-     * configuration is missing.
-     *
-     * @return The logger instance.
+     * @inheritdoc
      */
     public function fetchLogger($name)
     {
@@ -815,17 +890,7 @@ class BaseApp implements Log\ManagerInterface
     }
 
     /**
-     * Fetches the logger handlers with given names.
-     * If the handlers are not yet created it reads the configuration for them
-     * from log.handlers and creates the handler instances.
-     *
-     * Calling this multiple times is safe, it will only create each
-     * handler one time.
-     *
-     * If a handler definition does not exist or has problems setting up an error
-     * is issued and the handler is skipped.
-     *
-     * @return Array of handler instances.
+     * @inheritdoc
      */
     public function fetchLogHandlers($names)
     {
@@ -910,17 +975,7 @@ class BaseApp implements Log\ManagerInterface
     }
 
     /**
-     * Fetches the logger processors with given names.
-     * If the processor are not yet created it reads the configuration for them
-     * from log.processors and creates the processor instances or sets up a callback.
-     *
-     * Calling this multiple times is safe, it will only create each
-     * processor one time.
-     *
-     * If a processor definition does not exist or has problems setting up an error
-     * is issued and the processor is skipped.
-     *
-     * @return Array of processor instances.
+     * @inheritdoc
      */
     public function fetchLogProcessors($names)
     {
@@ -994,17 +1049,7 @@ class BaseApp implements Log\ManagerInterface
     }
 
     /**
-     * Fetches the log formatter with given name.
-     * If the formatter is not yet created it reads the configuration for it
-     * from log.formatters and creates the formatter instance or sets up a callback.
-     *
-     * Calling this multiple times is safe, it will only create each
-     * formatter one time.
-     *
-     * If the formatter definition is missing or an error occurs during setup an
-     * error is logged and the functions returns null.
-     *
-     * @return \Monolog\Formatter\FormatterInterface
+     * @inheritdoc
      */
     public function fetchLogFormatter($name)
     {
