@@ -1153,11 +1153,17 @@ class BaseApp implements Log\ManagerInterface
             $defaultOptions = array();
             // Determine release
             $releaseType = $app->config->get('sentry.release');
+            $releaseId = null;
             if ($releaseType === 'git') {
                 $branches = `git branch -v --no-abbrev`;
                 if (preg_match('{^\* (.+?)\s+([a-f0-9]{40})(?:\s|$)}m', $branches, $matches)) {
-                    $defaultOptions['release'] = $matches[2];
+                    $releaseId = $matches[2];
                 }
+            }
+            if ($releaseId) {
+                $project = $app->config->get('sentry.project');
+                $release = $project ? "$project@$releaseId" : $releaseId;
+                $defaultOptions['release'] = $release;
             }
             //  Try latest SDK (2.x) first
             if (class_exists("\\Sentry\\SentrySdk")) {

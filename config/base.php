@@ -324,6 +324,8 @@ return array(
         // - git - Use git commit hash as release
         // - ignore - Don't set release
         'release' => 'git',
+        // Unique name for project, used to distinguish releases in an organization, e.g. 'my-project-web'
+        'project' => '',
         // Defines eZ publish events to record as breadcrumbs
         'events' => array(
             // Events related to navigation (request etc.)
