@@ -315,7 +315,10 @@ return array(
     'sentry' => array(
         // Copy this to your site config and set the dsn string in this field
         // 'dsn' => '',
-
+        // How to determine release information, can be one of:
+        // - git - Use git commit hash as release
+        // - ignore - Don't set release
+        'release' => 'git',
         // Defines eZ publish events to record as breadcrumbs
         'events' => array(
             // Events related to navigation (request etc.)

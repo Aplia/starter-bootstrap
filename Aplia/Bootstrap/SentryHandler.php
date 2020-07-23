@@ -139,6 +139,10 @@ final class SentryHandler extends AbstractProcessingHandler
             $scope->setExtra('monolog.channel', $record['channel']);
             $scope->setExtra('monolog.level', $record['level_name']);
 
+            if (isset($record['extra']['git']) && is_array($record['extra']['git'])) {
+                $scope->setExtra('branch', $record['extra']['git']['branch']);
+            }
+
             if (isset($record['context']['extra']) && \is_array($record['context']['extra'])) {
                 foreach ($record['context']['extra'] as $key => $value) {
                     $scope->setExtra((string) $key, $value);

@@ -1150,9 +1150,17 @@ class BaseApp implements Log\ManagerInterface
         $app = Base::app();
         $dsn = Base::env('RAVEN_DSN', $app->config->get('sentry.dsn'));
         if ($dsn) {
+            $defaultOptions = array();
+            // Determine release
+            $releaseType = $app->config->get('sentry.release');
+            if ($releaseType === 'git') {
+                $branches = `git branch -v --no-abbrev`;
+                if (preg_match('{^\* (.+?)\s+([a-f0-9]{40})(?:\s|$)}m', $branches, $matches)) {
+                    $defaultOptions['release'] = $matches[2];
+                }
+            }
             //  Try latest SDK (2.x) first
             if (class_exists("\\Sentry\\SentrySdk")) {
-                $defaultOptions = array();
                 $otherOptions = $app->config->get('sentry.options', array());
                 $options = array_merge($defaultOptions, $otherOptions);
                 $options['dsn'] = $dsn;
@@ -1167,9 +1175,7 @@ class BaseApp implements Log\ManagerInterface
                 return $handler;
             } else if (class_exists("\\Raven_Client")) {
                 // Fallback to older client (1.x)
-                $defaultOptions = array(
-                    'install_default_breadcrumb_handlers' => false,
-                );
+                $defaultOptions['install_default_breadcrumb_handlers'] = false;
                 $otherOptions = $app->config->get('sentry.options', array());
                 $options = array_merge($defaultOptions, $otherOptions);
                 $client = new \Raven_Client($dsn, $options);
