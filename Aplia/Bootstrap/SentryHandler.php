@@ -60,7 +60,7 @@ final class SentryHandler extends AbstractProcessingHandler
         $this->userLogging = Base::config('sentry.user.logging', false);
         $this->userSalt = Base::config('sentry.user.salt', "");
 
-        if (class_exists('\ezpEvent')) {
+        if (class_exists('\\ezpEvent')) {
             if ($navigationEvents) {
                 // Record navigation events, will have eZURI as parameter
                 foreach ($navigationEvents as $eventName) {
