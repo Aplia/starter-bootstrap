@@ -315,6 +315,11 @@ return array(
     'sentry' => array(
         // Copy this to your site config and set the dsn string in this field
         // 'dsn' => '',
+        // Extra options for sentry
+        // See: https://docs.sentry.io/error-reporting/configuration/?platform=php
+        'options' => array(
+            'attach_stacktrace' => true,
+        ),
         // How to determine release information, can be one of:
         // - git - Use git commit hash as release
         // - ignore - Don't set release
