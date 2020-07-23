@@ -28,7 +28,9 @@
         "bin/ezp_dump_extensions",
         "bin/bootstrap_build",
         "bin/bootstrap_clean",
-        "bin/bootstrap_config"
+        "bin/bootstrap_config",
+        "bin/bootstrap_describe",
+        "bin/bootstrap_test_sentry"
     ],
     "autoload": {
         "psr-4": {
