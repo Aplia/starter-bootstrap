@@ -115,7 +115,7 @@ class Base
     /**
      * Get the application instance.
      *
-     * @return mixed
+     * @return \Aplia\Bootstrap\AppInterface
      */
     public static function app()
     {
