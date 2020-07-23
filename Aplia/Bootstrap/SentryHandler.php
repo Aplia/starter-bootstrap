@@ -171,7 +171,7 @@ final class SentryHandler extends AbstractProcessingHandler
                     $userId = 'hash:' . md5($this->userSalt . ':' . $user->attribute("login"));
                     $scope->setUser(array(
                         "id" => $userId,
-                    ));
+                    ), true);
                 }
             }
             if (class_exists("\\eZModule", false) && isset($GLOBALS['eZRequestedModule'])) {
