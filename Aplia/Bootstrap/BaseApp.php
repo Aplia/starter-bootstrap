@@ -1145,14 +1145,15 @@ class BaseApp implements Log\ManagerInterface
      *
      * Requires sentry.dsn to be set
      */
-    public function setupSentry($definition)
+    public static function setupSentry($definition)
     {
-        $dsn = Base::env('RAVEN_DSN', $this->config->get('sentry.dsn'));
+        $app = Base::app();
+        $dsn = Base::env('RAVEN_DSN', $app->config->get('sentry.dsn'));
         if ($dsn) {
             //  Try latest SDK (2.x) first
             if (class_exists("\\Sentry\\SentrySdk")) {
                 $defaultOptions = array();
-                $otherOptions = $this->config->get('sentry.options', array());
+                $otherOptions = $app->config->get('sentry.options', array());
                 $options = array_merge($defaultOptions, $otherOptions);
                 $options['dsn'] = $dsn;
                 \Sentry\init($options);
@@ -1169,7 +1170,7 @@ class BaseApp implements Log\ManagerInterface
                 $defaultOptions = array(
                     'install_default_breadcrumb_handlers' => false,
                 );
-                $otherOptions = $this->config->get('sentry.options', array());
+                $otherOptions = $app->config->get('sentry.options', array());
                 $options = array_merge($defaultOptions, $otherOptions);
                 $client = new \Raven_Client($dsn, $options);
                 $level = \Aplia\Support\Arr::get($definition, 'level');
