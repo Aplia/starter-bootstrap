@@ -115,7 +115,13 @@ class VarDumper
             if (self::$dumper === null) {
                 // Determine output handler, based on code in VarDumper
                 if (self::$cloner === null) {
-                    self::$cloner = new \Symfony\Component\VarDumper\Cloner\VarCloner();
+                    $defaultCasters = $this->app->config->get('app.dump.defaultCastersEnabled', true);
+                    $casters = [];
+                    if ($defaultCasters) {
+                        $casters = array_merge($casters, \Symfony\Component\VarDumper\Cloner\VarCloner::$defaultCasters);
+                    }
+                    $casters = array_merge($casters, $this->app->config->get('app.dump.casters', []));
+                    self::$cloner = new \Symfony\Component\VarDumper\Cloner\VarCloner($casters);
                 }
 
                 if (isset($_SERVER['VAR_DUMPER_FORMAT'])) {

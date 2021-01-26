@@ -188,6 +188,10 @@ Example usage:
 dump($data);
 ```
 
+`dump()` also supports virtual attributes from either the attribute system
+used by eZ publish templates or from classes that implement `__properties`.
+For more details see `Advanced dump usage` below.
+
 If you want to dump variables and tie it to a name use the `inspect` function
 as it will also store the name of the variable or expression used.
 
@@ -431,6 +435,101 @@ return [
         'bootstrap' => [
             'classes' => [
                 'starter.base' => 'Aplia\Bootstrap\BaseApp',
+            ],
+        ],
+    ],
+];
+```
+
+## Advanced dump usage
+
+The `dump` function can be extended by configuring extra Caster functions.
+The cast function can be used to extract extra attributes from an object,
+e.g. as virtual attributes.
+
+Casters are configured by adding them to the `app.dump.casters` configuration
+array, for instance:
+
+```php
+return [
+    'app' => [
+        'dump' => [
+            'casters' => [
+                // Dump virtual attributes on all persistent objects
+                'eZPersistentObject' => ['Aplia\Bootstrap\VirtualAttributeCaster', 'castAttributes'],
+            ],
+        ],
+    ],
+];
+```
+
+Add this to your local config file `extension/site/config/local.php`.
+
+Support for `eZPersistentObject` is enabled by default when using the eZ publish
+bootstrap mode.
+
+See var_dumper documentation to learn more about casters:
+<https://symfony.com/doc/current/components/var_dumper/advanced.html#casters>
+
+### Disabling default casters
+
+If you do not want to use the default casters provided by var-dumper then set the
+`app.dump.defaultCastersEnabled` to false.
+
+### Controlling virtual attributes
+
+Virtual attributes are divided into four categories, simple, inexpensive, expensive
+and blocked attributes.
+
+Simple attributes are those that map to existing properties on the object
+and will always be displayed.
+
+Inexpensive attributes are considered low cost when it comes to calling them to fetch
+their values, they are ususually displayed.
+
+Expensive attributes are considered high cost, for instance fetching something from the
+database, and will not be displayed by default.
+
+Blocked attributes are normally not meant to be fetched as they can be problematic,
+e.g. something that fetches large amounts of data from a database.
+
+To control which virtual attributes are fetched the config `app.dump.expandMode` can
+be used, it defaults to `expanded` and can be one of:
+
+-   basic - Always fetch simple and inexpensive attributes.
+-   expanded - Fetch simple, inexpensive and expensive attribute for initial object, nested objects only use simple and inexpensive.
+-   nested - Fetch simple, inexpensive and expensive attributes for all objects.
+-   all - Fetch simple, inexpensive, expensive and blocked attributes for all objects.
+-   none - Fetch no virtual attributes, only list them.
+
+The system comes with defined virtual attributes for some of the key classes in
+eZ publish, but if you need to access attributes on other classes then use
+the `app.dump.virtualAttributes` and `app.dump.expensiveAttributes` configuration entries. These
+contains definitions for a class and the attributes it should display.
+
+`virtualAttributes` defines inexpensive attributes and `expensiveAttributes` defines
+expensive attributes.
+
+Example for `eZContentClassAttribute`.
+
+```php
+return [
+    'app' => [
+        'dump' => [
+            'virtualAttributes' => [
+                'eZContentClassAttribute' => [
+                    'data_type',
+                    'display_info',
+                    'name',
+                    'nameList',
+                    'description',
+                    'descriptionList',
+                    'data_text_i18n',
+                    'data_text_i18n_list',
+                ],
+            ],
+            'expensiveAttributes' => [
+                'eZContentClassAttribute' => ['content', 'temporary_object_attribute'],
             ],
         ],
     ],

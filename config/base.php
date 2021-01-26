@@ -70,6 +70,41 @@ return array(
             'skipFunctions' => array(
                 'dump' => 50,
             ),
+            // Extra casters to use for dumping, each array entry consists of:
+            // '<class-name>' => <callback>
+            // Where <callback> is a PHP callback, e.g. ['MyClass', 'myStaticFunction']
+            'casters' => [
+                // This casts virtual attribute stubs to a stub format
+                'Aplia\Bootstrap\VirtualAttributeStub' => ['Symfony\Component\VarDumper\Caster\StubCaster', 'castStub'],
+            ],
+            // If true then it includes the default cast definitions from var-dumper
+            'defaultCastersEnabled' => true,
+            // Defines how to virtual attributes are expanded.
+            // - basic - Expands inexpensive attributes for all object, expensive attributes are not expanded
+            // - expanded - Expands inexpensive and expensive attributes for initial object, for nested objects only inexpensive attributes are expanded
+            // - nested - Expands inexpensive and expensive attributes for initial object AND nested objects. NOTE: This can be VERY EXPENSIVE
+            // - all - Expands ALL attributes for ALL objects. NOTE: This can be VERY EXPENSIVE
+            // - none - Never expands any expensive attributes
+            'expandMode' => 'expanded',
+            // Defines virtual attributes which are to be fetched when dumping/casting
+            // Certain attributes are inexpensive to fetch, e.g. they are a simple function that returns
+            // a new value from existing attributes.
+            //
+            // The format is:
+            // '<class-name>' => Array of attribute names
+            // e.g. ['eZContentObject' => ['data_map']]
+            'virtualAttributes' => [
+            ],
+            // Defines expensive virtual attributes which are to be fetched when dumping/casting
+            // This is similar to 'virtualAttributes' but are considered very expensive to fetch
+            // and are not performed by default.
+            // However for debugging it may be useful to expand certain expensive attributes by
+            // them to this array.
+            // The format is:
+            // '<class-name>' => Array of attribute names
+            // e.g. ['eZContentObject' => ['data_map']]
+            'expensiveAttributes' => [
+            ],
         ),
         // Define helpers to use for application, maps to a number which is the priority
         // A lower number means the file is included first.

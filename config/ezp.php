@@ -60,6 +60,180 @@ return array(
                 'starter.ezp' => 'Aplia\Bootstrap\Ezp',
             ),
         ),
+        'dump' => [
+            'casters' => [
+                // Dump virtual attributes on all persistent objects
+                'eZPersistentObject' => ['Aplia\Bootstrap\VirtualAttributeCaster', 'castAttributes'],
+            ],
+            // Defines virtual attributes which are to be fetched when dumping/casting
+            // Certain attributes are inexpensive to fetch, e.g. they are a simple function that returns
+            // a new value from existing attributes.
+            //
+            // The format is:
+            // '<class-name>' => Array of attribute names
+            // e.g. ['eZContentObject' => ['data_map']]
+            'virtualAttributes' => [
+                'eZContentClass' => [
+                    'ingroup_list',
+                    'ingroup_id_list',
+                    'group_list',
+                    'name',
+                    'nameList',
+                    'description',
+                    'descriptionList',
+                    'languages',
+                    'prioritized_languages',
+                    'prioritized_languages_js_array',
+                    'top_priority_language_locale',
+                    'always_available_language',
+                ],
+                'eZContentClassAttribute' => [
+                    'data_type',
+                    'display_info',
+                    'name',
+                    'nameList',
+                    'description',
+                    'descriptionList',
+                    'data_text_i18n',
+                    'data_text_i18n_list',
+                ],
+                'eZContentObject' => [
+                    'language_mask',
+                    'initial_language_id',
+                    'class_name',
+                    'content_class',
+                    'class_group_id_list',
+                    'current_language',
+                    'current_language_object',
+                    'initial_language',
+                    'initial_language_code',
+                    'available_languages',
+                    'language_codes',
+                    'language_js_array',
+                    'languages',
+                    'all_languages',
+                    'always_available',
+                    'state_id_array',
+                    'state_identifier_array',
+                    'section_identifier',
+                ],
+                'eZContentObjectVersion' => [
+                    'name',
+                    'version_name',
+                    'initial_language',
+                    'language_list',
+                ],
+                'eZContentObjectAttribute' => [
+                    'contentclass_attribute',
+                    'contentclass_attribute_identifier',
+                    'contentclass_attribute_name',
+                    'has_content',
+                    'has_http_value',
+                    'language',
+                    'is_a',
+                    'display_info',
+                ],
+                'eZContentObjectTreeNode' => [
+                    'name',
+                    'sort_array',
+                    'is_main',
+                    'path_with_names',
+                    'path_array',
+                    'url',
+                    'url_alias',
+                    'class_identifier',
+                    'class_name',
+                    'hidden_invisible_string',
+                    'hidden_status_string',
+                    'classes_js_array',
+                    'is_container',
+                ],
+                'eZContentLanguage' => [
+                    'translation',
+                    'locale_object',
+                ],
+                'eZUser' => [
+                    'roles',
+                    'role_id_list',
+                    'limited_assignment_value_list',
+                    'groups',
+                    'is_logged_in',
+                    'is_enabled',
+                    'is_locked',
+                    'last_visit',
+                    'login_count',
+                    'has_manage_locations',
+                ]
+            ],
+            // Defines expensive virtual attributes which are to be fetched when dumping/casting
+            // This is similar to 'virtualAttributes' but are considered very expensive to fetch
+            // and are not performed by default.
+            // However for debugging it may be useful to expand certain expensive attributes by
+            // them to this array.
+            // The format is:
+            // '<class-name>' => Array of attribute names
+            // e.g. ['eZContentObject' => ['data_map']]
+            'expensiveAttributes' => [
+                'eZContentClassAttribute' => [
+                    'content',
+                    'temporary_object_attribute',
+                ],
+                'eZContentObject' => [
+                    'current',
+                    'data_map',
+                    'assigned_nodes',
+                    'main_node',
+                    'published_version',
+                    'versions',
+                    'author_array',
+                ],
+                'eZContentObjectVersion' => [
+                    'creator',
+                    'version_name',
+                    'main_parent_node_id',
+                    'contentobject_attributes',
+                    'related_contentobject_array',
+                    'reverse_related_object_list',
+                    'parent_nodes',
+                    'can_read',
+                    'can_remove',
+                    'data_map',
+                    'node_assignments',
+                    'contentobject',
+                    'translation',
+                    'translation_list',
+                    'complete_translation_list',
+                    'temp_main_node',
+                ],
+                'eZContentObjectAttribute' => [
+                    // The 'content' attribute of an content-attribute can sometimes be expensive
+                    'content',
+                    'value',
+                ],
+                'eZContentObjectTreeNode' => [
+                    // The 'content' attribute of an content-attribute can sometimes be expensive
+                    'path',
+                    'parent',
+                    'object',
+                    'data_map',
+                    'can_read',
+                    'can_pdf',
+                    'can_create',
+                    'can_edit',
+                    'can_hide',
+                    'can_remove',
+                    'can_move',
+                    'can_move_from',
+                    'can_add_location',
+                    'can_remove_location',
+                    'can_view_embed',
+                ],
+                'eZUser' => [
+                    'account_key',
+                    'has_stored_login',
+                ],
+            ],
+        ],
     ),
     'ezp' => array(
         'path' => $_ENV['EZP_ROOT'],
