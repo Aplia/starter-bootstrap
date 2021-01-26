@@ -471,6 +471,59 @@ bootstrap mode.
 See var_dumper documentation to learn more about casters:
 <https://symfony.com/doc/current/components/var_dumper/advanced.html#casters>
 
+### PHP magic properties
+
+There is also support for the builtin property system in PHP, these are handled
+by the magic methods `__get()` and (optionally) `__set()`. However PHP has no
+magic method to report which properties exists on the class.
+To aid with this the `VirtualAttributeCaster` has support for a custom `__properties()`
+method, if this is set on the class it will use this to extract properties and
+fetch them as normal PHP properties, which will trigger `__get()`.
+
+Since the system does not know which classes supports this system it must be
+manually configured per project. Add `VirtualAttributeCaster` as a caster for
+a specific or a base class.
+
+For instance if we have a class named BasedModel:
+
+```php
+namespace CustomProject;
+
+class BasedModel
+{
+    public function __properties()
+    {
+        return ['id'];
+    }
+
+    public function __get($name)
+    {
+        if ($name === 'id') {
+            return $this->fetchId();
+        }
+    }
+
+    public function fetchId()
+    {
+        // ...
+    }
+}
+```
+
+Then this could be configured as:
+
+```php
+return [
+    'app' => [
+        'dump' => [
+            'casters' => [
+                'CustomProject\BaseModel' => ['Aplia\Bootstrap\VirtualAttributeCaster', 'castAttributes'],
+            ],
+        ],
+    ],
+];
+```
+
 ### Disabling default casters
 
 If you do not want to use the default casters provided by var-dumper then set the
